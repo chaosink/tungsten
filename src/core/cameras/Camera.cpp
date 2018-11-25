@@ -141,6 +141,12 @@ void Camera::teardownAfterRender()
         _normalBuffer.reset();
         _albedoBuffer.reset();
     _visibilityBuffer.reset();
+       _diffuseBuffer.reset();
+      _specularBuffer.reset();
+            _ddBuffer.reset();
+            _dsBuffer.reset();
+            _sdBuffer.reset();
+            _ssBuffer.reset();
 
     _splatBuffer.reset();
 }
@@ -154,6 +160,12 @@ void Camera::requestOutputBuffers(const std::vector<OutputBufferSettings> &setti
         case OutputNormal:         _normalBuffer.reset(new OutputBufferVec3f(_res, b)); break;
         case OutputAlbedo:         _albedoBuffer.reset(new OutputBufferVec3f(_res, b)); break;
         case OutputVisibility: _visibilityBuffer.reset(new OutputBufferF    (_res, b)); break;
+        case OutputDiffuse:       _diffuseBuffer.reset(new OutputBufferVec3f(_res, b)); break;
+        case OutputSpecular:     _specularBuffer.reset(new OutputBufferVec3f(_res, b)); break;
+        case OutputDD:                 _ddBuffer.reset(new OutputBufferVec3f(_res, b)); break;
+        case OutputDS:                 _dsBuffer.reset(new OutputBufferVec3f(_res, b)); break;
+        case OutputSD:                 _sdBuffer.reset(new OutputBufferVec3f(_res, b)); break;
+        case OutputSS:                 _ssBuffer.reset(new OutputBufferVec3f(_res, b)); break;
         default: break;
         }
     }
@@ -217,6 +229,12 @@ void Camera::saveOutputBuffers() const
     if (    _normalBuffer)     _normalBuffer->save();
     if (    _albedoBuffer)     _albedoBuffer->save();
     if (_visibilityBuffer) _visibilityBuffer->save();
+    if (   _diffuseBuffer)    _diffuseBuffer->save();
+    if (  _specularBuffer)   _specularBuffer->save();
+    if (        _ddBuffer)         _ddBuffer->save();
+    if (        _dsBuffer)         _dsBuffer->save();
+    if (        _sdBuffer)         _sdBuffer->save();
+    if (        _ssBuffer)         _ssBuffer->save();
 }
 
 void Camera::serializeOutputBuffers(OutputStreamHandle &out) const
@@ -226,6 +244,12 @@ void Camera::serializeOutputBuffers(OutputStreamHandle &out) const
     if (    _normalBuffer)     _normalBuffer->serialize(out);
     if (    _albedoBuffer)     _albedoBuffer->serialize(out);
     if (_visibilityBuffer) _visibilityBuffer->serialize(out);
+    if (   _diffuseBuffer)    _diffuseBuffer->serialize(out);
+    if (  _specularBuffer)   _specularBuffer->serialize(out);
+    if (        _ddBuffer)         _ddBuffer->serialize(out);
+    if (        _dsBuffer)         _dsBuffer->serialize(out);
+    if (        _sdBuffer)         _sdBuffer->serialize(out);
+    if (        _ssBuffer)         _ssBuffer->serialize(out);
 }
 
 void Camera::deserializeOutputBuffers(InputStreamHandle &in)
@@ -235,6 +259,12 @@ void Camera::deserializeOutputBuffers(InputStreamHandle &in)
     if (    _normalBuffer)     _normalBuffer->deserialize(in);
     if (    _albedoBuffer)     _albedoBuffer->deserialize(in);
     if (_visibilityBuffer) _visibilityBuffer->deserialize(in);
+    if (   _diffuseBuffer)    _diffuseBuffer->deserialize(in);
+    if (  _specularBuffer)   _specularBuffer->deserialize(in);
+    if (        _ddBuffer)         _ddBuffer->deserialize(in);
+    if (        _dsBuffer)         _dsBuffer->deserialize(in);
+    if (        _sdBuffer)         _sdBuffer->deserialize(in);
+    if (        _ssBuffer)         _ssBuffer->deserialize(in);
 }
 
 }

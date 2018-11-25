@@ -15,6 +15,13 @@ enum OutputBufferTypeEnum
     OutputNormal     = 2,
     OutputAlbedo     = 3,
     OutputVisibility = 4,
+    OutputDiffuse    = 5,
+    OutputSpecular   = 6,
+    OutputDD         = 7,
+    OutputDS         = 8,
+    OutputSD         = 9,
+    OutputSS         = 10,
+    OutputUnknown    = 11,
 };
 
 class OutputBufferSettings : public JsonSerializable

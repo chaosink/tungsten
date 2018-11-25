@@ -10,7 +10,13 @@ DEFINE_STRINGABLE_ENUM(OutputBufferSettings::Type, "output buffer type", ({
     {"depth", OutputDepth},
     {"normal", OutputNormal},
     {"albedo", OutputAlbedo},
-    {"visibility", OutputVisibility}
+    {"visibility", OutputVisibility},
+    {"diffuse", OutputDiffuse},
+    {"specular", OutputSpecular},
+    {"dd", OutputDD},
+    {"ds", OutputDS},
+    {"sd", OutputSD},
+    {"ss", OutputSS},
 }))
 
 OutputBufferSettings::OutputBufferSettings()

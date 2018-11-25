@@ -16,6 +16,7 @@ public:
     PathTracer(TraceableScene *scene, const PathTracerSettings &settings, uint32 threadId);
 
     Vec3f traceSample(Vec2u pixel, PathSampleGenerator &sampler);
+    void recordDS(const Vec2u &pixel, const Vec3f &emission, const std::vector<BsdfLobes> &sampledLobes);
 };
 
 }

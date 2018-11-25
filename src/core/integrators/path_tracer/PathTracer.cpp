@@ -43,14 +43,17 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
     bool recordedOutputValues = false;
     float hitDistance = 0.0f;
 
+    std::vector<BsdfLobes> sampledLobes;
     int bounce = 0;
     bool didHit = _scene->intersect(ray, data, info);
     bool wasSpecular = true;
     while ((didHit || medium) && bounce < _settings.maxBounces) {
         bool hitSurface = true;
         if (medium) {
-            if (!medium->sampleDistance(sampler, ray, state, mediumSample))
+            if (!medium->sampleDistance(sampler, ray, state, mediumSample)) {
+                recordDS(pixel, emission, sampledLobes);
                 return emission;
+            }
             throughput *= mediumSample.weight;
             hitSurface = mediumSample.exited;
             if (hitSurface && !didHit)
@@ -64,6 +67,8 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
             Vec3f transmittance(-1.0f);
             bool terminate = !handleSurface(surfaceEvent, data, info, medium, bounce, false,
                     _settings.enableLightSampling, ray, throughput, emission, wasSpecular, state, &transmittance);
+            if(!surfaceEvent.sampledLobe.isPureSpecular())
+                sampledLobes.push_back(surfaceEvent.sampledLobe);
 
             if (_trackOutputValues && !recordedOutputValues && (!wasSpecular || terminate)) {
                 if (_scene->cam().depthBuffer())
@@ -85,12 +90,16 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
                 recordedOutputValues = true;
             }
 
-            if (terminate)
+            if (terminate) {
+                recordDS(pixel, emission, sampledLobes);
                 return emission;
+            }
         } else {
             if (!handleVolume(sampler, mediumSample, medium, bounce, false,
-                    _settings.enableVolumeLightSampling, ray, throughput, emission, wasSpecular))
+                    _settings.enableVolumeLightSampling, ray, throughput, emission, wasSpecular)) {
+                recordDS(pixel, emission, sampledLobes);
                 return emission;
+            }
         }
 
         if (throughput.max() == 0.0f)
@@ -100,8 +109,10 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
         if (bounce > 2 && roulettePdf < 0.1f) {
             if (sampler.nextBoolean(roulettePdf))
                 throughput /= roulettePdf;
-            else
+            else {
+                recordDS(pixel, emission, sampledLobes);
                 return emission;
+            }
         }
 
         if (std::isnan(ray.dir().sum() + ray.pos().sum()))
@@ -127,6 +138,7 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
             _scene->cam().albedoBuffer()->addSample(pixel, info.primitive->evalDirect(data, info));
     }
 
+    recordDS(pixel, emission, sampledLobes);
     return emission;
 
     } catch (std::runtime_error &e) {
@@ -134,6 +146,37 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
 
         return Vec3f(0.0f);
     }
+}
+
+void PathTracer::recordDS(const Vec2u &pixel, const Vec3f &emission, const std::vector<BsdfLobes> &sampledLobes)
+{
+    if(sampledLobes.size() == 0) {
+        if (_scene->cam().specularBuffer())
+            _scene->cam().specularBuffer()->addSample(pixel, emission);
+        return;
+    }
+
+    if (_scene->cam().diffuseBuffer()
+        && sampledLobes[0].isPureDiffuse())
+        _scene->cam().diffuseBuffer()->addSample(pixel, emission);
+    if (_scene->cam().specularBuffer()
+        && sampledLobes[0].isPureGlossy())
+        _scene->cam().specularBuffer()->addSample(pixel, emission);
+
+    if(sampledLobes.size() == 1) return;
+
+    if (_scene->cam().ddBuffer()
+        && sampledLobes[0].isPureDiffuse() && sampledLobes[1].isPureDiffuse())
+        _scene->cam().ddBuffer()->addSample(pixel, emission);
+    if (_scene->cam().dsBuffer()
+        && sampledLobes[0].isPureDiffuse() && sampledLobes[1].isPureGlossy())
+        _scene->cam().dsBuffer()->addSample(pixel, emission);
+    if (_scene->cam().sdBuffer()
+        && sampledLobes[0].isPureGlossy() && sampledLobes[1].isPureDiffuse())
+        _scene->cam().sdBuffer()->addSample(pixel, emission);
+    if (_scene->cam().ssBuffer()
+        && sampledLobes[0].isPureGlossy() && sampledLobes[1].isPureGlossy())
+        _scene->cam().ssBuffer()->addSample(pixel, emission);
 }
 
 }

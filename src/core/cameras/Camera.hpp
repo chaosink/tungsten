@@ -55,6 +55,12 @@ protected:
     std::unique_ptr<OutputBufferVec3f> _normalBuffer;
     std::unique_ptr<OutputBufferVec3f> _albedoBuffer;
     std::unique_ptr<OutputBufferF> _visibilityBuffer;
+    std::unique_ptr<OutputBufferVec3f> _diffuseBuffer;
+    std::unique_ptr<OutputBufferVec3f> _specularBuffer;
+    std::unique_ptr<OutputBufferVec3f> _ddBuffer;
+    std::unique_ptr<OutputBufferVec3f> _dsBuffer;
+    std::unique_ptr<OutputBufferVec3f> _sdBuffer;
+    std::unique_ptr<OutputBufferVec3f> _ssBuffer;
 
     double _colorBufferWeight;
 
@@ -130,6 +136,36 @@ public:
         return _visibilityBuffer.get();
     }
 
+    OutputBufferVec3f *diffuseBuffer()
+    {
+        return _diffuseBuffer.get();
+    }
+
+    OutputBufferVec3f *specularBuffer()
+    {
+        return _specularBuffer.get();
+    }
+
+    OutputBufferVec3f *ddBuffer()
+    {
+        return _ddBuffer.get();
+    }
+
+    OutputBufferVec3f *dsBuffer()
+    {
+        return _dsBuffer.get();
+    }
+
+    OutputBufferVec3f *sdBuffer()
+    {
+        return _sdBuffer.get();
+    }
+
+    OutputBufferVec3f *ssBuffer()
+    {
+        return _ssBuffer.get();
+    }
+
     const OutputBufferVec3f *colorBuffer() const
     {
         return _colorBuffer.get();
@@ -153,6 +189,36 @@ public:
     const OutputBufferF *visibilityBuffer() const
     {
         return _visibilityBuffer.get();
+    }
+
+    const OutputBufferVec3f *diffuseBuffer() const
+    {
+        return _diffuseBuffer.get();
+    }
+
+    const OutputBufferVec3f *specularBuffer() const
+    {
+        return _specularBuffer.get();
+    }
+
+    OutputBufferVec3f *ddBuffer() const
+    {
+        return _ddBuffer.get();
+    }
+
+    OutputBufferVec3f *dsBuffer() const
+    {
+        return _dsBuffer.get();
+    }
+
+    OutputBufferVec3f *sdBuffer() const
+    {
+        return _sdBuffer.get();
+    }
+
+    OutputBufferVec3f *ssBuffer() const
+    {
+        return _ssBuffer.get();
     }
 
     inline Vec3f tonemap(const Vec3f &c) const
