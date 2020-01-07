@@ -34,8 +34,8 @@ class TriangleMesh : public Primitive
     std::vector<std::shared_ptr<Bsdf>> _bsdfs;
 
     std::unique_ptr<Distribution1D> _triSampler;
-    float _totalArea;
-    float _invArea;
+    Float _totalArea;
+    Float _invArea;
 
     Box3f _bounds;
 
@@ -43,11 +43,11 @@ class TriangleMesh : public Primitive
     unsigned _geomId;
 
     Vec3f unnormalizedGeometricNormalAt(int triangle) const;
-    Vec3f normalAt(int triangle, float u, float v) const;
-    Vec2f uvAt(int triangle, float u, float v) const;
+    Vec3f normalAt(int triangle, Float u, Float v) const;
+    Vec2f uvAt(int triangle, Float u, Float v) const;
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     TriangleMesh();
@@ -70,9 +70,9 @@ public:
     void computeBounds();
 
     void makeCube();
-    void makeSphere(float radius);
-    void makeCylinder(float radius, float height);
-    void makeCone(float radius, float height);
+    void makeSphere(Float radius);
+    void makeCylinder(Float radius, Float height);
+    void makeCone(Float radius, Float height);
 
     virtual bool intersect(Ray &ray, IntersectionTemporary &data) const override;
     virtual bool occluded(const Ray &ray) const override;
@@ -91,9 +91,9 @@ public:
             DirectionSample &sample) const override final;
     virtual bool sampleDirect(uint32 threadIndex, const Vec3f &p, PathSampleGenerator &sampler,
             LightSample &sample) const override;
-    virtual float positionalPdf(const PositionSample &point) const override;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const override;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const override;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point,
@@ -105,7 +105,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual void prepareForRender() override;

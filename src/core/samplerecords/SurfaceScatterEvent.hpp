@@ -18,7 +18,7 @@ struct SurfaceScatterEvent
     TangentFrame frame;
     Vec3f wi, wo;
     Vec3f weight;
-    float pdf;
+    Float pdf;
     BsdfLobes requestedLobe;
     BsdfLobes sampledLobe;
     bool flippedFrame;

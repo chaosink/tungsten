@@ -20,9 +20,9 @@ public:
     virtual void saveState(OutputStreamHandle &out) = 0;
     virtual void loadState(InputStreamHandle &in) = 0;
 
-    virtual bool nextBoolean(float pTrue) = 0;
+    virtual bool nextBoolean(Float pTrue) = 0;
     virtual int nextDiscrete(int numChoices) = 0;
-    virtual float next1D() = 0;
+    virtual Float next1D() = 0;
     virtual Vec2f next2D() = 0;
 
     virtual UniformSampler &uniformGenerator() = 0;

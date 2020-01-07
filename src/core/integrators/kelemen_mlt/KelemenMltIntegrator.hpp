@@ -29,7 +29,7 @@ class KelemenMltIntegrator : public Integrator
     {
         uint64 state;
         double luminanceSum;
-        float luminance;
+        Float luminance;
     };
 
     KelemenMltSettings _settings;

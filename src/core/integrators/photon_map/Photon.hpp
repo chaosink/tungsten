@@ -44,7 +44,7 @@ struct VolumePhoton : public Photon
 {
     Vec3f minBounds;
     Vec3f maxBounds;
-    float radiusSq;
+    Float radiusSq;
 };
 
 struct PathPhoton
@@ -52,8 +52,8 @@ struct PathPhoton
     Vec3f pos;
     Vec3f power;
     Vec3f dir;
-    float length;
-    float sampledLength;
+    Float length;
+    Float sampledLength;
     uint32 data;
 
     void setPathInfo(uint32 bounce, bool onSurface)
@@ -75,7 +75,7 @@ struct PhotonBeam
 {
     Vec3f p0, p1;
     Vec3f dir;
-    float length;
+    Float length;
     Vec3f power;
     int bounce;
     bool valid;
@@ -85,7 +85,7 @@ struct PhotonPlane0D
     Vec3f p0, p1, p2, p3;
     Vec3f power;
     Vec3f d1;
-    float l1;
+    Float l1;
     int bounce;
     bool valid;
 
@@ -106,9 +106,9 @@ struct PhotonPlane1D
     Vec3f center, a, b, c;
     Vec3f power;
     Vec3f d1;
-    float l1;
-    float invDet;
-    float binCount;
+    Float l1;
+    Float invDet;
+    Float binCount;
     int bounce;
     bool valid;
 

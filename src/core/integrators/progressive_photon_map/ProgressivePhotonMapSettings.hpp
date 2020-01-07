@@ -9,7 +9,7 @@ namespace Tungsten {
 
 struct ProgressivePhotonMapSettings
 {
-    float alpha;
+    Float alpha;
 
     ProgressivePhotonMapSettings()
     : alpha(0.3f)

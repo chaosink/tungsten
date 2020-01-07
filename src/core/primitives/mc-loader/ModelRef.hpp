@@ -16,7 +16,7 @@ class ModelRef
     int _yRot;
     int _zRot;
     bool _uvLock;
-    float _weight;
+    Float _weight;
 
     const std::vector<TexturedQuad> *_builtModel;
 
@@ -63,12 +63,12 @@ public:
         return _uvLock;
     }
 
-    float weight() const
+    Float weight() const
     {
         return _weight;
     }
 
-    void setWeight(float w)
+    void setWeight(Float w)
     {
         _weight = w;
     }

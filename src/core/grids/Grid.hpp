@@ -19,10 +19,10 @@ public:
     virtual Mat4f invNaturalTransform() const;
     virtual Box3f bounds() const;
 
-    virtual float density(Vec3f p) const = 0;
+    virtual Float density(Vec3f p) const = 0;
     virtual Vec3f emission(Vec3f p) const = 0;
-    virtual float opticalDepth(PathSampleGenerator &sampler, Vec3f p, Vec3f w, float t0, float t1) const = 0;
-    virtual Vec2f inverseOpticalDepth(PathSampleGenerator &sampler, Vec3f p, Vec3f w, float t0, float t1, float xi) const = 0;
+    virtual Float opticalDepth(PathSampleGenerator &sampler, Vec3f p, Vec3f w, Float t0, Float t1) const = 0;
+    virtual Vec2f inverseOpticalDepth(PathSampleGenerator &sampler, Vec3f p, Vec3f w, Float t0, Float t1, Float xi) const = 0;
 };
 
 }

@@ -32,10 +32,10 @@
 namespace Tungsten {
 
 template<unsigned Size>
-Vec<float, Size> ObjLoader::loadVector(const char *s)
+Vec<Float, Size> ObjLoader::loadVector(const char *s)
 {
     std::istringstream ss(s);
-    Vec<float, Size> result;
+    Vec<Float, Size> result;
     for (unsigned i = 0; i < Size && !ss.eof() && !ss.fail(); ++i)
         ss >> result[i];
     return result;
@@ -182,13 +182,13 @@ void ObjLoader::loadMaterialLibrary(const char *path)
                 _materials.push_back(ObjMaterial(name));
                 DBG("Loaded material %s", name);
             } else if (hasPrefix(line, "Kd")) {
-                _materials[matIndex].diffuse = loadVector<3>(line + 3);
+                // _materials[matIndex].diffuse = loadVector<3>(line + 3);
             } else if (hasPrefix(line, "Ks")) {
-                _materials[matIndex].specular = loadVector<3>(line + 3);
+                // _materials[matIndex].specular = loadVector<3>(line + 3);
             } else if (hasPrefix(line, "Ke")) {
-                _materials[matIndex].emission = loadVector<3>(line + 3);
+                // _materials[matIndex].emission = loadVector<3>(line + 3);
             } else if (hasPrefix(line, "Tf")) {
-                _materials[matIndex].opacity = loadVector<3>(line + 3);
+                // _materials[matIndex].opacity = loadVector<3>(line + 3);
             } else if (hasPrefix(line, "Ns")) {
                 _materials[matIndex].hardness = loadVector<1>(line + 3).x();
             } else if (hasPrefix(line, "Ni")) {
@@ -276,7 +276,7 @@ std::shared_ptr<Bsdf> ObjLoader::convertObjMaterial(const ObjMaterial &mat)
             result = std::make_shared<MirrorBsdf>();
             result->setAlbedo(std::make_shared<ConstantTexture>(mat.specular));
         } else {
-            float diffuseRatio = mat.diffuse.max()/(mat.specular.max() + mat.diffuse.max());
+            Float diffuseRatio = mat.diffuse.max()/(mat.specular.max() + mat.diffuse.max());
             result = std::make_shared<PhongBsdf>(mat.hardness, diffuseRatio);
             result->setAlbedo(std::make_shared<ConstantTexture>(lerp(mat.specular, mat.diffuse, diffuseRatio)));        }
     } else {
@@ -377,7 +377,7 @@ std::shared_ptr<Primitive> ObjLoader::tryInstantiateSphere(const std::string &na
     Vec3f center(0.0f);
     for (const Vertex &v : _verts)
         center += v.pos()/_verts.size();
-    float r = 0.0f;
+    Float r = 0.0f;
     for (const Vertex &v : _verts)
         r = max(r, (center - v.pos()).length());
     return std::make_shared<Sphere>(center, r, name, bsdf);
@@ -470,7 +470,7 @@ std::shared_ptr<Primitive> ObjLoader::tryInstantiateDisk(const std::string &name
     for (size_t i = 0; i < _verts.size(); ++i)
         center += _verts[i].pos()*(1.0f/_verts.size());
 
-    float r = 0.0f;
+    Float r = 0.0f;
     for (size_t i = 0; i < _verts.size(); ++i)
         r = max(r, (_verts[i].pos() - center).length());
 

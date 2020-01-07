@@ -55,7 +55,7 @@ public:
     }
 
     inline TVec center() const
-    { 
+    {
         return (_min + _max)/ElementType(2);
     }
 
@@ -133,9 +133,9 @@ public:
     }
 };
 
-typedef Box<Vec4f, float, 4> Box4f;
-typedef Box<Vec3f, float, 3> Box3f;
-typedef Box<Vec2f, float, 2> Box2f;
+typedef Box<Vec4f, Float, 4> Box4f;
+typedef Box<Vec3f, Float, 3> Box3f;
+typedef Box<Vec2f, Float, 2> Box2f;
 
 typedef Box<Vec4u, uint32, 4> Box4u;
 typedef Box<Vec3u, uint32, 3> Box3u;
@@ -149,9 +149,9 @@ typedef Box<Vec4c, uint8, 4> Box4c;
 typedef Box<Vec3c, uint8, 3> Box3c;
 typedef Box<Vec2c, uint8, 2> Box2c;
 
-typedef Box<Vec4fp, float, 4> Box4fp;
-typedef Box<Vec3fp, float, 3> Box3fp;
-typedef Box<Vec2fp, float, 2> Box2fp;
+typedef Box<Vec4fp, Float, 4> Box4fp;
+typedef Box<Vec3fp, Float, 3> Box3fp;
+typedef Box<Vec2fp, Float, 2> Box2fp;
 
 inline Box3fp expand(const Box3f &b)
 {

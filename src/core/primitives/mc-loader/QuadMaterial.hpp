@@ -22,8 +22,8 @@ struct QuadMaterial
     Box2f emitterOpaqueBounds;
 
     std::shared_ptr<BitmapTexture> emission;
-    float primaryScale, secondaryScale;
-    float sampleWeight;
+    Float primaryScale, secondaryScale;
+    Float sampleWeight;
 };
 
 }

@@ -7,7 +7,7 @@ ConstantTexture::ConstantTexture()
 {
 }
 
-ConstantTexture::ConstantTexture(float value)
+ConstantTexture::ConstantTexture(Float value)
 : _value(value)
 {
 }
@@ -76,12 +76,12 @@ Vec2f ConstantTexture::invert(TextureMapJacobian /*jacobian*/, const Vec2f &uv) 
     return uv;
 }
 
-float ConstantTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &/*uv*/) const
+Float ConstantTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &/*uv*/) const
 {
     return 1.0f;
 }
 
-void ConstantTexture::scaleValues(float factor)
+void ConstantTexture::scaleValues(Float factor)
 {
     _value *= factor;
 }

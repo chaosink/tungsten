@@ -70,7 +70,7 @@ bool HomogeneousMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
     if (state.bounce > _maxBounce)
         return false;
 
-    float maxT = ray.farT();
+    Float maxT = ray.farT();
     if (_absorptionOnly) {
         if (maxT == Ray::infinity())
             return false;
@@ -80,9 +80,9 @@ bool HomogeneousMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
         sample.exited = true;
     } else {
         int component = sampler.nextDiscrete(3);
-        float sigmaTc = _sigmaT[component];
+        Float sigmaTc = _sigmaT[component];
 
-        float t = _transmittance->sample(sampler, state.firstScatter)/sigmaTc;
+        Float t = _transmittance->sample(sampler, state.firstScatter)/sigmaTc;
         sample.t = min(t, maxT);
         sample.continuedT = t;
         sample.exited = (t >= maxT);
@@ -116,7 +116,7 @@ Vec3f HomogeneousMedium::transmittance(PathSampleGenerator &/*sampler*/, const R
         return _transmittance->eval(_sigmaT*ray.farT(), startOnSurface, endOnSurface);
 }
 
-float HomogeneousMedium::pdf(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface, bool endOnSurface) const
+Float HomogeneousMedium::pdf(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface, bool endOnSurface) const
 {
     if (_absorptionOnly) {
         return 1.0f;

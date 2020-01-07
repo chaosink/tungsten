@@ -15,7 +15,7 @@ struct IntersectionInfo
     Vec3f p;
     Vec3f w;
     Vec2f uv;
-    float epsilon;
+    Float epsilon;
 
     const Primitive *primitive;
     const Bsdf *bsdf;

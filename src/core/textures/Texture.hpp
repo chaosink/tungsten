@@ -36,9 +36,9 @@ public:
     virtual void makeSamplable(TextureMapJacobian jacobian) = 0;
     virtual Vec2f sample(TextureMapJacobian jacobian, const Vec2f &uv) const = 0;
     virtual Vec2f invert(TextureMapJacobian jacobian, const Vec2f &uv) const;
-    virtual float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const = 0;
+    virtual Float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const = 0;
 
-    virtual void scaleValues(float factor) = 0;
+    virtual void scaleValues(Float factor) = 0;
 
     virtual Texture *clone() const = 0;
 };

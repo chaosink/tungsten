@@ -14,9 +14,9 @@ namespace Tungsten {
 namespace SampleWarp {
 
 template<typename T>
-static inline float invertPhi(Vec<T, 3> w, float mu)
+static inline Float invertPhi(Vec<T, 3> w, Float mu)
 {
-    float result = (w.x() == 0.0f && w.y() == 0.0f) ? mu*INV_TWO_PI : std::atan2(w.y(), w.x())*INV_TWO_PI;
+    Float result = (w.x() == 0.0f && w.y() == 0.0f) ? mu*INV_TWO_PI : std::atan2(w.y(), w.x())*INV_TWO_PI;
     if (result < T(0))
         result += T(1);
     return result;
@@ -24,63 +24,63 @@ static inline float invertPhi(Vec<T, 3> w, float mu)
 
 static inline Vec3f uniformHemisphere(const Vec2f &xi)
 {
-    float phi  = TWO_PI*xi.x();
-    float r = std::sqrt(max(1.0f - xi.y()*xi.y(), 0.0f));
+    Float phi  = TWO_PI*xi.x();
+    Float r = std::sqrt(max(1.0f - xi.y()*xi.y(), Float(0.0f)));
     return Vec3f(std::cos(phi)*r, std::sin(phi)*r, xi.y());
 }
 
-static inline float uniformHemispherePdf(const Vec3f &/*p*/)
+static inline Float uniformHemispherePdf(const Vec3f &/*p*/)
 {
     return INV_TWO_PI;
 }
 
-static inline Vec2f invertUniformHemisphere(const Vec3f &w, float mu)
+static inline Vec2f invertUniformHemisphere(const Vec3f &w, Float mu)
 {
     return Vec2f(invertPhi(w, mu), w.z());
 }
 
 static inline Vec3f cosineHemisphere(const Vec2f &xi)
 {
-    float phi = xi.x()*TWO_PI;
-    float r = std::sqrt(xi.y());
+    Float phi = xi.x()*TWO_PI;
+    Float r = std::sqrt(xi.y());
 
     return Vec3f(
             std::cos(phi)*r,
             std::sin(phi)*r,
-            std::sqrt(max(1.0f - xi.y(), 0.0f))
+            std::sqrt(max(1.0f - xi.y(), Float(0.0f)))
     );
 }
 
-static inline float cosineHemispherePdf(const Vec3f &p)
+static inline Float cosineHemispherePdf(const Vec3f &p)
 {
     return std::abs(p.z())*INV_PI;
 }
 
-static inline Vec2f invertCosineHemisphere(const Vec3f &w, float mu)
+static inline Vec2f invertCosineHemisphere(const Vec3f &w, Float mu)
 {
-    return Vec2f(invertPhi(w, mu), max(1.0f - w.z()*w.z(), 0.0f));
+    return Vec2f(invertPhi(w, mu), max(1.0f - w.z()*w.z(), Float(0.0f)));
 }
 
 static inline Vec3f uniformDisk(const Vec2f &xi)
 {
-    float phi = xi.x()*TWO_PI;
-    float r = std::sqrt(xi.y());
+    Float phi = xi.x()*TWO_PI;
+    Float r = std::sqrt(xi.y());
     return Vec3f(std::cos(phi)*r, std::sin(phi)*r, 0.0f);
 }
 
-static inline float uniformDiskPdf()
+static inline Float uniformDiskPdf()
 {
     return INV_PI;
 }
 
-static inline Vec2f invertUniformDisk(const Vec3f &p, float mu)
+static inline Vec2f invertUniformDisk(const Vec3f &p, Float mu)
 {
     return Vec2f(invertPhi(p, mu), p.xy().lengthSq());
 }
 
 static inline Vec3f uniformCylinder(Vec2f &xi)
 {
-    float phi = xi.x()*TWO_PI;
+    Float phi = xi.x()*TWO_PI;
     return Vec3f(
         std::cos(phi),
         std::sin(phi),
@@ -88,16 +88,16 @@ static inline Vec3f uniformCylinder(Vec2f &xi)
     );
 }
 
-static inline float uniformCylinderPdf()
+static inline Float uniformCylinderPdf()
 {
     return INV_PI;
 }
 
 static inline Vec3f uniformSphere(const Vec2f &xi)
 {
-    float phi = xi.x()*TWO_PI;
-    float z = xi.y()*2.0f - 1.0f;
-    float r = std::sqrt(max(1.0f - z*z, 0.0f));
+    Float phi = xi.x()*TWO_PI;
+    Float z = xi.y()*2.0f - 1.0f;
+    Float r = std::sqrt(max(1.0f - z*z, Float(0.0f)));
 
     return Vec3f(
         std::cos(phi)*r,
@@ -106,21 +106,21 @@ static inline Vec3f uniformSphere(const Vec2f &xi)
     );
 }
 
-static inline float uniformSpherePdf()
+static inline Float uniformSpherePdf()
 {
     return INV_FOUR_PI;
 }
 
-static inline Vec2f invertUniformSphere(const Vec3f &w, float mu)
+static inline Vec2f invertUniformSphere(const Vec3f &w, Float mu)
 {
     return Vec2f(invertPhi(w, mu), (w.z() + 1.0f)*0.5f);
 }
 
-static inline Vec3f uniformSphericalCap(const Vec2f &xi, float cosThetaMax)
+static inline Vec3f uniformSphericalCap(const Vec2f &xi, Float cosThetaMax)
 {
-    float phi = xi.x()*TWO_PI;
-    float z = xi.y()*(1.0f - cosThetaMax) + cosThetaMax;
-    float r = std::sqrt(max(1.0f - z*z, 0.0f));
+    Float phi = xi.x()*TWO_PI;
+    Float z = xi.y()*(1.0f - cosThetaMax) + cosThetaMax;
+    Float r = std::sqrt(max(1.0f - z*z, Float(0.0f)));
     return Vec3f(
         std::cos(phi)*r,
         std::sin(phi)*r,
@@ -128,14 +128,14 @@ static inline Vec3f uniformSphericalCap(const Vec2f &xi, float cosThetaMax)
     );
 }
 
-static inline float uniformSphericalCapPdf(float cosThetaMax)
+static inline Float uniformSphericalCapPdf(Float cosThetaMax)
 {
     return INV_TWO_PI/(1.0f - cosThetaMax);
 }
 
-static inline bool invertUniformSphericalCap(const Vec3f &w, float cosThetaMax, Vec2f &xi, float mu)
+static inline bool invertUniformSphericalCap(const Vec3f &w, Float cosThetaMax, Vec2f &xi, Float mu)
 {
-    float xiY = (w.z() - cosThetaMax)/(1.0f - cosThetaMax);
+    Float xiY = (w.z() - cosThetaMax)/(1.0f - cosThetaMax);
     if (xiY >= 1.0f || xiY < 0.0f)
         return false;
 
@@ -143,29 +143,29 @@ static inline bool invertUniformSphericalCap(const Vec3f &w, float cosThetaMax, 
     return true;
 }
 
-static inline Vec3f phongHemisphere(const Vec2f &xi, float n)
+static inline Vec3f phongHemisphere(const Vec2f &xi, Float n)
 {
-    float phi = xi.x()*TWO_PI;
-    float cosTheta = std::pow(xi.y(), 1.0f/(n + 1.0f));
-    float r = std::sqrt(std::max(1.0f - cosTheta*cosTheta, 0.0f));
+    Float phi = xi.x()*TWO_PI;
+    Float cosTheta = std::pow(xi.y(), 1.0f/(n + 1.0f));
+    Float r = std::sqrt(std::max(1.0f - cosTheta*cosTheta, Float(0.0f)));
     return Vec3f(std::cos(phi)*r, std::sin(phi)*r, cosTheta);
 }
 
-static inline float phongHemispherePdf(const Vec3f &v, float n)
+static inline Float phongHemispherePdf(const Vec3f &v, Float n)
 {
     return INV_TWO_PI*(n + 1.0f)*std::pow(v.z(), n);
 }
 
-static inline Vec2f invertPhongHemisphere(const Vec3f &w, float n, float mu)
+static inline Vec2f invertPhongHemisphere(const Vec3f &w, Float n, Float mu)
 {
     return Vec2f(invertPhi(w, mu), std::pow(w.z(), n + 1.0f));
 }
 
 static inline Vec2f uniformTriangleUv(const Vec2f &xi)
 {
-    float uSqrt = std::sqrt(xi.x());
-    float alpha = 1.0f - uSqrt;
-    float beta = (1.0f - xi.y())*uSqrt;
+    Float uSqrt = std::sqrt(xi.x());
+    Float alpha = 1.0f - uSqrt;
+    Float beta = (1.0f - xi.y())*uSqrt;
 
     return Vec2f(alpha, beta);
 }
@@ -181,24 +181,24 @@ static inline Vec3f uniformTriangle(const Vec2f &xi, const Vec3f& a, const Vec3f
     return a*uv.x() + b*uv.y() + c*(1.0f - uv.x() - uv.y());
 }
 
-static inline float uniformTrianglePdf(const Vec3f &a, const Vec3f &b, const Vec3f &c)
+static inline Float uniformTrianglePdf(const Vec3f &a, const Vec3f &b, const Vec3f &c)
 {
     return 2.0f/((b - a).cross(c - a).length());
 }
 
-static inline float powerHeuristic(float pdf0, float pdf1)
+static inline Float powerHeuristic(Float pdf0, Float pdf1)
 {
     return (pdf0*pdf0)/(pdf0*pdf0 + pdf1*pdf1);
 }
 
-static inline Vec3f projectedBox(const Box3f &box, const Vec3f &direction, float faceXi, const Vec2f &xi)
+static inline Vec3f projectedBox(const Box3f &box, const Vec3f &direction, Float faceXi, const Vec2f &xi)
 {
     Vec3f diag = box.diagonal();
-    float areaX = diag.y()*diag.z()*std::abs(direction.x());
-    float areaY = diag.z()*diag.x()*std::abs(direction.y());
-    float areaZ = diag.x()*diag.y()*std::abs(direction.z());
+    Float areaX = diag.y()*diag.z()*std::abs(direction.x());
+    Float areaY = diag.z()*diag.x()*std::abs(direction.y());
+    Float areaZ = diag.x()*diag.y()*std::abs(direction.z());
 
-    float u = faceXi*(areaX + areaY + areaZ);
+    Float u = faceXi*(areaX + areaY + areaZ);
 
     Vec3f result;
     if (u < areaX) {
@@ -218,34 +218,34 @@ static inline Vec3f projectedBox(const Box3f &box, const Vec3f &direction, float
     return result;
 }
 
-static inline float projectedBoxPdf(const Box3f &box, const Vec3f &direction)
+static inline Float projectedBoxPdf(const Box3f &box, const Vec3f &direction)
 {
     Vec3f diag = box.diagonal();
-    float areaX = diag.y()*diag.z()*std::abs(direction.x());
-    float areaY = diag.z()*diag.x()*std::abs(direction.y());
-    float areaZ = diag.x()*diag.y()*std::abs(direction.z());
+    Float areaX = diag.y()*diag.z()*std::abs(direction.x());
+    Float areaY = diag.z()*diag.x()*std::abs(direction.y());
+    Float areaZ = diag.x()*diag.y()*std::abs(direction.z());
 
     return 1.0f/(areaX + areaY + areaZ);
 }
 
-static inline bool invertProjectedBox(const Box3f &box, const Vec3f &o, const Vec3f &d, float &faceXi, Vec2f &xi, float mu)
+static inline bool invertProjectedBox(const Box3f &box, const Vec3f &o, const Vec3f &d, Float &faceXi, Vec2f &xi, Float mu)
 {
-    Vec3f invD = 1.0f/d;
+    Vec3f invD = Float(1.0f)/d;
     Vec3f relMin((box.min() - o));
     Vec3f relMax((box.max() - o));
 
-    float ttMin = 0, ttMax = 1e30f;
+    Float ttMin = 0, ttMax = 1e30f;
     int dim = -1;
     for (int i = 0; i < 3; ++i) {
         if (invD[i] >= 0.0f) {
             ttMin = max(ttMin, relMin[i]*invD[i]);
-            float x = relMax[i]*invD[i];
+            Float x = relMax[i]*invD[i];
             if (x < ttMax) {
                 ttMax = x;
                 dim = i;
             }
         } else {
-            float x = relMin[i]*invD[i];
+            Float x = relMin[i]*invD[i];
             if (x < ttMax) {
                 ttMax = x;
                 dim = i;
@@ -264,9 +264,9 @@ static inline bool invertProjectedBox(const Box3f &box, const Vec3f &o, const Ve
             (o[dim2] + d[dim2]*ttMax - box.min()[dim2])/diag[dim2]
         );
 
-        float areaX = diag.y()*diag.z()*std::abs(d.x());
-        float areaY = diag.z()*diag.x()*std::abs(d.y());
-        float areaZ = diag.x()*diag.y()*std::abs(d.z());
+        Float areaX = diag.y()*diag.z()*std::abs(d.x());
+        Float areaY = diag.z()*diag.x()*std::abs(d.y());
+        Float areaZ = diag.x()*diag.y()*std::abs(d.z());
 
         if (dim == 0)
             faceXi = mu*areaX/(areaX + areaY + areaZ);

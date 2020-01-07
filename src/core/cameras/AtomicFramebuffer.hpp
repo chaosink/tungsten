@@ -12,10 +12,15 @@ namespace Tungsten {
 
 class AtomicFramebuffer
 {
-    typedef Vec<std::atomic<float>, 3> Vec3fa;
+    typedef Vec<std::atomic<Float>, 3> Vec3fa;
 
-    static_assert(sizeof(std::atomic<float>) == 4, "std::atomic<float> is not a simple type! "
+#ifdef DOUBLE_PRECISION
+    static_assert(sizeof(std::atomic<Float>) == 8, "std::atomic<Float> is not a simple type! "
             "This will break a lot of things");
+#else
+    static_assert(sizeof(std::atomic<Float>) == 4, "std::atomic<Float> is not a simple type! "
+            "This will break a lot of things");
+#endif
 
     uint32 _w;
     uint32 _h;
@@ -23,9 +28,9 @@ class AtomicFramebuffer
 
     std::unique_ptr<Vec3fa[]> _buffer;
 
-    void atomicAdd(std::atomic<float> &dst, float add){
-         float current = dst.load();
-         float desired = current + add;
+    void atomicAdd(std::atomic<Float> &dst, Float add){
+         Float current = dst.load();
+         Float desired = current + add;
          while (!dst.compare_exchange_weak(current, desired))
               desired = current + add;
     }
@@ -54,8 +59,8 @@ public:
         } else if (_filter.isBox()) {
             splat(Vec2u(pixel), w);
         } else {
-            float px = pixel.x() - 0.5f;
-            float py = pixel.y() - 0.5f;
+            Float px = pixel.x() - 0.5f;
+            Float py = pixel.y() - 0.5f;
 
             uint32 minX = max(int(px + 1.0f - _filter.width()), 0);
             uint32 maxX = min(int(px        + _filter.width()), int(_w) - 1);
@@ -63,7 +68,7 @@ public:
             uint32 maxY = min(int(py        + _filter.width()), int(_h) - 1);
 
             // Maximum filter width is 2 pixels
-            float weightX[4], weightY[4];
+            Float weightX[4], weightY[4];
             for (uint32 x = minX; x <= maxX; ++x)
                 weightX[x - minX] = _filter.evalApproximate(x - px);
             for (uint32 y = minY; y <= maxY; ++y)

@@ -11,7 +11,7 @@ struct KelemenMltSettings : public PathTracerSettings
 {
     int initialSamplePool;
     bool bidirectional;
-    float largeStepProbability;
+    Float largeStepProbability;
     bool imagePyramid;
 
     KelemenMltSettings()

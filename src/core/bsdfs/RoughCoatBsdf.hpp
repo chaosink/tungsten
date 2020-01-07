@@ -8,14 +8,14 @@ namespace Tungsten {
 
 class RoughCoatBsdf : public Bsdf
 {
-    float _ior;
-    float _thickness;
+    Float _ior;
+    Float _thickness;
     Vec3f _sigmaA;
     std::shared_ptr<Bsdf> _substrate;
     Microfacet::Distribution _distribution;
     std::shared_ptr<Texture> _roughness;
 
-    float _avgTransmittance;
+    Float _avgTransmittance;
     Vec3f _scaledSigmaA;
 
 public:
@@ -24,14 +24,14 @@ public:
     virtual void fromJson(JsonPtr value, const Scene &scene) override;
     virtual rapidjson::Value toJson(Allocator &allocator) const override;
 
-    void substrateEvalAndPdf(const SurfaceScatterEvent &event, float eta,
-            float Fi, float cosThetaTi, float &pdf, Vec3f &brdf) const;
+    void substrateEvalAndPdf(const SurfaceScatterEvent &event, Float eta,
+            Float Fi, Float cosThetaTi, Float &pdf, Vec3f &brdf) const;
 
     //TODO transmissive substrate
     virtual bool sample(SurfaceScatterEvent &event) const override;
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 
@@ -40,7 +40,7 @@ public:
         return _distribution.toString();
     }
 
-    float ior() const
+    Float ior() const
     {
         return _ior;
     }
@@ -60,7 +60,7 @@ public:
         return _substrate;
     }
 
-    float thickness() const
+    Float thickness() const
     {
         return _thickness;
     }
@@ -70,7 +70,7 @@ public:
         _distribution = distributionName;
     }
 
-    void setIor(float ior)
+    void setIor(Float ior)
     {
         _ior = ior;
     }
@@ -90,7 +90,7 @@ public:
         _substrate = substrate;
     }
 
-    void setThickness(float thickness)
+    void setThickness(Float thickness)
     {
         _thickness = thickness;
     }

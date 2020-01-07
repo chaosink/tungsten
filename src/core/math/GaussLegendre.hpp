@@ -11,8 +11,8 @@ namespace Tungsten {
 template<int N>
 class GaussLegendre
 {
-    std::array<float, N> _points;
-    std::array<float, N> _weights;
+    std::array<Float, N> _points;
+    std::array<Float, N> _weights;
 
     // Note: Actual integration is performed in floating point precision,
     // but the roots and weights are determined in double precision
@@ -64,8 +64,8 @@ public:
     GaussLegendre()
     {
         for (int i = 0; i < N; ++i) {
-            _points[i] = float(kthRoot(i + 1));
-            _weights[i] = float(2.0/((1.0 - sqr(_points[i]))*sqr(legendreDeriv(_points[i], N))));
+            _points[i] = Float(kthRoot(i + 1));
+            _weights[i] = Float(2.0/((1.0 - sqr(_points[i]))*sqr(legendreDeriv(_points[i], N))));
         }
     }
 
@@ -83,12 +83,12 @@ public:
         return N;
     }
 
-    const std::array<float, N> &points() const
+    const std::array<Float, N> &points() const
     {
         return _points;
     }
 
-    const std::array<float, N> &weights() const
+    const std::array<Float, N> &weights() const
     {
         return _weights;
     }

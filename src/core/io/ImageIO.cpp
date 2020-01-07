@@ -187,7 +187,7 @@ static T convertToScalar(TexelConversion request, T r, T g, T b, T a, bool haveA
 }
 
 #if OPENEXR_AVAILABLE
-static std::unique_ptr<float[]> loadExr(const Path &path, TexelConversion request, int &w, int &h)
+static std::unique_ptr<Float[]> loadExr(const Path &path, TexelConversion request, int &w, int &h)
 {
     InputStreamHandle inputStream = FileUtils::openInputStream(path);
     if (!inputStream)
@@ -286,7 +286,14 @@ static std::unique_ptr<float[]> loadExr(const Path &path, TexelConversion reques
             texels[i*3 + 1] = texels[i*3 + 2] = texels[i*3];
     }
 
+#ifdef DOUBLE_PRECISION
+    std::unique_ptr<Float[]> texels_out(new double[w*h*targetChannels]);
+    for(uint32 i = 0; i < w*h*targetChannels; ++i)
+        texels_out[i] = texels[i];
+    return texels_out;
+#else
     return std::move(texels);
+#endif
 
     } catch(const std::exception &e) {
         std::cout << "OpenEXR loader failed: " << e.what() << std::endl;
@@ -295,7 +302,7 @@ static std::unique_ptr<float[]> loadExr(const Path &path, TexelConversion reques
 }
 #endif
 
-static std::unique_ptr<float[]> loadPfm(const Path &path, TexelConversion request, int &w, int &h)
+static std::unique_ptr<Float[]> loadPfm(const Path &path, TexelConversion request, int &w, int &h)
 {
     InputStreamHandle in = FileUtils::openInputStream(path);
     if (!in)
@@ -322,8 +329,16 @@ static std::unique_ptr<float[]> loadPfm(const Path &path, TexelConversion reques
     for (int y = 0; y < h; ++y)
         in->read(reinterpret_cast<char *>(img.get() + (h - y - 1)*w*channels), w*channels*sizeof(float));
 
-    if (channels == targetChannels)
+    if (channels == targetChannels) {
+#ifdef DOUBLE_PRECISION
+        std::unique_ptr<Float[]> img_out(new double[w*h*channels]);
+        for(uint32 i = 0; i < w*h*channels; ++i)
+            img_out[i] = img[i];
+        return img_out;
+#else
         return std::move(img);
+#endif
+    }
 
     std::unique_ptr<float[]> texels(new float[w*h*targetChannels]);
 
@@ -334,10 +349,17 @@ static std::unique_ptr<float[]> loadPfm(const Path &path, TexelConversion reques
         for (int i = 0; i < w*h; ++i)
             texels[i] = convertToScalar(request, img[i*3], img[i*3 + 1], img[i*3 + 2], 1.0f, false);
 
+#ifdef DOUBLE_PRECISION
+    std::unique_ptr<Float[]> texels_out(new double[w*h*targetChannels]);
+    for(uint32 i = 0; i < w*h*targetChannels; ++i)
+        texels_out[i] = texels[i];
+    return texels_out;
+#else
     return std::move(texels);
+#endif
 }
 
-std::unique_ptr<float[]> loadStbiHdr(const Path &path, TexelConversion request, int &w, int &h)
+std::unique_ptr<Float[]> loadStbiHdr(const Path &path, TexelConversion request, int &w, int &h)
 {
     InputStreamHandle in = FileUtils::openInputStream(path);
     if (!in)
@@ -361,10 +383,17 @@ std::unique_ptr<float[]> loadStbiHdr(const Path &path, TexelConversion request, 
             texels[i] = convertToScalar(request, img[i*3], img[i*3 + 1], img[i*3 + 2], 1.0f, false);
     }
 
+#ifdef DOUBLE_PRECISION
+    std::unique_ptr<Float[]> texels_out(new double[w*h*targetChannels]);
+    for(uint32 i = 0; i < w*h*targetChannels; ++i)
+        texels_out[i] = texels[i];
+    return texels_out;
+#else
     return std::move(texels);
+#endif
 }
 
-std::unique_ptr<float[]> loadHdr(const Path &path, TexelConversion request, int &w, int &h)
+std::unique_ptr<Float[]> loadHdr(const Path &path, TexelConversion request, int &w, int &h)
 {
     if (path.testExtension("pfm"))
         return std::move(loadPfm(path, request, w, h));
@@ -543,6 +572,15 @@ bool savePfm(const Path &path, const float *img, int w, int h, int channels)
     return true;
 }
 
+bool savePfm(const Path &path, const double *image, int w, int h, int channels)
+{
+    std::vector<float> buffer(w * h * channels);
+    for(uint32 i = 0; i < w *h * channels; ++i)
+        buffer[i] = image[i];
+    const float *img = buffer.data();
+    return savePfm(path, img, w, h , channels);
+}
+
 #if OPENEXR_AVAILABLE
 bool saveExr(const Path &path, const float *img, int w, int h, int channels)
 {
@@ -582,6 +620,15 @@ bool saveExr(const Path &path, const float *img, int w, int h, int channels)
         return false;
     }
 }
+
+bool saveExr(const Path &path, const double *image, int w, int h, int channels)
+{
+    std::vector<float> buffer(w * h * channels);
+    for(uint32 i = 0; i < w *h * channels; ++i)
+        buffer[i] = image[i];
+    const float *img = buffer.data();
+    return saveExr(path, img, w, h , channels);
+}
 #endif
 
 bool savePng(const Path &path, const uint8 *img, int w, int h, int channels)
@@ -607,7 +654,7 @@ bool savePng(const Path &path, const uint8 *img, int w, int h, int channels)
     return true;
 }
 
-bool saveHdr(const Path &path, const float *img, int w, int h, int channels)
+bool saveHdr(const Path &path, const Float *img, int w, int h, int channels)
 {
     if (path.testExtension("pfm"))
         return savePfm(path, img, w, h, channels);

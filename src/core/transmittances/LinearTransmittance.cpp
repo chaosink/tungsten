@@ -31,7 +31,7 @@ rapidjson::Value LinearTransmittance::toJson(Allocator &allocator) const
 
 Vec3f LinearTransmittance::surfaceSurface(const Vec3f &tau) const
 {
-    return 1.0f - min(tau/_maxT, Vec3f(1.0f));
+    return Float(1.0f) - min(tau/_maxT, Vec3f(1.0f));
 }
 Vec3f LinearTransmittance::surfaceMedium(const Vec3f &tau) const
 {
@@ -57,7 +57,7 @@ Vec3f LinearTransmittance::mediumMedium(const Vec3f &tau) const
     return result;
 }
 
-float LinearTransmittance::sigmaBar() const
+Float LinearTransmittance::sigmaBar() const
 {
     return 1.0f/_maxT;
 }
@@ -67,11 +67,11 @@ bool LinearTransmittance::isDirac() const
     return true;
 }
 
-float LinearTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float LinearTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
     return _maxT*sampler.next1D();
 }
-float LinearTransmittance::sampleMedium(PathSampleGenerator &/*sampler*/) const
+Float LinearTransmittance::sampleMedium(PathSampleGenerator &/*sampler*/) const
 {
     return _maxT;
 }

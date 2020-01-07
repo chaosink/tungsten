@@ -11,8 +11,8 @@ namespace Tungsten {
 struct SampleRecord
 {
     uint32 sampleCount, nextSampleCount, sampleIndex;
-    float adaptiveWeight;
-    float mean, runningVariance;
+    Float adaptiveWeight;
+    Float mean, runningVariance;
 
     SampleRecord()
     : sampleCount(0), nextSampleCount(0), sampleIndex(0),
@@ -41,10 +41,10 @@ struct SampleRecord
         FileUtils::streamRead(in, runningVariance);
     }
 
-    inline void addSample(float x)
+    inline void addSample(Float x)
     {
         sampleCount++;
-        float delta = x - mean;
+        Float delta = x - mean;
         mean += delta/sampleCount;
         runningVariance += delta*(x - mean);
     }
@@ -54,14 +54,14 @@ struct SampleRecord
         addSample(x.luminance());
     }
 
-    inline float variance() const
+    inline Float variance() const
     {
         return runningVariance/(sampleCount - 1);
     }
 
-    inline float errorEstimate() const
+    inline Float errorEstimate() const
     {
-        return variance()/(sampleCount*max(mean*mean, 1e-3f));
+        return variance()/(sampleCount*max(mean*mean, Float(1e-3f)));
     }
 };
 

@@ -17,4 +17,11 @@ typedef std::int64_t int64;
 
 }
 
+// #define DOUBLE_PRECISION
+#ifdef DOUBLE_PRECISION
+typedef double Float;
+#else
+typedef float Float;
+#endif
+
 #endif /* INTTYPES_HPP_ */

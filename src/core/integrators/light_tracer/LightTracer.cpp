@@ -11,7 +11,7 @@ LightTracer::LightTracer(TraceableScene *scene, const LightTracerSettings &setti
 
 void LightTracer::traceSample(PathSampleGenerator &sampler)
 {
-    float lightPdf;
+    Float lightPdf;
     const Primitive *light = chooseLightAdjoint(sampler, lightPdf);
     const Medium *medium = light->extMedium().get();
 

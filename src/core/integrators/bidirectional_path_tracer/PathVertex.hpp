@@ -63,15 +63,15 @@ class PathVertex
     const Medium *_medium;
 
     Vec3f _throughput;
-    float _pdfForward;
-    float _pdfBackward;
+    Float _pdfForward;
+    Float _pdfBackward;
     bool _dirac;
     bool _forward;
     bool _connectable;
 
 public:
     PathVertex() = default;
-    PathVertex(const Primitive *emitter, float emitterPdf)
+    PathVertex(const Primitive *emitter, Float emitterPdf)
     : _type(EmitterVertex),
       _record(EmitterRecord(emitterPdf)),
       _sampler(emitter),
@@ -131,14 +131,14 @@ public:
 
     Vec3f eval(const Vec3f &d, bool adjoint) const;
     void evalPdfs(const PathVertex *prev, const PathEdge *prevEdge, const PathVertex &next,
-            const PathEdge &nextEdge, float *forward, float *backward) const;
+            const PathEdge &nextEdge, Float *forward, Float *backward) const;
     bool segmentConnectable(const PathVertex &next) const;
 
     void pointerFixup();
 
     Vec3f pos() const;
 
-    float cosineFactor(const Vec3f &d) const;
+    Float cosineFactor(const Vec3f &d) const;
     const Medium *selectMedium(const Vec3f &d) const;
 
     const Medium *medium() const
@@ -191,22 +191,22 @@ public:
         return _throughput;
     }
 
-    float pdfForward() const
+    Float pdfForward() const
     {
         return _pdfForward;
     }
 
-    float pdfBackward() const
+    Float pdfBackward() const
     {
         return _pdfBackward;
     }
 
-    float &pdfForward()
+    Float &pdfForward()
     {
         return _pdfForward;
     }
 
-    float &pdfBackward()
+    Float &pdfBackward()
     {
         return _pdfBackward;
     }

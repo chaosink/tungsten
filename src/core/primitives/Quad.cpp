@@ -12,8 +12,8 @@ namespace Tungsten {
 struct QuadIntersection
 {
     Vec3f p;
-    float u;
-    float v;
+    Float u;
+    Float v;
     bool backSide;
 };
 
@@ -47,7 +47,7 @@ void Quad::buildProxy()
     _proxy.reset(new TriangleMesh(std::move(verts), std::move(tris), nullptr, "QuadLight", false, false));
 }
 
-float Quad::powerToRadianceFactor() const
+Float Quad::powerToRadianceFactor() const
 {
     return INV_PI*_invArea;
 }
@@ -70,18 +70,18 @@ rapidjson::Value Quad::toJson(Allocator &allocator) const
 
 bool Quad::intersect(Ray &ray, IntersectionTemporary &data) const
 {
-    float nDotW = ray.dir().dot(_frame.normal);
+    Float nDotW = ray.dir().dot(_frame.normal);
     if (std::abs(nDotW) < 1e-6f)
         return false;
 
-    float t = _frame.normal.dot(_base - ray.pos())/nDotW;
+    Float t = _frame.normal.dot(_base - ray.pos())/nDotW;
     if (t < ray.nearT() || t > ray.farT())
         return false;
 
     Vec3f q = ray.pos() + t*ray.dir();
     Vec3f v = q - _base;
-    float l0 = v.dot(_edge0)*_invUvSq.x();
-    float l1 = v.dot(_edge1)*_invUvSq.y();
+    Float l0 = v.dot(_edge0)*_invUvSq.x();
+    Float l1 = v.dot(_edge1)*_invUvSq.y();
 
     if (l0 < 0.0f || l0 > 1.0f || l1 < 0.0f || l1 > 1.0f)
         return false;
@@ -99,16 +99,16 @@ bool Quad::intersect(Ray &ray, IntersectionTemporary &data) const
 
 bool Quad::occluded(const Ray &ray) const
 {
-    float nDotW = ray.dir().dot(_frame.normal);
+    Float nDotW = ray.dir().dot(_frame.normal);
 
-    float t = _frame.normal.dot(_base - ray.pos())/nDotW;
+    Float t = _frame.normal.dot(_base - ray.pos())/nDotW;
     if (t < ray.nearT() || t > ray.farT())
         return false;
 
     Vec3f q = ray.pos() + t*ray.dir();
     Vec3f v = q - _base;
-    float l0 = v.dot(_edge0)*_invUvSq.x();
-    float l1 = v.dot(_edge1)*_invUvSq.y();
+    Float l0 = v.dot(_edge0)*_invUvSq.x();
+    Float l1 = v.dot(_edge1)*_invUvSq.y();
 
     if (l0 < 0.0f || l0 > 1.0f || l1 < 0.0f || l1 > 1.0f)
         return false;
@@ -177,10 +177,10 @@ bool Quad::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p, PathSampleGenera
     Vec2f xi = sampler.next2D();
     Vec3f q = _base + xi.x()*_edge0 + xi.y()*_edge1;
     sample.d = q - p;
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
-    float cosTheta = -_frame.normal.dot(sample.d);
+    Float cosTheta = -_frame.normal.dot(sample.d);
     sample.pdf = rSq/(cosTheta*_area);
 
     return true;
@@ -203,21 +203,21 @@ bool Quad::invertDirection(WritablePathSampleGenerator &sampler, const PositionS
     return true;
 }
 
-float Quad::positionalPdf(const PositionSample &/*point*/) const
+Float Quad::positionalPdf(const PositionSample &/*point*/) const
 {
     return _invArea;
 }
 
-float Quad::directionalPdf(const PositionSample &/*point*/, const DirectionSample &sample) const
+Float Quad::directionalPdf(const PositionSample &/*point*/, const DirectionSample &sample) const
 {
-    return max(sample.d.dot(_frame.normal)*INV_PI, 0.0f);
+    return max(sample.d.dot(_frame.normal)*INV_PI, Float(0.0f));
 }
 
-float Quad::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float Quad::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &info, const Vec3f &p) const
 {
-    float cosTheta = std::abs(_frame.normal.dot(info.w));
-    float t = _frame.normal.dot(_base - p)/_frame.normal.dot(info.w);
+    Float cosTheta = std::abs(_frame.normal.dot(info.w));
+    Float t = _frame.normal.dot(_base - p)/_frame.normal.dot(info.w);
 
     return t*t/(cosTheta*_area);
 }
@@ -229,7 +229,7 @@ Vec3f Quad::evalPositionalEmission(const PositionSample &sample) const
 
 Vec3f Quad::evalDirectionalEmission(const PositionSample &/*point*/, const DirectionSample &sample) const
 {
-    return Vec3f(max(sample.d.dot(_frame.normal), 0.0f)*INV_PI);
+    return Vec3f(max(sample.d.dot(_frame.normal), Float(0.0f))*INV_PI);
 }
 
 Vec3f Quad::evalDirect(const IntersectionTemporary &data, const IntersectionInfo &info) const
@@ -253,7 +253,7 @@ bool Quad::isInfinite() const
     return false;
 }
 
-float Quad::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
+Float Quad::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
 {
     if (!isEmissive())
         return 0.0f;
@@ -269,7 +269,7 @@ float Quad::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
     Vec3f n1 = R1.cross(R2).normalized();
     Vec3f n2 = R2.cross(R3).normalized();
     Vec3f n3 = R3.cross(R0).normalized();
-    float Q =
+    Float Q =
           std::acos(n0.dot(n1))
         + std::acos(n1.dot(n2))
         + std::acos(n2.dot(n3))
@@ -310,7 +310,7 @@ void Quad::prepareForRender()
 
     _frame = TangentFrame(n, _edge0.normalized(), _edge1.normalized());
 
-    _invUvSq = 1.0f/Vec2f(_edge0.lengthSq(), _edge1.lengthSq());
+    _invUvSq = Float(1.0f)/Vec2f(_edge0.lengthSq(), _edge1.lengthSq());
 
     Primitive::prepareForRender();
 }

@@ -22,7 +22,7 @@ class CameraControls
     Vec3f _center;
     Vec3f _coords;
 
-    void tumble(float x, float y)
+    void tumble(Float x, Float y)
     {
         _coords.x() += 0.5f*x*PI;
         _coords.y() += 0.5f*y*PI;
@@ -31,15 +31,15 @@ class CameraControls
         _coords.y() = clamp(_coords.y(), -PI*0.4999f, PI*0.4999f);
     }
 
-    void pan(float x, float y)
+    void pan(Float x, Float y)
     {
         _center += toMatrix().transformVector(Vec3f(-x, y, 0.0f))*_coords.z()*0.5f;
     }
 
-    void zoom(float x, float /*y*/)
+    void zoom(Float x, Float /*y*/)
     {
         _coords.z() *= 1.0f - x;
-        _coords.z() = clamp(_coords.z(), 1e-3f, 1e3f);
+        _coords.z() = clamp(_coords.z(), Float(1e-3f), Float(1e3f));
     }
 
 public:
@@ -72,7 +72,7 @@ public:
         return Mat4f::lookAt(globalPos(), lookAt() - globalPos(), up());
     }
 
-    bool update(const QMouseEvent *event, int /*w*/, int h, float fov)
+    bool update(const QMouseEvent *event, int /*w*/, int h, Float fov)
     {
         bool    altDown = event->modifiers() & Qt::AltModifier;
         bool   ctrlDown = event->modifiers() & Qt::ControlModifier;
@@ -86,9 +86,9 @@ public:
 
         bool captureInput = false;
         if (anyDown) {
-            float factor = 1.0f/(h*std::tan(fov*0.5f));
-            float moveX = (x - _oldX)*2.0f*factor;
-            float moveY = (y - _oldY)*2.0f*factor;
+            Float factor = 1.0f/(h*std::tan(fov*0.5f));
+            Float moveX = (x - _oldX)*2.0f*factor;
+            Float moveY = (y - _oldY)*2.0f*factor;
 
             bool isPan =
                 (altDown && ((leftDown && rightDown) || middleDown)) ||

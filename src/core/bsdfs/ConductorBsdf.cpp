@@ -79,7 +79,7 @@ bool ConductorBsdf::invert(WritablePathSampleGenerator &/*sampler*/, const Surfa
     return checkReflectionConstraint(event.wi, event.wo);
 }
 
-float ConductorBsdf::pdf(const SurfaceScatterEvent &event) const
+Float ConductorBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     if (sampleR && checkReflectionConstraint(event.wi, event.wo))

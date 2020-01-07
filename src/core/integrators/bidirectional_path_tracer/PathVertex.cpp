@@ -62,7 +62,7 @@ bool PathVertex::sampleNextVertex(const TraceableScene &scene, TraceBase &tracer
         PathVertex *prev, PathEdge */*prevEdge*/, PathVertex &next, PathEdge &nextEdge)
 {
     Vec3f weight;
-    float pdf;
+    Float pdf;
 
     switch (_type) {
     case EmitterVertex: {
@@ -149,8 +149,8 @@ bool PathVertex::sampleNextVertex(const TraceableScene &scene, TraceBase &tracer
     bool didHit = scene.intersect(state.ray, surfaceRecord.data, surfaceRecord.info);
 
     bool hitSurface;
-    float edgePdfForward;
-    float edgePdfBackward;
+    Float edgePdfForward;
+    Float edgePdfBackward;
     MediumRecord mediumRecord;
     if (state.medium) {
         if (!state.medium->sampleDistance(state.sampler, state.ray, state.mediumState, mediumRecord.mediumSample))
@@ -252,7 +252,7 @@ bool PathVertex::invertVertex(WritablePathSampleGenerator &sampler, const PathEd
             return false;
 
         Vec3f transparency = _sampler.bsdf->eval(_record.surface.event.makeForwardEvent(), false);
-        float transparencyScalar = transparency.avg();
+        Float transparencyScalar = transparency.avg();
         sampler.putBoolean(transparencyScalar, isForward());
 
         if (isForward()) {
@@ -293,7 +293,7 @@ Vec3f PathVertex::eval(const Vec3f &d, bool adjoint) const
 }
 
 void PathVertex::evalPdfs(const PathVertex *prev, const PathEdge *prevEdge, const PathVertex &next,
-        const PathEdge &nextEdge, float *forward, float *backward) const
+        const PathEdge &nextEdge, Float *forward, Float *backward) const
 {
     switch (_type) {
     case EmitterVertex:
@@ -360,7 +360,7 @@ Vec3f PathVertex::pos() const
     }
 }
 
-float PathVertex::cosineFactor(const Vec3f &d) const
+Float PathVertex::cosineFactor(const Vec3f &d) const
 {
     switch (_type) {
     case EmitterVertex:

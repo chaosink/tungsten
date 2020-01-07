@@ -13,7 +13,7 @@ class ConstantTexture : public Texture
 
 public:
     ConstantTexture();
-    ConstantTexture(float value);
+    ConstantTexture(Float value);
     ConstantTexture(const Vec3f &value);
 
     virtual void fromJson(JsonPtr value, const Scene &scene) override;
@@ -32,9 +32,9 @@ public:
     virtual void makeSamplable(TextureMapJacobian jacobian) override;
     virtual Vec2f sample(TextureMapJacobian jacobian, const Vec2f &uv) const override;
     virtual Vec2f invert(TextureMapJacobian jacobian, const Vec2f &uv) const override;
-    virtual float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const override;
+    virtual Float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const override;
 
-    virtual void scaleValues(float factor) override;
+    virtual void scaleValues(Float factor) override;
 
     virtual Texture *clone() const override;
 
@@ -48,7 +48,7 @@ public:
         _value = value;
     }
 
-    void setValue(float value)
+    void setValue(Float value)
     {
         _value = Vec3f(value);
     }

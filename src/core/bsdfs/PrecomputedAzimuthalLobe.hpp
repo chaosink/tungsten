@@ -25,42 +25,42 @@ private:
 public:
     PrecomputedAzimuthalLobe(std::unique_ptr<Vec3f[]> table);
 
-    void sample(float cosThetaD, float xi, float &phi, float &pdf) const
+    void sample(Float cosThetaD, Float xi, Float &phi, Float &pdf) const
     {
-        float v = (AzimuthalResolution - 1)*cosThetaD;
+        Float v = (AzimuthalResolution - 1)*cosThetaD;
 
         int x;
         _sampler->warp(v, xi, x);
 
         phi = TWO_PI*(x + xi)*(1.0f/AzimuthalResolution);
-        pdf = _sampler->pdf(v, x)*float(AzimuthalResolution*INV_TWO_PI);
+        pdf = _sampler->pdf(v, x)*Float(AzimuthalResolution*INV_TWO_PI);
     }
 
-    Vec3f eval(float phi, float cosThetaD) const
+    Vec3f eval(Float phi, Float cosThetaD) const
     {
-        float u = (AzimuthalResolution - 1)*phi*INV_TWO_PI;
-        float v = (AzimuthalResolution - 1)*cosThetaD;
+        Float u = (AzimuthalResolution - 1)*phi*INV_TWO_PI;
+        Float v = (AzimuthalResolution - 1)*cosThetaD;
         int x0 = clamp(int(u), 0, AzimuthalResolution - 2);
         int y0 = clamp(int(v), 0, AzimuthalResolution - 2);
         int x1 = x0 + 1;
         int y1 = y0 + 1;
-        u = clamp(u - x0, 0.0f, 1.0f);
-        v = clamp(v - y0, 0.0f, 1.0f);
+        u = clamp(u - x0, Float(0.0f), Float(1.0f));
+        v = clamp(v - y0, Float(0.0f), Float(1.0f));
 
         return (_table[x0 + y0*AzimuthalResolution]*(1.0f - u) + _table[x1 + y0*AzimuthalResolution]*u)*(1.0f - v) +
                (_table[x0 + y1*AzimuthalResolution]*(1.0f - u) + _table[x1 + y1*AzimuthalResolution]*u)*v;
     }
 
-    float pdf(float phi, float cosThetaD) const
+    Float pdf(Float phi, Float cosThetaD) const
     {
-        float u = (AzimuthalResolution - 1)*phi*INV_TWO_PI;
-        float v = (AzimuthalResolution - 1)*cosThetaD;
-        return _sampler->pdf(v, int(u))*float(AzimuthalResolution*INV_TWO_PI);
+        Float u = (AzimuthalResolution - 1)*phi*INV_TWO_PI;
+        Float v = (AzimuthalResolution - 1)*cosThetaD;
+        return _sampler->pdf(v, int(u))*Float(AzimuthalResolution*INV_TWO_PI);
     }
 
-    float weight(float cosThetaD) const
+    Float weight(Float cosThetaD) const
     {
-        float v = (AzimuthalResolution - 1)*cosThetaD;
+        Float v = (AzimuthalResolution - 1)*cosThetaD;
         return _sampler->sum(v)*(TWO_PI/AzimuthalResolution);
     }
 };

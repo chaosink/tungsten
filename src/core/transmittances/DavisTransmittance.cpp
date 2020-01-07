@@ -30,11 +30,11 @@ rapidjson::Value DavisTransmittance::toJson(Allocator &allocator) const
 
 Vec3f DavisTransmittance::surfaceSurface(const Vec3f &tau) const
 {
-    return std::pow(1.0f + tau/_alpha, -_alpha);
+    return std::pow(Float(1.0f) + tau/_alpha, -_alpha);
 }
 Vec3f DavisTransmittance::surfaceMedium(const Vec3f &tau) const
 {
-    return std::pow(1.0f + tau/_alpha, -(_alpha + 1.0f));
+    return std::pow(Float(1.0f) + tau/_alpha, -(_alpha + 1.0f));
 }
 Vec3f DavisTransmittance::mediumSurface(const Vec3f &tau) const
 {
@@ -42,19 +42,19 @@ Vec3f DavisTransmittance::mediumSurface(const Vec3f &tau) const
 }
 Vec3f DavisTransmittance::mediumMedium(const Vec3f &tau) const
 {
-    return (1.0f + 1.0f/_alpha)*std::pow(1.0f + tau/_alpha, -(_alpha + 2.0f));
+    return (1.0f + 1.0f/_alpha)*std::pow(Float(1.0f) + tau/_alpha, -(_alpha + 2.0f));
 }
 
-float DavisTransmittance::sigmaBar() const
+Float DavisTransmittance::sigmaBar() const
 {
     return 1.0f;
 }
 
-float DavisTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float DavisTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
     return _alpha*(std::pow(1.0f - sampler.next1D(), -1.0f/_alpha) - 1.0f);
 }
-float DavisTransmittance::sampleMedium(PathSampleGenerator &sampler) const
+Float DavisTransmittance::sampleMedium(PathSampleGenerator &sampler) const
 {
     return _alpha*(std::pow(1.0f - sampler.next1D(), -1.0f/(1.0f + _alpha)) - 1.0f);
 }

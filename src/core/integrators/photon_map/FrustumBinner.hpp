@@ -20,7 +20,7 @@ class FrustumBinner
     static CONSTEXPR uint32 TileSize = 4;
     static CONSTEXPR uint32 TileMask = TileSize - 1;
 
-    static inline float minReduce(float4 a, float4 b, float4 c)
+    static inline Float minReduce(float4 a, float4 b, float4 c)
     {
         float4 reduce = min(min(a, b), c);
         return min(min(reduce[0], reduce[1]), min(reduce[2], reduce[3]));
@@ -35,7 +35,7 @@ class FrustumBinner
         float4 wy[3];
         float4 wx[3];
 
-        inline void start(float x, float y)
+        inline void start(Float x, Float y)
         {
             float4 xf = float4(x);
             float4 yf = float4(y);
@@ -46,13 +46,13 @@ class FrustumBinner
         inline void beginRow() { wx[0]  =    wy[0]; wx[1]  =    wy[1]; wx[2]  =    wy[2]; }
         inline void endRow()   { wy[0] += stepY[0]; wy[1] += stepY[1]; wy[2] += stepY[2]; }
         inline void stepCol()  { wx[0] += stepX[0]; wx[1] += stepX[1]; wx[2] += stepX[2]; }
-        inline float reduce() { return minReduce(wx[0], wx[1], wx[2]); }
+        inline Float reduce() { return minReduce(wx[0], wx[1], wx[2]); }
     };
 
-    float _guardBand;
+    Float _guardBand;
     Vec2u _res;
-    float _aspect;
-    float _f;
+    Float _aspect;
+    Float _f;
     Vec2f _scale;
     Mat4f _invT;
     Vec3f _pos;
@@ -78,8 +78,8 @@ public:
         for (auto &q : quads) {
             q.start(minX + TileSize*0.5f, minY + TileSize*0.5f);
             for (int k = 0; k < 3; ++k) {
-                q.stepX[k] *= float(TileSize);
-                q.stepY[k] *= float(TileSize);
+                q.stepX[k] *= Float(TileSize);
+                q.stepY[k] *= Float(TileSize);
             }
         }
 
@@ -88,7 +88,7 @@ public:
                 q.beginRow();
 
             for (uint32 x = minX; x < maxX; x += TileSize) {
-                float wMin = -1.0f;
+                Float wMin = -1.0f;
                 for (auto &q : quads)
                     wMin = max(wMin, q.reduce());
                 if (wMin >= 0.0f) {
@@ -107,7 +107,7 @@ public:
     }
 
     template<typename Intersector>
-    void binBeam(Vec3f b0, Vec3f b1, Vec3f u, float radius, Intersector intersector) const
+    void binBeam(Vec3f b0, Vec3f b1, Vec3f u, Float radius, Intersector intersector) const
     {
         Vec3f p0 = _invT*(b0 - u*radius);
         Vec3f p1 = _invT*(b0 + u*radius);

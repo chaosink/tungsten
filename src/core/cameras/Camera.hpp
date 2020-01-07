@@ -42,7 +42,7 @@ protected:
     Vec3f _up;
 
     Vec2u _res;
-    float _ratio;
+    Float _ratio;
     Vec2f _pixelSize;
 
     std::shared_ptr<Medium> _medium;
@@ -82,11 +82,11 @@ public:
             const DirectionSample &sample) const;
     virtual bool evalDirection(PathSampleGenerator &sampler, const PositionSample &point,
             const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const;
-    virtual float directionPdf(const PositionSample &point, const DirectionSample &direction) const;
+    virtual Float directionPdf(const PositionSample &point, const DirectionSample &direction) const;
 
     virtual bool isDirac() const = 0;
 
-    virtual float approximateFov() const = 0;
+    virtual Float approximateFov() const = 0;
 
     virtual void prepareForRender();
     virtual void teardownAfterRender();

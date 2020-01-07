@@ -106,14 +106,14 @@ public:
     }
 
     template<typename IntersectLambda>
-    bool trace(Ray &ray, const Vec3f &/*dT*/, float tMin, IntersectLambda intersect) {
+    bool trace(Ray &ray, const Vec3f &/*dT*/, Float tMin, IntersectLambda intersect) {
         CONSTEXPR int MaxScale = 23;
         CONSTEXPR int ScaleOffset = MaxScale - NumLevels;
 
         struct StackEntry
         {
             uint32 parent;
-            float maxT;
+            Float maxT;
         };
         StackEntry rayStack[MaxScale + 1];
 
@@ -133,14 +133,14 @@ public:
         if (d.y() > 0.0f) octantMask ^= 2, bT.y() = 3.0f*dT.y() - bT.y();
         if (d.z() > 0.0f) octantMask ^= 4, bT.z() = 3.0f*dT.z() - bT.z();
 
-        float minT = max((2.0f*dT - bT).max(), tMin);
-        float maxT = min((dT - bT).min(), ray.farT());
+        Float minT = max((2.0f*dT - bT).max(), tMin);
+        Float maxT = min((dT - bT).min(), ray.farT());
 
         uint32 parent  = 0;
         int idx     = 0;
         Vec3f pos(1.0f);
         int scale   = MaxScale - 1;
-        float scaleExp2 = 0.5f;
+        Float scaleExp2 = 0.5f;
 
         if (1.5f*dT.x() - bT.x() > minT) idx ^= 1, pos.x() = 1.5f;
         if (1.5f*dT.y() - bT.y() > minT) idx ^= 2, pos.y() = 1.5f;
@@ -148,11 +148,11 @@ public:
 
         while (scale < MaxScale) {
             Vec3f cornerT = pos*dT - bT;
-            float maxTC = cornerT.min();
+            Float maxTC = cornerT.min();
 
             if (minT <= maxT) {
-                float maxTV = min(maxT, maxTC);
-                float half = scaleExp2*0.5f;
+                Float maxTV = min(maxT, maxTC);
+                Float half = scaleExp2*0.5f;
                 Vec3f centerT = half*dT + cornerT;
 
                 if (minT <= maxTV) {
@@ -164,7 +164,7 @@ public:
                             p[0] = (octantMask & 1) ? (2.0f - 1.0f/(1 << NumLevels)) - pos[0] : pos[0] - 1.0f;
                             p[1] = (octantMask & 2) ? (2.0f - 1.0f/(1 << NumLevels)) - pos[1] : pos[1] - 1.0f;
                             p[2] = (octantMask & 4) ? (2.0f - 1.0f/(1 << NumLevels)) - pos[2] : pos[2] - 1.0f;
-                            if (intersect(childIdx - 1, _offset + p*float(1 << NumLevels), minT))
+                            if (intersect(childIdx - 1, _offset + p*Float(1 << NumLevels), minT))
                                 return true;
                         } else {
                             rayStack[scale] = StackEntry{parent, maxT};
@@ -200,7 +200,7 @@ public:
                 if (stepMask & 1) differingBits |= BitManip::floatBitsToUint(pos.x()) ^ BitManip::floatBitsToUint(pos.x() + scaleExp2);
                 if (stepMask & 2) differingBits |= BitManip::floatBitsToUint(pos.y()) ^ BitManip::floatBitsToUint(pos.y() + scaleExp2);
                 if (stepMask & 4) differingBits |= BitManip::floatBitsToUint(pos.z()) ^ BitManip::floatBitsToUint(pos.z() + scaleExp2);
-                scale = (BitManip::floatBitsToUint((float)differingBits) >> 23) - 127;
+                scale = (BitManip::floatBitsToUint((Float)differingBits) >> 23) - 127;
                 scaleExp2 = BitManip::uintBitsToFloat((scale - MaxScale + 127) << 23);
 
                 parent = rayStack[scale].parent;

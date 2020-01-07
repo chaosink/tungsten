@@ -31,7 +31,7 @@ void InfiniteSphereCap::buildProxy()
     _proxy->makeCone(0.05f, 1.0f);
 }
 
-float InfiniteSphereCap::powerToRadianceFactor() const
+Float InfiniteSphereCap::powerToRadianceFactor() const
 {
     return INV_TWO_PI/(1.0f - _cosCapAngle);
 }
@@ -111,7 +111,7 @@ bool InfiniteSphereCap::samplePosition(PathSampleGenerator &sampler, PositionSam
     sample.uv = Vec2f(0.0f);
     sample.Ng = -_capFrame.toGlobal(SampleWarp::uniformSphericalCap(sampler.next2D(), _cosCapAngle));
 
-    float faceXi = sampler.next1D();
+    Float faceXi = sampler.next1D();
     Vec2f xi = sampler.next2D();
     sample.p = SampleWarp::projectedBox(_sceneBounds, sample.Ng, faceXi, xi);
     sample.pdf = SampleWarp::projectedBoxPdf(_sceneBounds, sample.Ng);
@@ -141,7 +141,7 @@ bool InfiniteSphereCap::sampleDirect(uint32 /*threadIndex*/, const Vec3f &/*p*/,
 
 bool InfiniteSphereCap::invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const
 {
-    float faceXi;
+    Float faceXi;
     Vec2f xi;
     if (!SampleWarp::invertProjectedBox(_sceneBounds, point.p, -point.Ng, faceXi, xi, sampler.untracked1D()))
         return false;
@@ -165,17 +165,17 @@ bool InfiniteSphereCap::invertDirection(WritablePathSampleGenerator &sampler, co
     return true;
 }
 
-float InfiniteSphereCap::positionalPdf(const PositionSample &point) const
+Float InfiniteSphereCap::positionalPdf(const PositionSample &point) const
 {
     return SampleWarp::projectedBoxPdf(_sceneBounds, point.Ng);
 }
 
-float InfiniteSphereCap::directionalPdf(const PositionSample &/*point*/, const DirectionSample &/*sample*/) const
+Float InfiniteSphereCap::directionalPdf(const PositionSample &/*point*/, const DirectionSample &/*sample*/) const
 {
     return SampleWarp::uniformSphericalCapPdf(_cosCapAngle);
 }
 
-float InfiniteSphereCap::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float InfiniteSphereCap::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &/*info*/, const Vec3f &/*p*/) const
 {
     return SampleWarp::uniformSphericalCapPdf(_cosCapAngle);
@@ -211,7 +211,7 @@ bool InfiniteSphereCap::isInfinite() const
     return true;
 }
 
-float InfiniteSphereCap::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float InfiniteSphereCap::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     if (!isEmissive() || !isSamplable())
         return 0.0f;

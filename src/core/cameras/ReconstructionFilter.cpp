@@ -12,7 +12,7 @@ DEFINE_STRINGABLE_ENUM(ReconstructionFilter::Type, "reconstruction filter", ({
     {"lanczos", ReconstructionFilter::Lanczos}
 }))
 
-float ReconstructionFilter::filterWidth(TypeEnum type)
+Float ReconstructionFilter::filterWidth(TypeEnum type)
 {
     switch (type) {
     case Dirac:
@@ -40,7 +40,7 @@ void ReconstructionFilter::precompute()
     if (_type == Box || _type == Dirac)
         return;
 
-    float filterSum = 0.0f;
+    Float filterSum = 0.0f;
     for (int i = 0; i < RFILTER_RESOLUTION; ++i) {
         _filter[i] = eval((i*_width)/RFILTER_RESOLUTION);
         filterSum += _filter[i];
@@ -52,7 +52,7 @@ void ReconstructionFilter::precompute()
         _cdf[i] = _cdf[i - 1] + _filter[i - 1]/filterSum;
     _cdf[RFILTER_RESOLUTION] = 1.0f;
 
-    float normalizationFactor = filterSum*2.0f*_width/RFILTER_RESOLUTION;
+    Float normalizationFactor = filterSum*2.0f*_width/RFILTER_RESOLUTION;
     for (int i = 0; i < RFILTER_RESOLUTION; ++i)
         _filter[i] /= normalizationFactor;
 }

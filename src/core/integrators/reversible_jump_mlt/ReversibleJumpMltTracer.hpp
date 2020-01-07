@@ -24,7 +24,7 @@ class ReversibleJumpMltTracer : public TraceBase
         LightPath cameraPath, unprunedCameraPath;
         LightPath emitterPath, unprunedEmitterPath;
         SplatQueue splats;
-        std::unique_ptr<float[]> ratios;
+        std::unique_ptr<Float[]> ratios;
 
         ChainState(int length)
         : cameraPath(length + 1),
@@ -32,7 +32,7 @@ class ReversibleJumpMltTracer : public TraceBase
           emitterPath(length),
           unprunedEmitterPath(length),
           splats(1),
-          ratios(new float[length + 1])
+          ratios(new Float[length + 1])
         {
         }
     };
@@ -50,7 +50,7 @@ class ReversibleJumpMltTracer : public TraceBase
     UniformPathSampler _cameraSampler;
     UniformPathSampler _emitterSampler;
     std::unique_ptr<MarkovChain[]> _chains;
-    float _lightSplatScale;
+    Float _lightSplatScale;
 
     ImagePyramid *_pyramid;
 
@@ -67,9 +67,9 @@ public:
 
     void traceCandidatePath(LightPath &cameraPath, LightPath &emitterPath,
             SplatQueue &queue, const std::function<void(Vec3f, int, int)> &addCandidate);
-    void startSampleChain(int s, int t, float luminance, UniformSampler &cameraReplaySampler,
+    void startSampleChain(int s, int t, Float luminance, UniformSampler &cameraReplaySampler,
             UniformSampler &emitterReplaySampler);
-    LargeStepTracker runSampleChain(int pathLength, int chainLength, MultiplexedStats &stats, float luminanceScale);
+    LargeStepTracker runSampleChain(int pathLength, int chainLength, MultiplexedStats &stats, Float luminanceScale);
 
     UniformPathSampler &cameraSampler()
     {

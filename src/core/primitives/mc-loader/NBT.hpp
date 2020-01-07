@@ -40,7 +40,7 @@ class NbtTag
         int16 s;
         int32 i;
         int64 l;
-        float f;
+        Float f;
         double d;
         Container c;
     };
@@ -281,7 +281,7 @@ public:
         }
     }
 
-    float asFloat() const
+    Float asFloat() const
     {
         if (_type == TAG_FLOAT)
             return _data.f;

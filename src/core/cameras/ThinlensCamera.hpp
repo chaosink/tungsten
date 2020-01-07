@@ -13,20 +13,20 @@ class ThinlensCamera : public Camera
 {
     const Scene *_scene;
 
-    float _fovDeg;
-    float _fovRad;
-    float _planeDist;
-    float _invPlaneArea;
-    float _focusDist;
-    float _apertureSize;
-    float _catEye;
+    Float _fovDeg;
+    Float _fovRad;
+    Float _planeDist;
+    Float _invPlaneArea;
+    Float _focusDist;
+    Float _apertureSize;
+    Float _catEye;
     std::string _focusPivot;
 
     std::shared_ptr<Texture> _aperture;
 
     void precompute();
 
-    float evalApertureThroughput(Vec3f planePos, Vec2f aperturePos) const;
+    Float evalApertureThroughput(Vec3f planePos, Vec2f aperturePos) const;
 
 public:
     ThinlensCamera();
@@ -41,28 +41,28 @@ public:
     virtual bool sampleDirect(const Vec3f &p, PathSampleGenerator &sampler, LensSample &sample) const override;
     virtual bool evalDirection(PathSampleGenerator &sampler, const PositionSample &point,
             const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const override;
-    virtual float directionPdf(const PositionSample &point, const DirectionSample &direction) const override;
+    virtual Float directionPdf(const PositionSample &point, const DirectionSample &direction) const override;
 
     virtual bool isDirac() const override;
 
     virtual void prepareForRender() override;
 
-    virtual float approximateFov() const override
+    virtual Float approximateFov() const override
     {
         return _fovRad;
     }
 
-    float fovDeg() const
+    Float fovDeg() const
     {
         return _fovDeg;
     }
 
-    float apertureSize() const
+    Float apertureSize() const
     {
         return _apertureSize;
     }
 
-    float focusDist() const
+    Float focusDist() const
     {
         return _focusDist;
     }

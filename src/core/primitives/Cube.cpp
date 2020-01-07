@@ -39,7 +39,7 @@ void Cube::buildProxy()
     _proxy->makeCube();
 }
 
-inline int Cube::sampleFace(float &u) const
+inline int Cube::sampleFace(Float &u) const
 {
     u *= _faceCdf.z();
     if (u < _faceCdf.x()) {
@@ -54,7 +54,7 @@ inline int Cube::sampleFace(float &u) const
     }
 }
 
-inline float Cube::invertFace(int dim, float u) const
+inline Float Cube::invertFace(int dim, Float u) const
 {
     switch (dim) {
     case 0:
@@ -70,7 +70,7 @@ inline float Cube::invertFace(int dim, float u) const
     return u/_faceCdf.z();
 }
 
-float Cube::powerToRadianceFactor() const
+Float Cube::powerToRadianceFactor() const
 {
     return INV_PI*_invArea;
 }
@@ -96,11 +96,11 @@ bool Cube::intersect(Ray &ray, IntersectionTemporary &data) const
     Vec3f p = _invRot*(ray.pos() - _pos);
     Vec3f d = _invRot*ray.dir();
 
-    Vec3f invD = 1.0f/d;
+    Vec3f invD = Float(1.0f)/d;
     Vec3f relMin((-_scale - p));
     Vec3f relMax(( _scale - p));
 
-    float ttMin = ray.nearT(), ttMax = ray.farT();
+    Float ttMin = ray.nearT(), ttMax = ray.farT();
     for (int i = 0; i < 3; ++i) {
         if (invD[i] >= 0.0f) {
             ttMin = max(ttMin, relMin[i]*invD[i]);
@@ -131,11 +131,11 @@ bool Cube::occluded(const Ray &ray) const
     Vec3f p = _invRot*(ray.pos() - _pos);
     Vec3f d = _invRot*ray.dir();
 
-    Vec3f invD = 1.0f/d;
+    Vec3f invD = Float(1.0f)/d;
     Vec3f relMin((-_scale - p));
     Vec3f relMax(( _scale - p));
 
-    float ttMin = ray.nearT(), ttMax = ray.farT();
+    Float ttMin = ray.nearT(), ttMax = ray.farT();
     for (int i = 0; i < 3; ++i) {
         if (invD[i] >= 0.0f) {
             ttMin = max(ttMin, relMin[i]*invD[i]);
@@ -192,10 +192,10 @@ void Cube::makeSamplable(const TraceableScene &/*scene*/, uint32 /*threadIndex*/
 
 bool Cube::samplePosition(PathSampleGenerator &sampler, PositionSample &sample) const
 {
-    float u = sampler.next1D();
+    Float u = sampler.next1D();
     int dim = sampleFace(u);
-    float s = (dim + 1) % 3;
-    float t = (dim + 2) % 3;
+    Float s = (dim + 1) % 3;
+    Float t = (dim + 2) % 3;
 
     Vec2f xi = sampler.next2D();
 
@@ -233,10 +233,10 @@ bool Cube::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p, PathSampleGenera
 
     Vec3f L = point.p - p;
 
-    float rSq = L.lengthSq();
+    Float rSq = L.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d = L/sample.dist;
-    float cosTheta = -(point.Ng.dot(sample.d));
+    Float cosTheta = -(point.Ng.dot(sample.d));
     if (cosTheta <= 0.0f)
         return false;
     sample.pdf = rSq/(cosTheta*_area);
@@ -249,15 +249,15 @@ bool Cube::invertPosition(WritablePathSampleGenerator &sampler, const PositionSa
     Vec3f p = _invRot*(point.p - _pos);
     Vec3f n = _invRot*point.Ng;
     int dim = std::abs(n).maxDim();
-    float s = (dim + 1) % 3;
-    float t = (dim + 2) % 3;
+    Float s = (dim + 1) % 3;
+    Float t = (dim + 2) % 3;
 
     Vec2f xi(
         (p[s]/_scale[s] + 1.0f)*0.5f,
         (p[t]/_scale[t] + 1.0f)*0.5f
     );
 
-    float u = sampler.untracked1D()*0.5f;
+    Float u = sampler.untracked1D()*0.5f;
     if (n[dim] > 0.0f)
         u += 0.5f;
     u = invertFace(dim, u);
@@ -278,17 +278,17 @@ bool Cube::invertDirection(WritablePathSampleGenerator &sampler, const PositionS
     return true;
 }
 
-float Cube::positionalPdf(const PositionSample &/*point*/) const
+Float Cube::positionalPdf(const PositionSample &/*point*/) const
 {
     return _invArea;
 }
 
-float Cube::directionalPdf(const PositionSample &point, const DirectionSample &sample) const
+Float Cube::directionalPdf(const PositionSample &point, const DirectionSample &sample) const
 {
-    return max(sample.d.dot(point.Ng)*INV_PI, 0.0f);
+    return max(sample.d.dot(point.Ng)*INV_PI, Float(0.0f));
 }
 
-float Cube::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float Cube::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &info, const Vec3f &p) const
 {
     return (p - info.p).lengthSq()/(-info.w.dot(info.Ng)*_area);
@@ -301,7 +301,7 @@ Vec3f Cube::evalPositionalEmission(const PositionSample &sample) const
 
 Vec3f Cube::evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const
 {
-    return Vec3f(max(sample.d.dot(point.Ng), 0.0f)*INV_PI);
+    return Vec3f(max(sample.d.dot(point.Ng), Float(0.0f))*INV_PI);
 }
 
 Vec3f Cube::evalDirect(const IntersectionTemporary &data, const IntersectionInfo &info) const
@@ -324,9 +324,9 @@ bool Cube::isInfinite() const
     return false;
 }
 
-float Cube::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
+Float Cube::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
 {
-    float dSq = max(std::abs(_invRot*(p - _pos)), Vec3f(0.0f)).lengthSq();
+    Float dSq = max(std::abs(_invRot*(p - _pos)), Vec3f(0.0f)).lengthSq();
     return _emission->average().max()*_faceCdf.z()/dSq;
 }
 
@@ -356,7 +356,7 @@ void Cube::prepareForRender()
     _scale = _transform.extractScale()*Vec3f(0.5f);
     _rot = _transform.extractRotation();
     _invRot = _rot.transpose();
-    _faceCdf = 4.0f*Vec3f(
+    _faceCdf = Float(4.0f)*Vec3f(
         _scale.y()*_scale.z(),
         _scale.z()*_scale.x(),
         _scale.x()*_scale.y()

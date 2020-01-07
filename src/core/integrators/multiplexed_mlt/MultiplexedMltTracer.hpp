@@ -38,7 +38,7 @@ private:
     UniformPathSampler _cameraSampler;
     UniformPathSampler _emitterSampler;
     std::unique_ptr<MarkovChain[]> _chains;
-    float _lightSplatScale;
+    Float _lightSplatScale;
 
     ImagePyramid *_pyramid;
 
@@ -56,9 +56,9 @@ public:
 
     void traceCandidatePath(LightPath &cameraPath, LightPath &emitterPath,
             SplatQueue &queue, const std::function<void(Vec3f, int, int)> &addCandidate);
-    void startSampleChain(int s, int t, float luminance, UniformSampler &cameraReplaySampler,
+    void startSampleChain(int s, int t, Float luminance, UniformSampler &cameraReplaySampler,
             UniformSampler &emitterReplaySampler);
-    LargeStepTracker runSampleChain(int pathLength, int chainLength, MultiplexedStats &stats, float luminanceScale);
+    LargeStepTracker runSampleChain(int pathLength, int chainLength, MultiplexedStats &stats, Float luminanceScale);
 
     UniformPathSampler &cameraSampler()
     {

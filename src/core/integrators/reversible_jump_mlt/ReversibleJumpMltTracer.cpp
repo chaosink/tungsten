@@ -119,7 +119,7 @@ void ReversibleJumpMltTracer::traceCandidatePath(LightPath &cameraPath, LightPat
     }
 }
 
-void ReversibleJumpMltTracer::startSampleChain(int s, int t, float luminance, UniformSampler &cameraReplaySampler,
+void ReversibleJumpMltTracer::startSampleChain(int s, int t, Float luminance, UniformSampler &cameraReplaySampler,
         UniformSampler &emitterReplaySampler)
 {
     int length = s + t - 1;
@@ -143,7 +143,7 @@ void ReversibleJumpMltTracer::startSampleChain(int s, int t, float luminance, Un
 }
 
 LargeStepTracker ReversibleJumpMltTracer::runSampleChain(int pathLength, int chainLength,
-        MultiplexedStats &stats, float luminanceScale)
+        MultiplexedStats &stats, Float luminanceScale)
 {
     MarkovChain &chain = _chains[pathLength];
     WritableMetropolisSampler & cameraSampler = *chain. cameraSampler;
@@ -154,14 +154,14 @@ LargeStepTracker ReversibleJumpMltTracer::runSampleChain(int pathLength, int cha
 
     LargeStepTracker largeSteps;
 
-    float accumulatedWeight = 0.0f;
+    Float accumulatedWeight = 0.0f;
     for (int iter = 0; iter < chainLength; ++iter) {
         int proposedS = currentS;
-        float strategySelector = _sampler.next1D();
+        Float strategySelector = _sampler.next1D();
         bool largeStep = strategySelector < _settings.largeStepProbability;
         bool strategyChange = (strategySelector >= _settings.largeStepProbability && strategySelector < _settings.largeStepProbability + _settings.strategyPerturbationProbability);
 
-        float proposalWeight = 1.0f;
+        Float proposalWeight = 1.0f;
         if (largeStep) {
             proposedS = min(int(_sampler.next1D()*(pathLength + 1)), pathLength);
             cameraSampler.largeStep();
@@ -171,10 +171,10 @@ LargeStepTracker ReversibleJumpMltTracer::runSampleChain(int pathLength, int cha
             emitterSampler.freeze();
 
             int prunedLength = current->cameraPath.length() + current->emitterPath.length() - 1;
-            float sum = 0.0f;
+            Float sum = 0.0f;
             for (int i = 0; i <= prunedLength; ++i)
                 sum += current->ratios[i];
-            float target = sum*_sampler.next1D();
+            Float target = sum*_sampler.next1D();
             for (proposedS = 0; proposedS < prunedLength; ++proposedS) {
                 target -= current->ratios[proposedS];
                 if (target < 0.0f)
@@ -207,16 +207,16 @@ LargeStepTracker ReversibleJumpMltTracer::runSampleChain(int pathLength, int cha
 
         evalSample(cameraSampler, emitterSampler, pathLength, proposedS, *proposed);
 
-        float currentI = current->splats.totalLuminance();
-        float proposedI = proposed->splats.totalLuminance();
+        Float currentI = current->splats.totalLuminance();
+        Float proposedI = proposed->splats.totalLuminance();
 
         if (largeStep)
             largeSteps.add(proposedI*(pathLength + 1));
 
-        float a = currentI == 0.0f ? 1.0f : min(proposalWeight*proposedI/currentI, 1.0f);
+        Float a = currentI == 0.0f ? 1.0f : min(proposalWeight*proposedI/currentI, Float(1.0f));
 
-        float currentWeight = (1.0f - a);
-        float proposedWeight = a;
+        Float currentWeight = (1.0f - a);
+        Float proposedWeight = a;
 
         accumulatedWeight += currentWeight;
 

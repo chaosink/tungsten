@@ -39,16 +39,16 @@ Vec2f Skydome::directionToUV(const Vec3f &wi) const
     return Vec2f(std::atan2(wi.z(), wi.x())*INV_TWO_PI + 0.5f, std::acos(-wi.y())*INV_PI);
 }
 
-Vec2f Skydome::directionToUV(const Vec3f &wi, float &sinTheta) const
+Vec2f Skydome::directionToUV(const Vec3f &wi, Float &sinTheta) const
 {
-    sinTheta = std::sqrt(max(1.0f - wi.y()*wi.y(), 0.0f));
+    sinTheta = std::sqrt(max(1.0f - wi.y()*wi.y(), Float(0.0f)));
     return Vec2f(std::atan2(wi.z(), wi.x())*INV_TWO_PI + 0.5f, std::acos(-wi.y())*INV_PI);
 }
 
-Vec3f Skydome::uvToDirection(Vec2f uv, float &sinTheta) const
+Vec3f Skydome::uvToDirection(Vec2f uv, Float &sinTheta) const
 {
-    float phi   = (uv.x() - 0.5f)*TWO_PI;
-    float theta = uv.y()*PI;
+    Float phi   = (uv.x() - 0.5f)*TWO_PI;
+    Float theta = uv.y()*PI;
     sinTheta = std::sin(theta);
     return Vec3f(
         std::cos(phi)*sinTheta,
@@ -64,7 +64,7 @@ void Skydome::buildProxy()
     _proxy->makeCone(0.05f, 1.0f);
 }
 
-float Skydome::powerToRadianceFactor() const
+Float Skydome::powerToRadianceFactor() const
 {
     return INV_FOUR_PI;
 }
@@ -142,10 +142,10 @@ void Skydome::makeSamplable(const TraceableScene &scene, uint32 /*threadIndex*/)
 bool Skydome::samplePosition(PathSampleGenerator &sampler, PositionSample &sample) const
 {
     sample.uv = _sky->sample(MAP_SPHERICAL, sampler.next2D());
-    float sinTheta;
+    Float sinTheta;
     sample.Ng = -uvToDirection(sample.uv, sinTheta);
 
-    float faceXi = sampler.next1D();
+    Float faceXi = sampler.next1D();
     Vec2f xi = sampler.next2D();
     sample.p = SampleWarp::projectedBox(_sceneBounds, sample.Ng, faceXi, xi);
     sample.pdf = SampleWarp::projectedBoxPdf(_sceneBounds, sample.Ng);
@@ -157,7 +157,7 @@ bool Skydome::samplePosition(PathSampleGenerator &sampler, PositionSample &sampl
 bool Skydome::sampleDirection(PathSampleGenerator &/*sampler*/, const PositionSample &point, DirectionSample &sample) const
 {
     sample.d = point.Ng;
-    float sinTheta;
+    Float sinTheta;
     directionToUV(-point.Ng, sinTheta);
     sample.pdf = INV_PI*INV_TWO_PI*_sky->pdf(MAP_SPHERICAL, point.uv)/sinTheta;
     if (sample.pdf == 0.0f)
@@ -170,7 +170,7 @@ bool Skydome::sampleDirection(PathSampleGenerator &/*sampler*/, const PositionSa
 bool Skydome::sampleDirect(uint32 /*threadIndex*/, const Vec3f &/*p*/, PathSampleGenerator &sampler, LightSample &sample) const
 {
     Vec2f uv = _sky->sample(MAP_SPHERICAL, sampler.next2D());
-    float sinTheta;
+    Float sinTheta;
     sample.d = uvToDirection(uv, sinTheta);
     sample.pdf = INV_PI*INV_TWO_PI*_sky->pdf(MAP_SPHERICAL, uv)/sinTheta;
     sample.dist = Ray::infinity();
@@ -179,7 +179,7 @@ bool Skydome::sampleDirect(uint32 /*threadIndex*/, const Vec3f &/*p*/, PathSampl
 
 bool Skydome::invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const
 {
-    float faceXi;
+    Float faceXi;
     Vec2f xi;
     if (!SampleWarp::invertProjectedBox(_sceneBounds, point.p, -point.Ng, faceXi, xi, sampler.untracked1D()))
         return false;
@@ -199,23 +199,23 @@ bool Skydome::invertDirection(WritablePathSampleGenerator &sampler, const Positi
 }
 
 
-float Skydome::positionalPdf(const PositionSample &point) const
+Float Skydome::positionalPdf(const PositionSample &point) const
 {
     return SampleWarp::projectedBoxPdf(_sceneBounds, point.Ng);
 }
 
-float Skydome::directionalPdf(const PositionSample &point, const DirectionSample &/*sample*/) const
+Float Skydome::directionalPdf(const PositionSample &point, const DirectionSample &/*sample*/) const
 {
-    float sinTheta;
+    Float sinTheta;
     directionToUV(-point.Ng, sinTheta);
     return INV_PI*INV_TWO_PI*_sky->pdf(MAP_SPHERICAL, point.uv)/sinTheta;
 }
 
-float Skydome::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &data,
+Float Skydome::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &data,
         const IntersectionInfo &/*info*/, const Vec3f &/*p*/) const
 {
     const SkydomeIntersection *isect = data.as<SkydomeIntersection>();
-    float sinTheta;
+    Float sinTheta;
     Vec2f uv = directionToUV(isect->w, sinTheta);
     return INV_PI*INV_TWO_PI*_sky->pdf(MAP_SPHERICAL, uv)/sinTheta;
 }
@@ -250,7 +250,7 @@ bool Skydome::isInfinite() const
     return true;
 }
 
-float Skydome::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float Skydome::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     return FOUR_PI*_sky->average().max();
 }
@@ -271,14 +271,14 @@ static CONSTEXPR int SizeX = 512;
 static CONSTEXPR int SizeY = 256;
 static CONSTEXPR int NumSamples = 10;
 
-static void fillImage(ArHosekSkyModelState *state, float *lambdas, Vec3f *weights, Vec3f *img, Vec3f sun, float gammaScale)
+static void fillImage(ArHosekSkyModelState *state, Float *lambdas, Vec3f *weights, Vec3f *img, Vec3f sun, Float gammaScale)
 {
     for (int y = 0; y < SizeY/2; ++y) {
-        float theta = (y + 0.5f)*PI/SizeY;
+        Float theta = (y + 0.5f)*PI/SizeY;
         for (int x = 0; x < SizeX; ++x) {
-            float phi = (x + 0.5f)*TWO_PI/SizeX;
+            Float phi = (x + 0.5f)*TWO_PI/SizeX;
             Vec3f v = Vec3f(std::cos(phi)*std::sin(theta), std::cos(theta), std::sin(phi)*std::sin(theta));
-            float gamma = clamp(std::acos(clamp(v.dot(sun), -1.0f, 1.0f))*gammaScale, 0.0f, PI);
+            Float gamma = clamp(std::acos(clamp(v.dot(sun), Float(-1.0f), Float(1.0f)))*gammaScale, Float(0.0f), PI);
 
             Vec3f xyz(0.0f);
             for (int i = 0; i < NumSamples; ++i)
@@ -291,13 +291,13 @@ static void fillImage(ArHosekSkyModelState *state, float *lambdas, Vec3f *weight
 
 void Skydome::prepareForRender()
 {
-    float lambdas[NumSamples];
+    Float lambdas[NumSamples];
     Vec3f weights[NumSamples];
     Spectral::spectralXyzWeights(NumSamples, lambdas, weights);
 
     Vec3f sun = _transform.transformVector(Vec3f(0.0f, 1.0f, 0.0f));
 
-    float sunElevation = std::asin(clamp(sun.y(), -1.0f, 1.0f));
+    Float sunElevation = std::asin(clamp(sun.y(), Float(-1.0f), Float(1.0f)));
 
     ArHosekSkyModelState *sunState = arhosekskymodelstate_alienworld_alloc_init(sunElevation, _intensity,
             _temperature, _turbidity, 0.2f);

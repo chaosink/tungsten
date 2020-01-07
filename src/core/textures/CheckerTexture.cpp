@@ -63,7 +63,7 @@ Vec3f CheckerTexture::maximum() const
 
 Vec3f CheckerTexture::operator[](const Vec2f &uv) const
 {
-    Vec2i uvI(uv*Vec2f(float(_resU), float(_resV)));
+    Vec2i uvI(uv*Vec2f(Float(_resU), Float(_resV)));
     bool on = (uvI.x() ^ uvI.y()) & 1;
     return on ? _onColor : _offColor;
 }
@@ -85,14 +85,14 @@ void CheckerTexture::makeSamplable(TextureMapJacobian /*jacobian*/)
 /* TODO this is biased for odd resolutions */
 Vec2f CheckerTexture::sample(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
 {
-    float  onWeight =  _onColor.max();
-    float offWeight = _offColor.max();
+    Float  onWeight =  _onColor.max();
+    Float offWeight = _offColor.max();
     if (onWeight + offWeight == 0.0f)
         return uv;
-    float onProb = onWeight/(onWeight + offWeight);
+    Float onProb = onWeight/(onWeight + offWeight);
 
-    float u = uv.x();
-    float v = uv.y();
+    Float u = uv.x();
+    Float v = uv.y();
     int rowOffset;
     if (u < onProb) {
         u = uv.x()/onProb;
@@ -103,26 +103,26 @@ Vec2f CheckerTexture::sample(TextureMapJacobian /*jacobian*/, const Vec2f &uv) c
     }
 
     int numVCells = (_resV + 1 - rowOffset)/2;
-    float scaledV = v*numVCells;
+    Float scaledV = v*numVCells;
     int onCell = int(scaledV);
-    float vBase = (onCell*2 + rowOffset)/float(_resV);
-    v = vBase + (scaledV - onCell)/float(_resV);
+    Float vBase = (onCell*2 + rowOffset)/Float(_resV);
+    v = vBase + (scaledV - onCell)/Float(_resV);
 
     return Vec2f(u, v);
 }
 
-float CheckerTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
+Float CheckerTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
 {
-    float  onWeight =  _onColor.max();
-    float offWeight = _offColor.max();
+    Float  onWeight =  _onColor.max();
+    Float offWeight = _offColor.max();
     if (onWeight + offWeight == 0.0f)
         return 1.0f;
-    Vec2i uvI(uv*Vec2f(float(_resU), float(_resV)));
+    Vec2i uvI(uv*Vec2f(Float(_resU), Float(_resV)));
     bool on = (uvI.x() ^ uvI.y()) & 1;
     return (on ? onWeight : offWeight)/(onWeight + offWeight);
 }
 
-void CheckerTexture::scaleValues(float factor)
+void CheckerTexture::scaleValues(Float factor)
 {
     _onColor *= factor;
     _offColor *= factor;

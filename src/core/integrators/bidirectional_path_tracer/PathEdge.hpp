@@ -10,17 +10,17 @@ namespace Tungsten {
 struct PathEdge
 {
     Vec3f d;
-    float r;
-    float rSq;
-    float pdfForward;
-    float pdfBackward;
+    Float r;
+    Float rSq;
+    Float pdfForward;
+    Float pdfBackward;
 
     PathEdge() = default;
-    PathEdge(const Vec3f &d_, float r_, float rSq_)
+    PathEdge(const Vec3f &d_, Float r_, Float rSq_)
     : PathEdge(d_, r_, rSq_, 1.0f, 1.0f)
     {
     }
-    PathEdge(const Vec3f &d_, float r_, float rSq_, float pdfForward_, float pdfBackward_)
+    PathEdge(const Vec3f &d_, Float r_, Float rSq_, Float pdfForward_, Float pdfBackward_)
     : d(d_),
       r(r_),
       rSq(rSq_),
@@ -32,7 +32,7 @@ struct PathEdge
     : PathEdge(root, tip, 1.0f, 1.0f)
     {
     }
-    PathEdge(const PathVertex &root, const PathVertex &tip, float pdfForward_, float pdfBackward_)
+    PathEdge(const PathVertex &root, const PathVertex &tip, Float pdfForward_, Float pdfBackward_)
     {
         d = tip.pos() - root.pos();
         rSq = d.lengthSq();

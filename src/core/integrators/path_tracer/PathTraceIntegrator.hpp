@@ -45,7 +45,7 @@ class PathTraceIntegrator : public Integrator
 
     void diceTiles();
 
-    float errorPercentile95();
+    Float errorPercentile95();
     void dilateAdaptiveWeights();
     void distributeAdaptiveSamples(int spp);
     bool generateWork();

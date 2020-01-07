@@ -16,34 +16,34 @@ namespace Tungsten {
 // using precomputed azimuthal scattering functions
 class HairBcsdf : public Bsdf
 {
-    const float Eta = 1.55f;
+    const Float Eta = 1.55f;
 
-    float _scaleAngleDeg;
-    float _melaninRatio;
-    float _melaninConcentration;
+    Float _scaleAngleDeg;
+    Float _melaninRatio;
+    Float _melaninConcentration;
     bool _overridesSigmaA;
     Vec3f _sigmaA;
-    float _roughness;
+    Float _roughness;
 
-    float _scaleAngleRad;
+    Float _scaleAngleRad;
     std::unique_ptr<PrecomputedAzimuthalLobe> _nR, _nTT, _nTRT;
-    float _betaR, _betaTT, _betaTRT;
-    float _vR, _vTT, _vTRT;
+    Float _betaR, _betaTT, _betaTRT;
+    Float _vR, _vTT, _vTRT;
 
-    static float I0(float x);
-    static float logI0(float x);
+    static Float I0(Float x);
+    static Float logI0(Float x);
 
-    static float g(float beta, float theta);
-    static float D(float beta, float phi);
+    static Float g(Float beta, Float theta);
+    static Float D(Float beta, Float phi);
 
-    static float Phi(float gammaI, float gammaT, int p);
+    static Float Phi(Float gammaI, Float gammaT, int p);
 
-    float M(float v, float sinThetaI, float sinThetaO, float cosThetaI, float cosThetaO) const;
+    Float M(Float v, Float sinThetaI, Float sinThetaO, Float cosThetaI, Float cosThetaO) const;
 
-    float NrIntegrand(float beta, float wiDotWo, float phi, float h) const;
-    Vec3f NpIntegrand(float beta, float cosThetaD, float phi, int p, float h) const;
+    Float NrIntegrand(Float beta, Float wiDotWo, Float phi, Float h) const;
+    Vec3f NpIntegrand(Float beta, Float cosThetaD, Float phi, int p, Float h) const;
 
-    float sampleM(float v, float sinThetaI, float cosThetaI, float xi1, float xi2) const;
+    Float sampleM(Float v, Float sinThetaI, Float cosThetaI, Float xi1, Float xi2) const;
 
     void precomputeAzimuthalDistributions();
 
@@ -55,7 +55,7 @@ public:
 
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
     virtual bool sample(SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 };

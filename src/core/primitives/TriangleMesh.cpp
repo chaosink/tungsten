@@ -22,8 +22,8 @@ namespace Tungsten {
 struct MeshIntersection
 {
     Vec3f Ng;
-    float u;
-    float v;
+    Float u;
+    Float v;
     int primId;
     bool backSide;
 };
@@ -87,7 +87,7 @@ Vec3f TriangleMesh::unnormalizedGeometricNormalAt(int triangle) const
     return (p1 - p0).cross(p2 - p0);
 }
 
-Vec3f TriangleMesh::normalAt(int triangle, float u, float v) const
+Vec3f TriangleMesh::normalAt(int triangle, Float u, Float v) const
 {
     const TriangleI &t = _tris[triangle];
     Vec3f n0 = _tfVerts[t.v0].normal();
@@ -96,7 +96,7 @@ Vec3f TriangleMesh::normalAt(int triangle, float u, float v) const
     return ((1.0f - u - v)*n0 + u*n1 + v*n2).normalized();
 }
 
-Vec2f TriangleMesh::uvAt(int triangle, float u, float v) const
+Vec2f TriangleMesh::uvAt(int triangle, Float u, Float v) const
 {
     const TriangleI &t = _tris[triangle];
     Vec2f uv0 = _tfVerts[t.v0].uv();
@@ -105,7 +105,7 @@ Vec2f TriangleMesh::uvAt(int triangle, float u, float v) const
     return (1.0f - u - v)*uv0 + u*uv1 + v*uv2;
 }
 
-float TriangleMesh::powerToRadianceFactor() const
+Float TriangleMesh::powerToRadianceFactor() const
 {
     return INV_PI*_invArea;
 }
@@ -173,8 +173,8 @@ void TriangleMesh::saveAs(const Path &path) const
 
 void TriangleMesh::calcSmoothVertexNormals()
 {
-    static const float SplitLimit = std::cos(PI*0.15f);
-    //static CONSTEXPR float SplitLimit = -1.0f;
+    static const Float SplitLimit = std::cos(PI*0.15f);
+    //static CONSTEXPR Float SplitLimit = -1.0f;
 
     std::vector<Vec3f> geometricN(_verts.size(), Vec3f(0.0f));
     std::unordered_multimap<Vec3f, uint32> posToVert;
@@ -260,7 +260,7 @@ void TriangleMesh::makeCube()
     }
 }
 
-void TriangleMesh::makeSphere(float radius)
+void TriangleMesh::makeSphere(Float radius)
 {
     CONSTEXPR int SubDiv = 10;
     CONSTEXPR int Skip = SubDiv*2 + 1;
@@ -284,26 +284,26 @@ void TriangleMesh::makeSphere(float radius)
     }
 }
 
-void TriangleMesh::makeCone(float radius, float height)
+void TriangleMesh::makeCone(Float radius, Float height)
 {
     CONSTEXPR int SubDiv = 36;
     int base = _verts.size();
     _verts.emplace_back(Vec3f(0.0f));
     for (int i = 0; i < SubDiv; ++i) {
-        float a = i*TWO_PI/SubDiv;
+        Float a = i*TWO_PI/SubDiv;
         _verts.emplace_back(Vec3f(std::cos(a)*radius, height, std::sin(a)*radius));
         _tris.emplace_back(base, base + i + 1, base + ((i + 1) % SubDiv) + 1);
     }
 }
 
-void TriangleMesh::makeCylinder(float radius, float height)
+void TriangleMesh::makeCylinder(Float radius, Float height)
 {
     CONSTEXPR int SubDiv = 36;
     int base = _verts.size();
     _verts.emplace_back(Vec3f(0.0f, -height, 0.0f));
     _verts.emplace_back(Vec3f(0.0f,  height, 0.0f));
     for (int i = 0; i < SubDiv; ++i) {
-        float a = i*TWO_PI/SubDiv;
+        Float a = i*TWO_PI/SubDiv;
         _verts.emplace_back(Vec3f(std::cos(a)*radius, -height, std::sin(a)*radius));
         _verts.emplace_back(Vec3f(std::cos(a)*radius,  height, std::sin(a)*radius));
         int i1 = (i + 1) % SubDiv;
@@ -372,9 +372,9 @@ bool TriangleMesh::tangentSpace(const IntersectionTemporary &data, const Interse
     Vec2f uv2 = _tfVerts[t.v2].uv();
     Vec3f q1 = p1 - p0;
     Vec3f q2 = p2 - p0;
-    float s1 = uv1.x() - uv0.x(), t1 = uv1.y() - uv0.y();
-    float s2 = uv2.x() - uv0.x(), t2 = uv2.y() - uv0.y();
-    float invDet = s1*t2 - s2*t1;
+    Float s1 = uv1.x() - uv0.x(), t1 = uv1.y() - uv0.y();
+    Float s2 = uv2.x() - uv0.x(), t2 = uv2.y() - uv0.y();
+    Float invDet = s1*t2 - s2*t1;
     if (std::abs(invDet) < 1e-6f)
         return false;
     T = (q1*t2 - t1*q2).normalized();
@@ -398,7 +398,7 @@ void TriangleMesh::makeSamplable(const TraceableScene &/*scene*/, uint32 /*threa
     if (_triSampler)
         return;
 
-    std::vector<float> areas(_tris.size());
+    std::vector<Float> areas(_tris.size());
     _totalArea = 0.0f;
     for (size_t i = 0; i < _tris.size(); ++i) {
         Vec3f p0 = _tfVerts[_tris[i].v0].pos();
@@ -412,7 +412,7 @@ void TriangleMesh::makeSamplable(const TraceableScene &/*scene*/, uint32 /*threa
 
 bool TriangleMesh::samplePosition(PathSampleGenerator &sampler, PositionSample &sample) const
 {
-    float u = sampler.next1D();
+    Float u = sampler.next1D();
     int idx;
     _triSampler->warp(u, idx);
 
@@ -453,10 +453,10 @@ bool TriangleMesh::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p,
 
     Vec3f L = point.p - p;
 
-    float rSq = L.lengthSq();
+    Float rSq = L.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d = L/sample.dist;
-    float cosTheta = -(point.Ng.dot(sample.d));
+    Float cosTheta = -(point.Ng.dot(sample.d));
     if (cosTheta <= 0.0f)
         return false;
     sample.pdf = rSq/(cosTheta*_totalArea);
@@ -464,17 +464,17 @@ bool TriangleMesh::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p,
     return true;
 }
 
-float TriangleMesh::positionalPdf(const PositionSample &/*point*/) const
+Float TriangleMesh::positionalPdf(const PositionSample &/*point*/) const
 {
     return _invArea;
 }
 
-float TriangleMesh::directionalPdf(const PositionSample &point, const DirectionSample &sample) const
+Float TriangleMesh::directionalPdf(const PositionSample &point, const DirectionSample &sample) const
 {
-    return max(sample.d.dot(point.Ng)*INV_PI, 0.0f);
+    return max(sample.d.dot(point.Ng)*INV_PI, Float(0.0f));
 }
 
-float TriangleMesh::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float TriangleMesh::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &info, const Vec3f &p) const
 {
     return (p - info.p).lengthSq()/(-info.w.dot(info.Ng)*_totalArea);
@@ -487,7 +487,7 @@ Vec3f TriangleMesh::evalPositionalEmission(const PositionSample &sample) const
 
 Vec3f TriangleMesh::evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const
 {
-    return Vec3f(max(sample.d.dot(point.Ng), 0.0f)*INV_PI);
+    return Vec3f(max(sample.d.dot(point.Ng), Float(0.0f))*INV_PI);
 }
 
 Vec3f TriangleMesh::evalDirect(const IntersectionTemporary &data, const IntersectionInfo &info) const
@@ -511,7 +511,7 @@ bool TriangleMesh::isInfinite() const
 }
 
 // Questionable, but there is no cheap and realiable way to compute this factor
-float TriangleMesh::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float TriangleMesh::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     return -1.0f;
 }

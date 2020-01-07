@@ -27,25 +27,25 @@ class OutputBuffer
 
     const OutputBufferSettings &_settings;
 
-    inline float average(float x) const
+    inline Float average(Float x) const
     {
         return x;
     }
-    inline float average(const Vec3f &x) const
+    inline Float average(const Vec3f &x) const
     {
         return x.avg();
     }
 
-    const float *elementPointer(const float *p) const
+    const Float *elementPointer(const Float *p) const
     {
         return p;
     }
-    const float *elementPointer(const Vec3f *p) const
+    const Float *elementPointer(const Vec3f *p) const
     {
         return p->data();
     }
 
-    int elementCount(float /*x*/) const
+    int elementCount(Float /*x*/) const
     {
         return 1;
     }
@@ -137,7 +137,7 @@ public:
             uint32 sampleIdx = _sampleCount[idx];
             uint32 sampleCountA = (sampleIdx + 1)/2;
             uint32 sampleCountB = sampleIdx/2;
-            return (_bufferA[idx]*sampleCountA + _bufferB[idx]*sampleCountB)/float(max(sampleIdx, uint32(1)));
+            return (_bufferA[idx]*sampleCountA + _bufferB[idx]*sampleCountB)/Float(max(sampleIdx, uint32(1)));
         } else {
             return _bufferA[idx];
         }
@@ -216,7 +216,7 @@ public:
     }
 };
 
-typedef OutputBuffer<float> OutputBufferF;
+typedef OutputBuffer<Float> OutputBufferF;
 typedef OutputBuffer<Vec3f> OutputBufferVec3f;
 
 }

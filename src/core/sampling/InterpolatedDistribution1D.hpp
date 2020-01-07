@@ -14,32 +14,32 @@ class InterpolatedDistribution1D
     int _size;
     int _numDistributions;
 
-    std::vector<float> _pdfs;
-    std::vector<float> _cdfs;
-    std::vector<float> _sums;
+    std::vector<Float> _pdfs;
+    std::vector<Float> _cdfs;
+    std::vector<Float> _sums;
 
-    float cdfs(int x, int distribution) const
+    Float cdfs(int x, int distribution) const
     {
         return _cdfs[x + distribution*(_size + 1)];
     }
 
-    float pdfs(int x, int distribution) const
+    Float pdfs(int x, int distribution) const
     {
         return _pdfs[x + distribution*_size];
     }
 
-    float &cdfs(int x, int distribution)
+    Float &cdfs(int x, int distribution)
     {
         return _cdfs[x + distribution*(_size + 1)];
     }
 
-    float &pdfs(int x, int distribution)
+    Float &pdfs(int x, int distribution)
     {
         return _pdfs[x + distribution*_size];
     }
 
 public:
-    InterpolatedDistribution1D(std::vector<float> weights, int size, int numDistributions)
+    InterpolatedDistribution1D(std::vector<Float> weights, int size, int numDistributions)
     : _size(size),
       _numDistributions(numDistributions),
       _pdfs(std::move(weights)),
@@ -55,13 +55,13 @@ public:
 
             if (_sums[dist] < 1e-4f) {
                 // Revert to uniform sampling for near-degenerate distributions
-                float ratio = 1.0f/_size;
+                Float ratio = 1.0f/_size;
                 for (int x = 0; x < _size; ++x) {
                     pdfs(x, dist) = ratio;
                     cdfs(x, dist) = x*ratio;
                 }
             } else {
-                float scale = 1.0f/_sums[dist];
+                Float scale = 1.0f/_sums[dist];
                 for (int x = 0; x < _size; ++x) {
                     pdfs(x, dist) *= scale;
                     cdfs(x, dist) *= scale;
@@ -71,18 +71,18 @@ public:
         }
     }
 
-    void warp(float distribution, float &u, int &x) const
+    void warp(Float distribution, Float &u, int &x) const
     {
         int d0 = clamp(int(distribution), 0, _numDistributions - 1);
         int d1 = min(d0 + 1, _numDistributions - 1);
-        float v = clamp(distribution - d0, 0.0f, 1.0f);
+        Float v = clamp(distribution - d0, Float(0.0f), Float(1.0f));
 
         int lower = 0, upper = _size;
-        float lowerU = 0.0f, upperU = 1.0f;
+        Float lowerU = 0.0f, upperU = 1.0f;
 
         while (upper - lower != 1) {
             int midpoint = (upper + lower)/2;
-            float midpointU = cdfs(midpoint, d0)*(1.0f - v) + cdfs(midpoint, d1)*v;
+            Float midpointU = cdfs(midpoint, d0)*(1.0f - v) + cdfs(midpoint, d1)*v;
             if (midpointU < u) {
                 lower = midpoint;
                 lowerU = midpointU;
@@ -93,23 +93,23 @@ public:
         }
 
         x = lower;
-        u = clamp((u - lowerU)/(upperU - lowerU), 0.0f, 1.0f);
+        u = clamp((u - lowerU)/(upperU - lowerU), Float(0.0f), Float(1.0f));
     }
 
-    float pdf(float distribution, int x) const
+    Float pdf(Float distribution, int x) const
     {
         int d0 = clamp(int(distribution), 0, _numDistributions - 1);
         int d1 = min(d0 + 1, _numDistributions - 1);
-        float v = clamp(distribution - d0, 0.0f, 1.0f);
+        Float v = clamp(distribution - d0, Float(0.0f), Float(1.0f));
 
         return pdfs(x, d0)*(1.0f - v) + pdfs(x, d1)*v;
     }
 
-    float sum(float distribution) const
+    Float sum(Float distribution) const
     {
         int d0 = clamp(int(distribution), 0, _numDistributions - 1);
         int d1 = min(d0 + 1, _numDistributions - 1);
-        float v = clamp(distribution - d0, 0.0f, 1.0f);
+        Float v = clamp(distribution - d0, Float(0.0f), Float(1.0f));
 
         return _sums[d0]*(1.0f - v) + _sums[d1]*v;
     }

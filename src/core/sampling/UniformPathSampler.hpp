@@ -36,7 +36,7 @@ public:
         _sampler.loadState(in);
     }
 
-    virtual bool nextBoolean(float pTrue) override final
+    virtual bool nextBoolean(Float pTrue) override final
     {
         return _sampler.next1D() < pTrue;
     }
@@ -44,14 +44,14 @@ public:
     {
         return int(_sampler.next1D()*numChoices);
     }
-    virtual float next1D() override final
+    virtual Float next1D() override final
     {
         return _sampler.next1D();
     }
     virtual Vec2f next2D() override final
     {
-        float a = _sampler.next1D();
-        float b = _sampler.next1D();
+        Float a = _sampler.next1D();
+        Float b = _sampler.next1D();
         return Vec2f(a, b);
     }
 

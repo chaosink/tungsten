@@ -40,7 +40,7 @@ ResourcePackLoader::ResourcePackLoader(std::vector<Path> packPaths)
     _resolver.reset(new ModelResolver(_models));
 
     UniformSampler sampler(0xBA5EBA11);
-    _randSource.reset(new float[RandSourceSize]);
+    _randSource.reset(new Float[RandSourceSize]);
     for (int i = 0; i < RandSourceSize; ++i)
         _randSource[i] = sampler.next1D();
 
@@ -383,7 +383,7 @@ void ResourcePackLoader::fixTintIndices()
 
 void ResourcePackLoader::generateBiomeColors()
 {
-    CONSTEXPR float coolingRate = 1.0f/600.0f;
+    CONSTEXPR Float coolingRate = 1.0f/600.0f;
 
     BiomeColor defaultColor{
         Vec3f(0.62f, 0.5f, 0.3f), Vec3f(0.62f, 0.5f, 0.3f),
@@ -403,14 +403,14 @@ void ResourcePackLoader::generateBiomeColors()
     JsonDocument document(resolvePath(biomePath));
     for (unsigned i = 0; i < document.size(); ++i) {
         int id = 0;
-        float temperature = 0.0f, rainfall = 0.0f;
+        Float temperature = 0.0f, rainfall = 0.0f;
 
         document[i].getField("id", id);
         document[i].getField("temperature", temperature);
         document[i].getField("rainfall", rainfall);
 
-        float tempBottom = clamp(temperature, 0.0f, 1.0f);
-        float rainfallBottom = clamp(rainfall, 0.0f, 1.0f)*tempBottom;
+        Float tempBottom = clamp(temperature, Float(0.0f), Float(1.0f));
+        Float rainfallBottom = clamp(rainfall, Float(0.0f), Float(1.0f))*tempBottom;
 
         _biomes[id].foliageBottom = foliage[Vec2f(1.0f - tempBottom, rainfallBottom)];
         _biomes[id].grassBottom   = grass  [Vec2f(1.0f - tempBottom, rainfallBottom)];
@@ -445,8 +445,8 @@ void ResourcePackLoader::loadEmitters()
     JsonDocument document(resolvePath(emitterPath));
     for (unsigned i = 0; i < document.size(); ++i) {
         std::string texture, mask;
-        float primaryScale = 1.0f;
-        float secondaryScale = 1.0f;
+        Float primaryScale = 1.0f;
+        Float secondaryScale = 1.0f;
 
         if (!document[i].getField("texture", texture))
             continue;
@@ -461,11 +461,11 @@ void ResourcePackLoader::loadEmitters()
     }
 }
 
-static const ModelRef *selectModel(const std::vector<ModelRef> &models, int idx, const float *randSource)
+static const ModelRef *selectModel(const std::vector<ModelRef> &models, int idx, const Float *randSource)
 {
     int model = 0;
     if (models.size() > 1) {
-        float f = randSource[idx % RandSourceSize];
+        Float f = randSource[idx % RandSourceSize];
         model = int(models.size()) - 1;
         for (size_t i = 0; i < models.size(); ++i) {
             if (f < models[i].weight()) {

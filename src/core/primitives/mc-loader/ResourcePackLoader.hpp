@@ -22,13 +22,13 @@ struct BiomeColor
 {
     Vec3f foliageBottom, foliageTop;
     Vec3f grassBottom, grassTop;
-    float height;
+    Float height;
 };
 
 struct EmitterInfo
 {
-    float primaryScale;
-    float secondaryScale;
+    Float primaryScale;
+    Float secondaryScale;
     std::string mask;
 };
 
@@ -120,7 +120,7 @@ private:
     std::unique_ptr<ModelResolver> _resolver;
     std::vector<std::vector<TexturedQuad>> _redstoneDuplicates;
 
-    std::unique_ptr<float[]> _randSource;
+    std::unique_ptr<Float[]> _randSource;
 
     SpecialCase caseStringToType(const std::string &special) const;
     uint32 caseDataSize(SpecialCase type) const;

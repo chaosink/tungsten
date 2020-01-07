@@ -46,14 +46,14 @@ rapidjson::Value RoughCoatBsdf::toJson(Allocator &allocator) const
     };
 }
 
-void RoughCoatBsdf::substrateEvalAndPdf(const SurfaceScatterEvent &event, float eta,
-        float Fi, float cosThetaTi, float &pdf, Vec3f &brdf) const
+void RoughCoatBsdf::substrateEvalAndPdf(const SurfaceScatterEvent &event, Float eta,
+        Float Fi, Float cosThetaTi, Float &pdf, Vec3f &brdf) const
 {
     const Vec3f &wi = event.wi;
     const Vec3f &wo = event.wo;
 
-    float cosThetaTo;
-    float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
+    Float cosThetaTo;
+    Float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
 
     if (Fi == 1.0f || Fo == 1.0f) {
         pdf = 0.0f;
@@ -67,7 +67,7 @@ void RoughCoatBsdf::substrateEvalAndPdf(const SurfaceScatterEvent &event, float 
     pdf = _substrate->pdf(event.makeWarpedQuery(wiSubstrate, woSubstrate));
     pdf *= eta*eta*std::abs(wo.z()/cosThetaTo);
 
-    float compressionProjection = eta*eta*wo.z()/cosThetaTo;
+    Float compressionProjection = eta*eta*wo.z()/cosThetaTo;
 
     Vec3f substrateF = _substrate->eval(event.makeWarpedQuery(wiSubstrate, woSubstrate));
 
@@ -89,22 +89,22 @@ bool RoughCoatBsdf::sample(SurfaceScatterEvent &event) const
         return false;
 
     const Vec3f &wi = event.wi;
-    float eta = 1.0f/_ior;
+    Float eta = 1.0f/_ior;
 
-    float cosThetaTi;
-    float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
+    Float cosThetaTi;
+    Float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
 
-    float substrateWeight = _avgTransmittance*(1.0f - Fi);
-    float specularWeight = Fi;
-    float specularProbability = specularWeight/(specularWeight + substrateWeight);
+    Float substrateWeight = _avgTransmittance*(1.0f - Fi);
+    Float specularWeight = Fi;
+    Float specularProbability = specularWeight/(specularWeight + substrateWeight);
 
     if (sampleR && (event.sampler->nextBoolean(specularProbability) || !sampleT)) {
-        float roughness = (*_roughness)[*event.info].x();
+        Float roughness = (*_roughness)[*event.info].x();
         if (!RoughDielectricBsdf::sampleBase(event, true, false, roughness, _ior, _distribution))
             return false;
         if (sampleT) {
             Vec3f brdfSubstrate, brdfSpecular = event.weight*event.pdf;
-            float  pdfSubstrate,  pdfSpecular = event.pdf*specularProbability;
+            Float  pdfSubstrate,  pdfSpecular = event.pdf*specularProbability;
             substrateEvalAndPdf(event, eta, Fi, cosThetaTi, pdfSubstrate, brdfSubstrate);
             pdfSubstrate *= 1.0f - specularProbability;
 
@@ -121,11 +121,11 @@ bool RoughCoatBsdf::sample(SurfaceScatterEvent &event) const
         if (!success)
             return false;
 
-        float cosThetaTo;
-        float Fo = Fresnel::dielectricReflectance(_ior, event.wo.z(), cosThetaTo);
+        Float cosThetaTo;
+        Float Fo = Fresnel::dielectricReflectance(_ior, event.wo.z(), cosThetaTo);
         if (Fo == 1.0f)
             return false;
-        float cosThetaSubstrate = event.wo.z();
+        Float cosThetaSubstrate = event.wo.z();
         event.wo = Vec3f(event.wo.x()*_ior, event.wo.y()*_ior, cosThetaTo);
         event.weight *= (1.0f - Fi)*(1.0f - Fo);
         if (_scaledSigmaA.max() > 0.0f)
@@ -136,9 +136,9 @@ bool RoughCoatBsdf::sample(SurfaceScatterEvent &event) const
 
         if (sampleR) {
             Vec3f brdfSubstrate = event.weight*event.pdf;
-            float  pdfSubstrate = event.pdf*(1.0f - specularProbability);
+            Float  pdfSubstrate = event.pdf*(1.0f - specularProbability);
             Vec3f brdfSpecular = RoughDielectricBsdf::evalBase(event, true, false, (*_roughness)[*event.info].x(), _ior, _distribution);
-            float pdfSpecular  = RoughDielectricBsdf::pdfBase(event, true, false, (*_roughness)[*event.info].x(), _ior, _distribution);
+            Float pdfSpecular  = RoughDielectricBsdf::pdfBase(event, true, false, (*_roughness)[*event.info].x(), _ior, _distribution);
             pdfSpecular *= specularProbability;
 
             event.weight = (brdfSpecular + brdfSubstrate)/(pdfSpecular + pdfSubstrate);
@@ -168,11 +168,11 @@ Vec3f RoughCoatBsdf::eval(const SurfaceScatterEvent &event) const
     if (sampleT) {
         const Vec3f &wi = event.wi;
         const Vec3f &wo = event.wo;
-        float eta = 1.0f/_ior;
+        Float eta = 1.0f/_ior;
 
-        float cosThetaTi, cosThetaTo;
-        float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
-        float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
+        Float cosThetaTi, cosThetaTo;
+        Float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
+        Float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
 
         if (Fi == 1.0f || Fo == 1.0f)
             return glossyR;
@@ -180,7 +180,7 @@ Vec3f RoughCoatBsdf::eval(const SurfaceScatterEvent &event) const
         Vec3f wiSubstrate(wi.x()*eta, wi.y()*eta, std::copysign(cosThetaTi, wi.z()));
         Vec3f woSubstrate(wo.x()*eta, wo.y()*eta, std::copysign(cosThetaTo, wo.z()));
 
-        float compressionProjection = eta*eta*wo.z()/cosThetaTo;
+        Float compressionProjection = eta*eta*wo.z()/cosThetaTo;
 
         Vec3f substrateF = _substrate->eval(event.makeWarpedQuery(wiSubstrate, woSubstrate));
 
@@ -205,26 +205,26 @@ bool RoughCoatBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceSc
 
     const Vec3f &wi = event.wi;
     const Vec3f &wo = event.wo;
-    float eta = 1.0f/_ior;
+    Float eta = 1.0f/_ior;
 
-    float cosThetaTi, cosThetaTo;
-    float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
-    float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
+    Float cosThetaTi, cosThetaTo;
+    Float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
+    Float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
 
-    float specularProbability;
+    Float specularProbability;
     if (sampleR && sampleT) {
-        float substrateWeight = _avgTransmittance*(1.0f - Fi);
-        float specularWeight = Fi;
+        Float substrateWeight = _avgTransmittance*(1.0f - Fi);
+        Float specularWeight = Fi;
         specularProbability = specularWeight/(specularWeight + substrateWeight);
     } else {
         specularProbability = sampleR ? 1.0f : 0.0f;
     }
 
-    float glossyPdf = 0.0f;
+    Float glossyPdf = 0.0f;
     if (sampleR)
         glossyPdf = RoughDielectricBsdf::pdfBase(event, true, false, (*_roughness)[*event.info].x(), _ior, _distribution);
 
-    float substratePdf = 0.0f;
+    Float substratePdf = 0.0f;
     Vec3f wiSubstrate, woSubstrate;
     if (sampleT) {
         if (Fi < 1.0f && Fo < 1.0f) {
@@ -236,14 +236,14 @@ bool RoughCoatBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceSc
         }
     }
 
-    float pdf0 = glossyPdf*specularProbability;
-    float pdf1 = substratePdf*(1.0f - specularProbability);
+    Float pdf0 = glossyPdf*specularProbability;
+    Float pdf1 = substratePdf*(1.0f - specularProbability);
     if (pdf0 == 0.0f && pdf1 == 0.0f)
         return false;
 
     if (sampler.untrackedBoolean(pdf0/(pdf0 + pdf1))) {
         sampler.putBoolean(specularProbability, true);
-        float roughness = (*_roughness)[*event.info].x();
+        Float roughness = (*_roughness)[*event.info].x();
         return RoughDielectricBsdf::invertBase(sampler, event, true, false, roughness, _ior, _distribution);
     } else {
         if (sampleR)
@@ -252,7 +252,7 @@ bool RoughCoatBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceSc
     }
 }
 
-float RoughCoatBsdf::pdf(const SurfaceScatterEvent &event) const
+Float RoughCoatBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe);
     bool sampleT = event.requestedLobe.test(_substrate->lobes());
@@ -264,26 +264,26 @@ float RoughCoatBsdf::pdf(const SurfaceScatterEvent &event) const
 
     const Vec3f &wi = event.wi;
     const Vec3f &wo = event.wo;
-    float eta = 1.0f/_ior;
+    Float eta = 1.0f/_ior;
 
-    float cosThetaTi, cosThetaTo;
-    float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
-    float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
+    Float cosThetaTi, cosThetaTo;
+    Float Fi = Fresnel::dielectricReflectance(eta, wi.z(), cosThetaTi);
+    Float Fo = Fresnel::dielectricReflectance(eta, wo.z(), cosThetaTo);
 
-    float specularProbability;
+    Float specularProbability;
     if (sampleR && sampleT) {
-        float substrateWeight = _avgTransmittance*(1.0f - Fi);
-        float specularWeight = Fi;
+        Float substrateWeight = _avgTransmittance*(1.0f - Fi);
+        Float specularWeight = Fi;
         specularProbability = specularWeight/(specularWeight + substrateWeight);
     } else {
         specularProbability = sampleR ? 1.0f : 0.0f;
     }
 
-    float glossyPdf = 0.0f;
+    Float glossyPdf = 0.0f;
     if (sampleR)
         glossyPdf = RoughDielectricBsdf::pdfBase(event, true, false, (*_roughness)[*event.info].x(), _ior, _distribution);
 
-    float substratePdf = 0.0f;
+    Float substratePdf = 0.0f;
     if (sampleT) {
         if (Fi < 1.0f && Fo < 1.0f) {
             Vec3f wiSubstrate(wi.x()*eta, wi.y()*eta, std::copysign(cosThetaTi, wi.z()));

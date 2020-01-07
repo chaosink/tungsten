@@ -10,7 +10,7 @@ TraceBase::TraceBase(TraceableScene *scene, const TraceSettings &settings, uint3
     _scene = scene;
     _lightPdf.resize(scene->lights().size());
 
-    std::vector<float> lightWeights(scene->lights().size());
+    std::vector<Float> lightWeights(scene->lights().size());
     for (size_t i = 0; i < scene->lights().size(); ++i) {
         scene->lights()[i]->makeSamplable(*_scene, _threadId);
         lightWeights[i] = 1.0f; // TODO: Use light power here
@@ -67,13 +67,13 @@ inline Vec3f TraceBase::generalizedShadowRayImpl(PathSampleGenerator &sampler,
                            int bounce,
                            bool startsOnSurface,
                            bool endsOnSurface,
-                           float &pdfForward,
-                           float &pdfBackward) const
+                           Float &pdfForward,
+                           Float &pdfBackward) const
 {
     IntersectionTemporary data;
     IntersectionInfo info;
 
-    float initialFarT = ray.farT();
+    Float initialFarT = ray.farT();
     Vec3f throughput(1.0f);
     do {
         bool didHit = _scene->intersect(ray, data, info) && info.primitive != endCap;
@@ -89,7 +89,7 @@ inline Vec3f TraceBase::generalizedShadowRayImpl(PathSampleGenerator &sampler,
                 return Vec3f(0.0f);
 
             if (ComputePdfs) {
-                float transparencyScalar = transparency.avg();
+                Float transparencyScalar = transparency.avg();
                 pdfForward  *= transparencyScalar;
                 pdfBackward *= transparencyScalar;
             }
@@ -103,7 +103,7 @@ inline Vec3f TraceBase::generalizedShadowRayImpl(PathSampleGenerator &sampler,
 
         if (medium) {
             if (ComputePdfs) {
-                float forward, backward;
+                Float forward, backward;
                 throughput *= medium->transmittanceAndPdfs(sampler, ray, startsOnSurface, didHit || endsOnSurface, forward, backward);
                 pdfForward *= forward;
                 pdfBackward *= backward;
@@ -127,14 +127,14 @@ inline Vec3f TraceBase::generalizedShadowRayImpl(PathSampleGenerator &sampler,
 Vec3f TraceBase::generalizedShadowRay(PathSampleGenerator &sampler, Ray &ray, const Medium *medium,
             const Primitive *endCap, bool startsOnSurface, bool endsOnSurface, int bounce) const
 {
-    float dummyA, dummyB;
+    Float dummyA, dummyB;
     return generalizedShadowRayImpl<false>(sampler, ray, medium, endCap, bounce,
             startsOnSurface, endsOnSurface, dummyA, dummyB);
 }
 
 Vec3f TraceBase::generalizedShadowRayAndPdfs(PathSampleGenerator &sampler, Ray &ray, const Medium *medium,
            const Primitive *endCap, int bounce, bool startsOnSurface, bool endsOnSurface,
-           float &pdfForward, float &pdfBackward) const
+           Float &pdfForward, Float &pdfBackward) const
 {
     pdfForward = pdfBackward = 1.0f;
     return generalizedShadowRayImpl<true>(sampler, ray, medium, endCap, bounce,
@@ -144,7 +144,7 @@ Vec3f TraceBase::generalizedShadowRayAndPdfs(PathSampleGenerator &sampler, Ray &
 Vec3f TraceBase::attenuatedEmission(PathSampleGenerator &sampler,
                          const Primitive &light,
                          const Medium *medium,
-                         float expectedDist,
+                         Float expectedDist,
                          IntersectionTemporary &data,
                          IntersectionInfo &info,
                          int bounce,
@@ -152,7 +152,7 @@ Vec3f TraceBase::attenuatedEmission(PathSampleGenerator &sampler,
                          Ray &ray,
                          Vec3f *transmittance)
 {
-    CONSTEXPR float fudgeFactor = 1.0f + 1e-3f;
+    CONSTEXPR Float fudgeFactor = 1.0f + 1e-3f;
 
     if (light.isDirac()) {
         ray.setFarT(expectedDist);
@@ -413,7 +413,7 @@ Vec3f TraceBase::volumeSampleDirect(const Primitive &light,
     return result;
 }
 
-const Primitive *TraceBase::chooseLight(PathSampleGenerator &sampler, const Vec3f &p, float &weight)
+const Primitive *TraceBase::chooseLight(PathSampleGenerator &sampler, const Vec3f &p, Float &weight)
 {
     if (_scene->lights().empty())
         return nullptr;
@@ -422,7 +422,7 @@ const Primitive *TraceBase::chooseLight(PathSampleGenerator &sampler, const Vec3
         return _scene->lights()[0].get();
     }
 
-    float total = 0.0f;
+    Float total = 0.0f;
     unsigned numNonNegative = 0;
     for (size_t i = 0; i < _lightPdf.size(); ++i) {
         _lightPdf[i] = _scene->lights()[i]->approximateRadiance(_threadId, p);
@@ -437,7 +437,7 @@ const Primitive *TraceBase::chooseLight(PathSampleGenerator &sampler, const Vec3
         total = _lightPdf.size();
     } else if (numNonNegative < _lightPdf.size()) {
         for (size_t i = 0; i < _lightPdf.size(); ++i) {
-            float uniformWeight = (total == 0.0f ? 1.0f : total)/numNonNegative;
+            Float uniformWeight = (total == 0.0f ? 1.0f : total)/numNonNegative;
             if (_lightPdf[i] < 0.0f) {
                 _lightPdf[i] = uniformWeight;
                 total += uniformWeight;
@@ -446,7 +446,7 @@ const Primitive *TraceBase::chooseLight(PathSampleGenerator &sampler, const Vec3
     }
     if (total == 0.0f)
         return nullptr;
-    float t = sampler.next1D()*total;
+    Float t = sampler.next1D()*total;
     for (size_t i = 0; i < _lightPdf.size(); ++i) {
         if (t < _lightPdf[i] || i == _lightPdf.size() - 1) {
             weight = total/_lightPdf[i];
@@ -458,9 +458,9 @@ const Primitive *TraceBase::chooseLight(PathSampleGenerator &sampler, const Vec3
     return nullptr;
 }
 
-const Primitive *TraceBase::chooseLightAdjoint(PathSampleGenerator &sampler, float &pdf)
+const Primitive *TraceBase::chooseLightAdjoint(PathSampleGenerator &sampler, Float &pdf)
 {
-    float u = sampler.next1D();
+    Float u = sampler.next1D();
     int lightIdx;
     _lightSampler->warp(u, lightIdx);
     pdf = _lightSampler->pdf(lightIdx);
@@ -473,7 +473,7 @@ Vec3f TraceBase::volumeEstimateDirect(PathSampleGenerator &sampler,
                     int bounce,
                     const Ray &parentRay)
 {
-    float weight;
+    Float weight;
     const Primitive *light = chooseLight(sampler, mediumSample.p, weight);
     if (light == nullptr)
         return Vec3f(0.0f);
@@ -486,7 +486,7 @@ Vec3f TraceBase::estimateDirect(SurfaceScatterEvent &event,
                                 const Ray &parentRay,
                                 Vec3f *transmittance)
 {
-    float weight;
+    Float weight;
     const Primitive *light = chooseLight(*event.sampler, event.info->p, weight);
     if (light == nullptr)
         return Vec3f(0.0f);
@@ -523,7 +523,7 @@ bool TraceBase::handleSurface(SurfaceScatterEvent &event, IntersectionTemporary 
 
     // For forward events, the transport direction does not matter (since wi = -wo)
     Vec3f transparency = bsdf.eval(event.makeForwardEvent(), false);
-    float transparencyScalar = transparency.avg();
+    Float transparencyScalar = transparency.avg();
 
     Vec3f wo;
     if (event.sampler->nextBoolean(transparencyScalar) ){

@@ -79,14 +79,14 @@ protected:
     virtual void loadState(InputStreamHandle &in) override;
 
     void tracePhotons(uint32 taskId, uint32 numSubTasks, uint32 threadId, uint32 sampleBase);
-    void tracePixels(uint32 tileId, uint32 threadId, float surfaceRadius, float volumeRadius);
+    void tracePixels(uint32 tileId, uint32 threadId, Float surfaceRadius, Float volumeRadius);
 
-    void buildPointBvh(uint32 tail, float volumeRadiusScale);
-    void buildBeamBvh(uint32 tail, float volumeRadiusScale);
-    void buildBeamGrid(uint32 tail, float volumeRadiusScale);
-    void buildPlaneBvh(uint32 tail, float volumeRadiusScale);
-    void buildPlaneGrid(uint32 tail, float volumeRadiusScale);
-    void buildPhotonDataStructures(float volumeRadiusScale);
+    void buildPointBvh(uint32 tail, Float volumeRadiusScale);
+    void buildBeamBvh(uint32 tail, Float volumeRadiusScale);
+    void buildBeamGrid(uint32 tail, Float volumeRadiusScale);
+    void buildPlaneBvh(uint32 tail, Float volumeRadiusScale);
+    void buildPlaneGrid(uint32 tail, Float volumeRadiusScale);
+    void buildPhotonDataStructures(Float volumeRadiusScale);
 
     void renderSegment(std::function<void()> completionCallback);
 

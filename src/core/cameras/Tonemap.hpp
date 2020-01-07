@@ -28,12 +28,12 @@ public:
         case LinearOnly:
             return c;
         case GammaOnly:
-            return std::pow(c, 1.0f/2.2f);
+            return std::pow(c, Float(1.0f/2.2f));
         case Reinhard:
-            return std::pow(c/(c + 1.0f), 1.0f/2.2f);
+            return std::pow(c/(c + 1.0f), Float(1.0f/2.2f));
         case Filmic: {
             Vec3f x = max(Vec3f(0.0f), c - 0.004f);
-            return (x*(6.2f*x + 0.5f))/(x*(6.2f*x + 1.7f) + 0.06f);
+            return (x*(x*6.2f + 0.5f))/(x*(x*6.2f + 1.7f) + 0.06f);
         } case Pbrt: {
             Vec3f result;
             for (int i = 0; i < 3; ++i) {

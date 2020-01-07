@@ -23,10 +23,10 @@ class MultiQuadLight : public Primitive
 {
     struct ThreadlocalSampleInfo
     {
-        std::vector<float> sampleWeights;
+        std::vector<Float> sampleWeights;
         std::vector<int> insideIds;
         int insideCount;
-        float outsideWeight;
+        Float outsideWeight;
         Vec3f lastQuery;
     };
     struct PrecomputedQuad
@@ -44,9 +44,9 @@ class MultiQuadLight : public Primitive
     std::unique_ptr<SolidAngleBvh> _sampleBvh;
     std::unique_ptr<TriangleMesh> _proxy;
     std::vector<PrecomputedQuad> _precomputedQuads;
-    std::vector<float> _triangleAreas;
+    std::vector<Float> _triangleAreas;
 
-    inline float approximateQuadContribution(const Vec3f &p, uint32 quad) const;
+    inline Float approximateQuadContribution(const Vec3f &p, uint32 quad) const;
 
     void constructSampleBounds();
 
@@ -67,7 +67,7 @@ public:
     virtual void makeSamplable(const TraceableScene &scene, uint32 threadIndex) override;
 
     virtual bool sampleDirect(uint32 threadIndex, const Vec3f &p, PathSampleGenerator &sampler, LightSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalDirect(const IntersectionTemporary &data, const IntersectionInfo &info) const override;
 
@@ -76,7 +76,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
 
     virtual Box3f bounds() const override;
 

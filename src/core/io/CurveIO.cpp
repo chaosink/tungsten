@@ -32,12 +32,12 @@ void extrudeMinimumTorsionNormals(CurveData &data)
         Vec3f p0 = nodes[idx + 0].xyz();
         Vec3f p1 = nodes[idx + 1].xyz();
         Vec3f p2 = nodes[idx + 2].xyz();
-        Vec3f deriv0(p1 - p0), deriv1(p0 - 2.0f*p1 + p2);
+        Vec3f deriv0(p1 - p0), deriv1(p0 - p1*2.0f + p2);
 
         Vec3f T0 = deriv0.normalized();
         Vec3f N = currentNormal;
         for (int j = 1; j <= 5; ++j) {
-            Vec3f T1 = (j*0.2f*deriv1 + deriv0).normalized();
+            Vec3f T1 = (Float(j*0.2f)*deriv1 + deriv0).normalized();
             Vec3f A = T0.cross(T1);
             float length = A.length();
             if (length == 0.0f)
@@ -66,7 +66,7 @@ void extrudeMinimumTorsionNormals(CurveData &data)
         uint32 t = i ? curveEnds[i - 1] : 0;
         Vec3f lastNormal = normals[t];
         do {
-            normals[t + 1] = (2.0f*lastNormal - normals[t]).normalized();
+            normals[t + 1] = (lastNormal*2.0f - normals[t]).normalized();
             lastNormal = minTorsionAdvance(lastNormal, t);
         } while (++t < curveEnds[i] - 2);
         normals[t + 1] = normals[t];
@@ -254,14 +254,14 @@ bool saveMitsubaHair(const Path &path, const CurveData &data)
 {
     if (!data.nodeData || !data.curveEnds)
         return false;
-    
+
     OutputStreamHandle out = FileUtils::openOutputStream(path);
     if (!out)
         return false;
-    
+
     out->write("BINARY_HAIR", 11);
     FileUtils::streamWrite(out, uint32(data.nodeData->size()));
-    
+
     const std::vector<uint32> &curveEnds = *data.curveEnds;
     const std::vector<Vec4f> &nodeData = *data.nodeData;
     size_t curveIdx = 0;
@@ -272,7 +272,7 @@ bool saveMitsubaHair(const Path &path, const CurveData &data)
             curveIdx++;
         }
     }
-    
+
     return true;
 }
 

@@ -32,20 +32,20 @@ static const int OPT_MSEMAP            = 12;
 static const int OPT_RMSEMAP           = 13;
 static const int OPT_VARIANCE          = 14;
 
-void parseFloat(float &dst, const std::string &src)
+void parseFloat(Float &dst, const std::string &src)
 {
     const char *srcBuf = src.c_str();
     char *end;
-    float result = std::strtof(srcBuf, &end);
+    Float result = std::strtof(srcBuf, &end);
     if (end != srcBuf)
         dst = result;
 }
 
-void outputImage(CliParser &parser, Path path, std::unique_ptr<float[]> img, int w, int h,
-        float exposure, Tonemap::Type tonemap)
+void outputImage(CliParser &parser, Path path, std::unique_ptr<Float[]> img, int w, int h,
+        Float exposure, Tonemap::Type tonemap)
 {
     if (exposure != 0.0f) {
-        float scale = std::pow(2.0f, exposure);
+        Float scale = std::pow(2.0f, exposure);
         for (int i = 0; i < w*h*3; ++i)
             img[i] *= scale;
     }
@@ -67,14 +67,14 @@ void outputImage(CliParser &parser, Path path, std::unique_ptr<float[]> img, int
 }
 
 void mergeImages(CliParser &parser, Path path, const std::vector<std::string> &operands,
-        const std::vector<double> weights, float exposure, Tonemap::Type tonemap)
+        const std::vector<double> weights, Float exposure, Tonemap::Type tonemap)
 {
     int resultW = 0, resultH = 0;
     double weightSum = 0.0;
     std::unique_ptr<double[]> result;
     for (size_t i = 0; i < operands.size(); ++i) {
         int w, h;
-        std::unique_ptr<float[]> operand = ImageIO::loadHdr(Path(operands[i]),
+        std::unique_ptr<Float[]> operand = ImageIO::loadHdr(Path(operands[i]),
                 TexelConversion::REQUEST_RGB, w, h);
 
         if (!operand)
@@ -104,21 +104,21 @@ void mergeImages(CliParser &parser, Path path, const std::vector<std::string> &o
         weightSum += weights[i];
     }
 
-    std::unique_ptr<float[]> img(new float[resultW*resultH*3]);
+    std::unique_ptr<Float[]> img(new Float[resultW*resultH*3]);
     for (int i = 0; i < resultW*resultH*3; ++i)
-        img[i] = float(result[i]/weightSum);
+        img[i] = Float(result[i]/weightSum);
 
     outputImage(parser, path, std::move(img), resultW, resultH, exposure, tonemap);
 }
 
-std::unique_ptr<float[]> mseMap(int w, int h, std::unique_ptr<float[]> imgA, std::unique_ptr<float[]> imgB)
+std::unique_ptr<Float[]> mseMap(int w, int h, std::unique_ptr<Float[]> imgA, std::unique_ptr<Float[]> imgB)
 {
-    std::unique_ptr<float[]> result(new float[w*h]);
+    std::unique_ptr<Float[]> result(new Float[w*h]);
 
     int maxX = 0, maxY = 0;
-    float maxMse = 0.0f;
+    Float maxMse = 0.0f;
     for (int i = 0; i < w*h; ++i) {
-        float mse = 0.0f;
+        Float mse = 0.0f;
         for (int c = 0; c < 3; ++c)
             mse += sqr(imgA[i*3 + c] - imgB[i*3 + c]);
         if (mse > maxMse) {
@@ -137,12 +137,12 @@ std::unique_ptr<float[]> mseMap(int w, int h, std::unique_ptr<float[]> imgA, std
     return std::move(result);
 }
 
-std::unique_ptr<float[]> rmseMap(int w, int h, std::unique_ptr<float[]> imgA, std::unique_ptr<float[]> imgB)
+std::unique_ptr<Float[]> rmseMap(int w, int h, std::unique_ptr<Float[]> imgA, std::unique_ptr<Float[]> imgB)
 {
-    std::unique_ptr<float[]> result(new float[w*h]);
+    std::unique_ptr<Float[]> result(new Float[w*h]);
 
     for (int i = 0; i < w*h; ++i) {
-        float rmse = 0.0f;
+        Float rmse = 0.0f;
         for (int c = 0; c < 3; ++c)
             rmse += sqr(imgA[i*3 + c] - imgB[i*3 + c])/(sqr(imgA[i*3 + c]) + 1e-3f);
         result[i] = rmse/3.0f;
@@ -151,7 +151,7 @@ std::unique_ptr<float[]> rmseMap(int w, int h, std::unique_ptr<float[]> imgA, st
     return std::move(result);
 }
 
-Vec3f colorRamp(float t)
+Vec3f colorRamp(Float t)
 {
     Vec3f ramp[] = {
         Vec3f(0.0f, 0.0f, 1.0f),
@@ -164,11 +164,11 @@ Vec3f colorRamp(float t)
     return lerp(ramp[l], ramp[l + 1], t*4.0f - l);
 }
 
-std::unique_ptr<float[]> heatMap(const float *in, int w, int h, int percentile)
+std::unique_ptr<Float[]> heatMap(const Float *in, int w, int h, int percentile)
 {
-    std::unique_ptr<float[]> img(new float[w*h*3]);
+    std::unique_ptr<Float[]> img(new Float[w*h*3]);
 
-    float minPixel = 0.0f;
+    Float minPixel = 0.0f;
     for (int i = 0; i < w*h; ++i)
         minPixel = min(minPixel, in[i]);
 
@@ -176,8 +176,8 @@ std::unique_ptr<float[]> heatMap(const float *in, int w, int h, int percentile)
     for (int i = 0; i < w*h; ++i)
         mseSum += in[i];
 
-    std::unique_ptr<float[]> sorted(new float[w*h]);
-    std::memcpy(sorted.get(), in, w*h*sizeof(float));
+    std::unique_ptr<Float[]> sorted(new Float[w*h]);
+    std::memcpy(sorted.get(), in, w*h*sizeof(Float));
     std::sort(sorted.get(), sorted.get() + w*h);
 
     double tailEnd = 0.0;
@@ -185,7 +185,7 @@ std::unique_ptr<float[]> heatMap(const float *in, int w, int h, int percentile)
     while (tailEnd/mseSum < 0.8f)
         tailEnd += sorted[tail--];
 
-    float maxPixel = sorted[min((w*h*percentile)/100, w*h - 1)];
+    Float maxPixel = sorted[min((w*h*percentile)/100, w*h - 1)];
     if (percentile == 100) {
         //maxPixel = 1.0f;
         maxPixel = sorted[tail];
@@ -193,7 +193,7 @@ std::unique_ptr<float[]> heatMap(const float *in, int w, int h, int percentile)
     }
 
     for (int i = 0; i < w*h; ++i)
-        reinterpret_cast<Vec3f *>(img.get())[i] = colorRamp(clamp((in[i] - minPixel)/(maxPixel - minPixel), 0.0f, 1.0f));
+        reinterpret_cast<Vec3f *>(img.get())[i] = colorRamp(clamp((in[i] - minPixel)/(maxPixel - minPixel), Float(0.0f), Float(1.0f)));
 
     return std::move(img);
 }
@@ -252,7 +252,7 @@ int main(int argc, const char *argv[])
                 parser.fail("Unable to create output directory '%s'", parser.param(OPT_OUTPUT));
     }
 
-    float exposure = 0.0f;
+    Float exposure = 0.0f;
     if (parser.isPresent(OPT_EXPOSURE))
         parseFloat(exposure, parser.param(OPT_EXPOSURE));
     Tonemap::Type tonemap("gamma");
@@ -289,7 +289,7 @@ int main(int argc, const char *argv[])
                 continue;
             }
 
-            std::unique_ptr<float[]> hdr(new float[w*h*3]);
+            std::unique_ptr<Float[]> hdr(new Float[w*h*3]);
             for (int i = 0; i < w*h; ++i) {
                 hdr[i*3 + 0] = img[i*4 + 0]*(1.0f/256.0f);
                 hdr[i*3 + 1] = img[i*4 + 1]*(1.0f/256.0f);
@@ -327,8 +327,8 @@ int main(int argc, const char *argv[])
             parser.fail("Need exactly two input images to compute difference metric");
 
         int imgWA, imgHA, imgWB, imgHB;
-        std::unique_ptr<float[]> imgA = ImageIO::loadHdr(Path(parser.operands()[0]), TexelConversion::REQUEST_RGB, imgWA, imgHA);
-        std::unique_ptr<float[]> imgB = ImageIO::loadHdr(Path(parser.operands()[1]), TexelConversion::REQUEST_RGB, imgWB, imgHB);
+        std::unique_ptr<Float[]> imgA = ImageIO::loadHdr(Path(parser.operands()[0]), TexelConversion::REQUEST_RGB, imgWA, imgHA);
+        std::unique_ptr<Float[]> imgB = ImageIO::loadHdr(Path(parser.operands()[1]), TexelConversion::REQUEST_RGB, imgWB, imgHB);
 
         if (!imgA) parser.fail("Unable to load input file at '%s'", parser.operands()[0]);
         if (!imgB) parser.fail("Unable to load input file at '%s'", parser.operands()[1]);
@@ -336,7 +336,7 @@ int main(int argc, const char *argv[])
             parser.fail("Input images must be of equal size to compute difference metric! "
                         "(have %dx%d and %dx%d)", imgWA, imgHA, imgWB, imgHB);
 
-        std::unique_ptr<float[]> errorMetric;
+        std::unique_ptr<Float[]> errorMetric;
         if (parser.isPresent(OPT_RMSE)  || parser.isPresent(OPT_RMSEMAP))
             errorMetric = rmseMap(imgWA, imgHA, std::move(imgA), std::move(imgB));
         else
@@ -350,7 +350,7 @@ int main(int argc, const char *argv[])
                 errorMetric[i] *= 50.0f;
 
             int percentile = 100;//parser.isPresent(OPT_SSIMMAP) ? 100 : 95;
-            std::unique_ptr<float[]> map = heatMap(errorMetric.get(), imgWA, imgHA, percentile);
+            std::unique_ptr<Float[]> map = heatMap(errorMetric.get(), imgWA, imgHA, percentile);
 
             outputImage(parser, Path(parser.param(OPT_OUTPUT)), std::move(map), imgWA, imgHA, 0.0f, Tonemap::Type("linear"));
         } else {
@@ -365,19 +365,19 @@ int main(int argc, const char *argv[])
         int imgW, imgH;
         ImageIO::loadHdr(Path(operands[0]), TexelConversion::REQUEST_RGB, imgW, imgH);
 
-        auto runningMean = zeroAlloc<float>(imgW*imgH*3);
-        auto runningVariance = zeroAlloc<float>(imgW*imgH*3);
+        auto runningMean = zeroAlloc<Float>(imgW*imgH*3);
+        auto runningVariance = zeroAlloc<Float>(imgW*imgH*3);
 
         for (size_t i = 0; i < operands.size(); ++i) {
             Path file(operands[i]);
 
             int imgW, imgH;
-            std::unique_ptr<float[]> img = ImageIO::loadHdr(file, TexelConversion::REQUEST_RGB, imgW, imgH);
+            std::unique_ptr<Float[]> img = ImageIO::loadHdr(file, TexelConversion::REQUEST_RGB, imgW, imgH);
 
             for (uint32 j = 0; j < uint32(imgW*imgH*3); ++j) {
-                float delta = img[j] - runningMean[j];
+                Float delta = img[j] - runningMean[j];
                 runningMean[j] += delta/(i + 1);
-                float delta2 = img[j] - runningMean[j];
+                Float delta2 = img[j] - runningMean[j];
                 runningVariance[j] += delta*delta2;
             }
         }
@@ -392,7 +392,7 @@ int main(int argc, const char *argv[])
             Path file(operands[i]);
 
             int imgW, imgH;
-            std::unique_ptr<float[]> img = ImageIO::loadHdr(file, TexelConversion::REQUEST_RGB, imgW, imgH);
+            std::unique_ptr<Float[]> img = ImageIO::loadHdr(file, TexelConversion::REQUEST_RGB, imgW, imgH);
 
             if (!img) {
                 std::cout << tfm::format("Unable to load input file at '%s'", operands[i]) << std::endl;

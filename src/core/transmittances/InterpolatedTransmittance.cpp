@@ -68,16 +68,16 @@ Vec3f InterpolatedTransmittance::mediumMedium(const Vec3f &tau) const
     return result;
 }
 
-float InterpolatedTransmittance::sigmaBar() const
+Float InterpolatedTransmittance::sigmaBar() const
 {
     return 1.0f/lerp(1.0f/_trA->sigmaBar(), 1.0f/_trB->sigmaBar(), _u);
 }
 
-float InterpolatedTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float InterpolatedTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
     return sampler.nextBoolean(_u) ? _trB->sampleSurface(sampler) : _trA->sampleSurface(sampler);
 }
-float InterpolatedTransmittance::sampleMedium(PathSampleGenerator &sampler) const
+Float InterpolatedTransmittance::sampleMedium(PathSampleGenerator &sampler) const
 {
     return sampler.nextBoolean(_u) ? _trB->sampleMedium(sampler) : _trA->sampleMedium(sampler);
 }

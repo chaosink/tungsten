@@ -44,7 +44,7 @@ public:
         return Quaternion(_v[0], -_v[1], -_v[2], -_v[3]);
     }
 
-    inline Quaternion slerp(Quaternion o, float t) const
+    inline Quaternion slerp(Quaternion o, Float t) const
     {
         double d = (*this).dot(o);
         if (d < 0.0f) {
@@ -54,13 +54,13 @@ public:
         if (d > 0.9995)
             return lerp(*this, o, t).normalized();
 
-        float theta0 = std::acos(d);
-        float theta = theta0*t;
-        float sinTheta = std::sin(theta);
-        float sinTheta0 = std::sin(theta0);
+        Float theta0 = std::acos(d);
+        Float theta = theta0*t;
+        Float sinTheta = std::sin(theta);
+        Float sinTheta0 = std::sin(theta0);
 
-        float  s0 = std::cos(theta) - d*sinTheta/sinTheta0;
-        float  s1 = sinTheta/sinTheta0;
+        Float  s0 = std::cos(theta) - d*sinTheta/sinTheta0;
+        Float  s1 = sinTheta/sinTheta0;
 
         return (s0*(*this)) + (s1*o);
     }
@@ -109,9 +109,9 @@ public:
     }
 
     static inline Quaternion<Type> fromMatrix(const Mat4f &a) {
-        float trace = a(0, 0) + a(1, 1) + a(2, 2);
+        Float trace = a(0, 0) + a(1, 1) + a(2, 2);
         if (trace > 0.0f) {
-            float s = 0.5f/std::sqrt(trace + 1.0f);
+            Float s = 0.5f/std::sqrt(trace + 1.0f);
             return Quaternion<Type>(
                 0.25f/s,
                 (a(2, 1) - a(1, 2))*s,
@@ -119,7 +119,7 @@ public:
                 (a(1, 0) - a(0, 1))*s
             );
         } else if (a(0, 0) > a(1, 1) && a(0, 0) > a(2, 2)) {
-            float s = 2.0f*std::sqrt(1.0f + a(0, 0) - a(1, 1) - a(2, 2));
+            Float s = 2.0f*std::sqrt(1.0f + a(0, 0) - a(1, 1) - a(2, 2));
             return Quaternion<Type>(
                 (a(2, 1) - a(1, 2))/s,
                 0.25f*s,
@@ -127,7 +127,7 @@ public:
                 (a(0, 2) + a(2, 0))/s
             );
         } else if (a(1, 1) > a(2, 2)) {
-            float s = 2.0f*std::sqrt(1.0f + a(1, 1) - a(0, 0) - a(2, 2));
+            Float s = 2.0f*std::sqrt(1.0f + a(1, 1) - a(0, 0) - a(2, 2));
             return Quaternion<Type>(
                 (a(0, 2) - a(2, 0))/s,
                 (a(0, 1) + a(1, 0))/s,
@@ -135,7 +135,7 @@ public:
                 (a(1, 2) + a(2, 1))/s
             );
         } else {
-            float s = 2.0f*std::sqrt(1.0f + a(2, 2) - a(0, 0) - a(1, 1));
+            Float s = 2.0f*std::sqrt(1.0f + a(2, 2) - a(0, 0) - a(1, 1));
             return Quaternion<Type>(
                 (a(1, 0) - a(0, 1))/s,
                 (a(0, 2) + a(2, 0))/s,
@@ -172,7 +172,7 @@ inline Quaternion<Type> operator*(const Vec<Type, 3> &a, const Quaternion<Type> 
     );
 }
 
-typedef Quaternion<float> QuaternionF;
+typedef Quaternion<Float> QuaternionF;
 
 };
 

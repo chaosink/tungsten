@@ -62,12 +62,12 @@ public:
                 q.texture = resolveTexture(q.texture);
 
             // Deal with texture overlays created by duplicate quads
-            std::unordered_map<Vec<float, 12>, int> existingQuads;
+            std::unordered_map<Vec<Float, 12>, int> existingQuads;
             std::vector<TexturedQuad> filteredQuads;
             filteredQuads.reserve(quads.size());
 
             for (size_t i = 0; i < quads.size(); ++i) {
-                Vec<float, 12> key(
+                Vec<Float, 12> key(
                     quads[i].p0.x(), quads[i].p0.y(), quads[i].p0.z(),
                     quads[i].p1.x(), quads[i].p1.y(), quads[i].p1.z(),
                     quads[i].p2.x(), quads[i].p2.y(), quads[i].p2.z(),

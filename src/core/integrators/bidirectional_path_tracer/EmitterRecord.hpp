@@ -8,12 +8,12 @@ namespace Tungsten {
 
 struct EmitterRecord
 {
-    float emitterPdf;
+    Float emitterPdf;
     PositionSample point;
     DirectionSample direction;
 
     EmitterRecord() = default;
-    EmitterRecord(float emitterPdf_)
+    EmitterRecord(Float emitterPdf_)
     : emitterPdf(emitterPdf_)
     {
     }

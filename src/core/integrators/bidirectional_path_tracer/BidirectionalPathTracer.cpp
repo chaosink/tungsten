@@ -23,7 +23,7 @@ Vec3f BidirectionalPathTracer::traceSample(Vec2u pixel, uint32 lightPathId, Path
     LightPath & cameraPath = * _cameraPath;
     LightPath &emitterPath = *_emitterPath;
 
-    float lightPdf;
+    Float lightPdf;
     const Primitive *light = chooseLightAdjoint(sampler, lightPdf);
 
     cameraPath.startCameraPath(&_scene->cam(), pixel);

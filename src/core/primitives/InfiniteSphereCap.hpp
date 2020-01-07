@@ -11,12 +11,12 @@ class InfiniteSphereCap : public Primitive
     std::string _domeName;
 
     bool _doSample;
-    float _capAngleDeg;
+    Float _capAngleDeg;
 
     Vec3f _capDir;
     TangentFrame _capFrame;
-    float _capAngleRad;
-    float _cosCapAngle;
+    Float _capAngleRad;
+    Float _cosCapAngle;
 
     std::shared_ptr<TriangleMesh> _proxy;
 
@@ -25,7 +25,7 @@ class InfiniteSphereCap : public Primitive
     void buildProxy();
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     InfiniteSphereCap();
@@ -49,9 +49,9 @@ public:
     virtual bool invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const;
     virtual bool invertDirection(WritablePathSampleGenerator &sampler, const PositionSample &point,
             const DirectionSample &direction) const;
-    virtual float positionalPdf(const PositionSample &point) const override;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const override;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const override;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const override;
@@ -62,7 +62,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;
@@ -72,13 +72,13 @@ public:
     virtual int numBsdfs() const override;
     virtual std::shared_ptr<Bsdf> &bsdf(int index) override;
     virtual void setBsdf(int index, std::shared_ptr<Bsdf> &bsdf) override;
-        
+
     Vec3f lightDirection() const
     {
         return _transform.transformVector(Vec3f(0.0f, 1.0f, 0.0f)).normalized();
     }
-    
-    float capAngleDeg() const
+
+    Float capAngleDeg() const
     {
         return _capAngleDeg;
     }

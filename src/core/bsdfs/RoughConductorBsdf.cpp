@@ -65,22 +65,22 @@ bool RoughConductorBsdf::sample(SurfaceScatterEvent &event) const
         return false;
 
     // TODO Re-enable this?
-    //float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(event.wi.z())))*_roughness;
-    float roughness = (*_roughness)[*event.info].x();
-    float sampleRoughness = roughness;
-    float alpha = Microfacet::roughnessToAlpha(_distribution, roughness);
-    float sampleAlpha = Microfacet::roughnessToAlpha(_distribution, sampleRoughness);
+    //Float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(event.wi.z())))*_roughness;
+    Float roughness = (*_roughness)[*event.info].x();
+    Float sampleRoughness = roughness;
+    Float alpha = Microfacet::roughnessToAlpha(_distribution, roughness);
+    Float sampleAlpha = Microfacet::roughnessToAlpha(_distribution, sampleRoughness);
 
     Vec3f m = Microfacet::sample(_distribution, sampleAlpha, event.sampler->next2D());
-    float wiDotM = event.wi.dot(m);
+    Float wiDotM = event.wi.dot(m);
     event.wo = 2.0f*wiDotM*m - event.wi;
     if (wiDotM <= 0.0f || event.wo.z() <= 0.0f)
         return false;
-    float G = Microfacet::G(_distribution, alpha, event.wi, event.wo, m);
-    float D = Microfacet::D(_distribution, alpha, m);
-    float mPdf = Microfacet::pdf(_distribution, sampleAlpha, m);
-    float pdf = mPdf*0.25f/wiDotM;
-    float weight = wiDotM*G*D/(event.wi.z()*mPdf);
+    Float G = Microfacet::G(_distribution, alpha, event.wi, event.wo, m);
+    Float D = Microfacet::D(_distribution, alpha, m);
+    Float mPdf = Microfacet::pdf(_distribution, sampleAlpha, m);
+    Float pdf = mPdf*0.25f/wiDotM;
+    Float weight = wiDotM*G*D/(event.wi.z()*mPdf);
     Vec3f F = Fresnel::conductorReflectance(_eta, _k, wiDotM);
 
     event.pdf = pdf;
@@ -96,15 +96,15 @@ Vec3f RoughConductorBsdf::eval(const SurfaceScatterEvent &event) const
     if (event.wi.z() <= 0.0f || event.wo.z() <= 0.0f)
         return Vec3f(0.0f);
 
-    float roughness = (*_roughness)[*event.info].x();
-    float alpha = Microfacet::roughnessToAlpha(_distribution, roughness);
+    Float roughness = (*_roughness)[*event.info].x();
+    Float alpha = Microfacet::roughnessToAlpha(_distribution, roughness);
 
     Vec3f hr = (event.wi + event.wo).normalized();
-    float cosThetaM = event.wi.dot(hr);
+    Float cosThetaM = event.wi.dot(hr);
     Vec3f F = Fresnel::conductorReflectance(_eta, _k, cosThetaM);
-    float G = Microfacet::G(_distribution, alpha, event.wi, event.wo, hr);
-    float D = Microfacet::D(_distribution, alpha, hr);
-    float fr = (G*D*0.25f)/event.wi.z();
+    Float G = Microfacet::G(_distribution, alpha, event.wi, event.wo, hr);
+    Float D = Microfacet::D(_distribution, alpha, hr);
+    Float fr = (G*D*0.25f)/event.wi.z();
 
     return albedo(event.info)*(F*fr);
 }
@@ -116,8 +116,8 @@ bool RoughConductorBsdf::invert(WritablePathSampleGenerator &sampler, const Surf
     if (event.wi.z() <= 0.0f || event.wo.z() <= 0.0f)
         return false;
 
-    float roughness = (*_roughness)[*event.info].x();
-    float alpha = Microfacet::roughnessToAlpha(_distribution, roughness);
+    Float roughness = (*_roughness)[*event.info].x();
+    Float alpha = Microfacet::roughnessToAlpha(_distribution, roughness);
 
     Vec3d m = (Vec3d(event.wi) + Vec3d(event.wo)).normalized();
     sampler.put2D(Microfacet::invert(_distribution, alpha, m, sampler.untracked1D()));
@@ -125,7 +125,7 @@ bool RoughConductorBsdf::invert(WritablePathSampleGenerator &sampler, const Surf
     return true;
 }
 
-float RoughConductorBsdf::pdf(const SurfaceScatterEvent &event) const
+Float RoughConductorBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     if (!event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe))
         return 0.0f;
@@ -133,10 +133,10 @@ float RoughConductorBsdf::pdf(const SurfaceScatterEvent &event) const
         return 0.0f;
 
     // TODO Re-enable this?
-    //float sampleRoughness = (1.2f - 0.2f*std::sqrt(event.wi.z()))*_roughness;
-    float roughness = (*_roughness)[*event.info].x();
-    float sampleRoughness = roughness;
-    float sampleAlpha = Microfacet::roughnessToAlpha(_distribution, sampleRoughness);
+    //Float sampleRoughness = (1.2f - 0.2f*std::sqrt(event.wi.z()))*_roughness;
+    Float roughness = (*_roughness)[*event.info].x();
+    Float sampleRoughness = roughness;
+    Float sampleAlpha = Microfacet::roughnessToAlpha(_distribution, sampleRoughness);
 
     Vec3f hr = (event.wi + event.wo).normalized();
     return Microfacet::pdf(_distribution, sampleAlpha, hr)*0.25f/event.wi.dot(hr);

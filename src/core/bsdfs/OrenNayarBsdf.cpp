@@ -45,8 +45,8 @@ bool OrenNayarBsdf::sample(SurfaceScatterEvent &event) const
     if (event.wi.z() <= 0.0f)
         return false;
 
-    float roughness = (*_roughness)[*event.info].x();
-    float ratio = clamp(roughness, 0.01f, 1.0f);
+    Float roughness = (*_roughness)[*event.info].x();
+    Float ratio = clamp(roughness, Float(0.01f), Float(1.0f));
     if (event.sampler->nextBoolean(ratio))
         event.wo  = SampleWarp::uniformHemisphere(event.sampler->next2D());
     else
@@ -68,32 +68,32 @@ Vec3f OrenNayarBsdf::eval(const SurfaceScatterEvent &event) const
     const Vec3f &wi = event.wi;
     const Vec3f &wo = event.wo;
 
-    float thetaR = std::acos(event.wo.z());
-    float thetaI = std::acos(event.wi.z());
-    float alpha = max(thetaR, thetaI);
-    float beta  = min(thetaR, thetaI);
-    float sinAlpha = std::sin(alpha);
-    float denom = (wi.x()*wi.x() + wi.y()*wi.y())*(wo.x()*wo.x() + wo.y()*wo.y());
-    float cosDeltaPhi;
+    Float thetaR = std::acos(event.wo.z());
+    Float thetaI = std::acos(event.wi.z());
+    Float alpha = max(thetaR, thetaI);
+    Float beta  = min(thetaR, thetaI);
+    Float sinAlpha = std::sin(alpha);
+    Float denom = (wi.x()*wi.x() + wi.y()*wi.y())*(wo.x()*wo.x() + wo.y()*wo.y());
+    Float cosDeltaPhi;
     if (denom == 0.0f)
         cosDeltaPhi = 1.0f;
     else
         cosDeltaPhi = (wi.x()*wo.x() + wi.y()*wo.y())/std::sqrt(denom);
 
-    const float RoughnessToSigma = 1.0f/std::sqrt(2.0f);
-    float sigma = RoughnessToSigma*(*_roughness)[*event.info].x();
-    float sigmaSq = sigma*sigma;
+    const Float RoughnessToSigma = 1.0f/std::sqrt(2.0f);
+    Float sigma = RoughnessToSigma*(*_roughness)[*event.info].x();
+    Float sigmaSq = sigma*sigma;
 
-    float C1 = 1.0f - 0.5f*sigmaSq/(sigmaSq + 0.33f);
-    float C2 = 0.45f*sigmaSq/(sigmaSq + 0.09f);
+    Float C1 = 1.0f - 0.5f*sigmaSq/(sigmaSq + 0.33f);
+    Float C2 = 0.45f*sigmaSq/(sigmaSq + 0.09f);
     if (cosDeltaPhi >= 0.0f)
         C2 *= sinAlpha;
     else
         C2 *= sinAlpha - cube((2.0f*INV_PI)*beta);
-    float C3 = 0.125f*(sigmaSq/(sigmaSq + 0.09f))*sqr((4.0f*INV_PI*INV_PI)*alpha*beta);
+    Float C3 = 0.125f*(sigmaSq/(sigmaSq + 0.09f))*sqr((4.0f*INV_PI*INV_PI)*alpha*beta);
 
-    float fr1 = (C1 + cosDeltaPhi*C2*std::tan(beta) + (1.0f - std::abs(cosDeltaPhi))*C3*std::tan(0.5f*(alpha + beta)));
-    float fr2 = 0.17f*sigmaSq/(sigmaSq + 0.13f)*(1.0f - cosDeltaPhi*sqr((2.0f*INV_PI)*beta));
+    Float fr1 = (C1 + cosDeltaPhi*C2*std::tan(beta) + (1.0f - std::abs(cosDeltaPhi))*C3*std::tan(0.5f*(alpha + beta)));
+    Float fr2 = 0.17f*sigmaSq/(sigmaSq + 0.13f)*(1.0f - cosDeltaPhi*sqr((2.0f*INV_PI)*beta));
 
     Vec3f diffuseAlbedo = albedo(event.info);
     return (diffuseAlbedo*fr1 + diffuseAlbedo*diffuseAlbedo*fr2)*wo.z()*INV_PI;
@@ -106,11 +106,11 @@ bool OrenNayarBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceSc
     if (event.wi.z() <= 0.0f || event.wo.z() <= 0.0f)
         return 0.0f;
 
-    float roughness = (*_roughness)[*event.info].x();
-    float ratio = clamp(roughness, 0.01f, 1.0f);
+    Float roughness = (*_roughness)[*event.info].x();
+    Float ratio = clamp(roughness, Float(0.01f), Float(1.0f));
 
-    float pdf0 = SampleWarp::uniformHemispherePdf(event.wo)*ratio;
-    float pdf1 = SampleWarp::cosineHemispherePdf(event.wo)*(1.0f - ratio);
+    Float pdf0 = SampleWarp::uniformHemispherePdf(event.wo)*ratio;
+    Float pdf1 = SampleWarp::cosineHemispherePdf(event.wo)*(1.0f - ratio);
 
     if (sampler.untrackedBoolean(pdf0/(pdf0 + pdf1))) {
         sampler.putBoolean(ratio, true);
@@ -122,15 +122,15 @@ bool OrenNayarBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceSc
     return true;
 }
 
-float OrenNayarBsdf::pdf(const SurfaceScatterEvent &event) const
+Float OrenNayarBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     if (!event.requestedLobe.test(BsdfLobes::DiffuseReflectionLobe))
         return 0.0f;
     if (event.wi.z() <= 0.0f || event.wo.z() <= 0.0f)
         return 0.0f;
 
-    float roughness = (*_roughness)[*event.info].x();
-    float ratio = clamp(roughness, 0.01f, 1.0f);
+    Float roughness = (*_roughness)[*event.info].x();
+    Float ratio = clamp(roughness, Float(0.01f), Float(1.0f));
     return SampleWarp::uniformHemispherePdf(event.wo)*ratio + SampleWarp::cosineHemispherePdf(event.wo)*(1.0f - ratio);
 }
 

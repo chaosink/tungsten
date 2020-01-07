@@ -8,7 +8,7 @@ namespace Tungsten {
 class HomogeneousMedium : public Medium
 {
     Vec3f _materialSigmaA, _materialSigmaS;
-    float _density;
+    Float _density;
 
     Vec3f _sigmaA, _sigmaS;
     Vec3f _sigmaT;
@@ -31,7 +31,7 @@ public:
     virtual bool sampleDistance(PathSampleGenerator &sampler, const Ray &ray,
             MediumState &state, MediumSample &sample) const override;
     virtual Vec3f transmittance(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
-    virtual float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
+    virtual Float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
 
     Vec3f sigmaA() const { return _sigmaA; }
     Vec3f sigmaS() const { return _sigmaS; }

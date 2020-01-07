@@ -18,8 +18,8 @@ RTCDevice getDevice();
 inline RTCBounds convert(const Box3f &b)
 {
     return RTCBounds{
-        b.min().x(), b.min().y(), b.min().z(), 0.0f,
-        b.max().x(), b.max().y(), b.max().z(), 0.0f
+        float(b.min().x()), float(b.min().y()), float(b.min().z()), 0.0f,
+        float(b.max().x()), float(b.max().y()), float(b.max().z()), 0.0f
     };
 }
 
@@ -33,7 +33,7 @@ inline Box3f convert(const RTCBounds &b)
 
 inline Ray convert(const RTCRay &r)
 {
-    return Ray(Vec3f(r.org), Vec3f(r.dir), r.tnear, r.tfar);
+    return Ray(Vec3f(r.org[0], r.org[1], r.org[2]), Vec3f(r.dir[0], r.dir[1], r.dir[2]), r.tnear, r.tfar);
 }
 
 inline RTCRay convert(const Ray &r)

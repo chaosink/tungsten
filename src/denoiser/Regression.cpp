@@ -110,7 +110,7 @@ Pixmap3f collaborativeRegression(const Pixmap3f &image, const Pixmap3f &guide,
                     for (int ix = x0; ix < x1; ++ix) {
                         Vec2i p = Vec2i(ix, iy) - tile.dstRect.min();
                         int idx = (ix - x0) + (iy - y0)*(x1 - x0);
-                        tile.result       [p] += W[idx]*Vec3f(denoised(idx, 0), denoised(idx, 1), denoised(idx, 2));
+                        tile.result       [p] += Float(W[idx])*Vec3f(denoised(idx, 0), denoised(idx, 1), denoised(idx, 2));
                         tile.resultWeights[p] += W[idx];
                     }
                 }

@@ -32,20 +32,20 @@ class ReconstructionFilter
     typedef StringableEnum<TypeEnum> Type;
     friend Type;
 
-    static float filterWidth(TypeEnum type);
+    static Float filterWidth(TypeEnum type);
 
     Type _type;
 
-    float _width;
-    float _binSize;
-    float _invBinSize;
-    float _filter[RFILTER_RESOLUTION + 1];
-    float _cdf[RFILTER_RESOLUTION + 1];
+    Float _width;
+    Float _binSize;
+    Float _invBinSize;
+    Float _filter[RFILTER_RESOLUTION + 1];
+    Float _cdf[RFILTER_RESOLUTION + 1];
 
-    inline float mitchellNetravali(float x) const
+    inline Float mitchellNetravali(Float x) const
     {
-        CONSTEXPR float B = 1.0f/3.0f;
-        CONSTEXPR float C = 1.0f/3.0f;
+        CONSTEXPR Float B = 1.0f/3.0f;
+        CONSTEXPR Float C = 1.0f/3.0f;
         if (x < 1.0f)
             return 1.0f/6.0f*(
                 (12.0f - 9.0f*B - 6.0f*C)*x*x*x
@@ -61,7 +61,7 @@ class ReconstructionFilter
             return 0.0f;
     }
 
-    inline float catmullRom(float x) const
+    inline Float catmullRom(Float x) const
     {
         if (x < 1.0f)
             return 1.0f/6.0f*((12.0f - 3.0f)*x*x*x + (-18.0f + 3.0f)*x*x + 6.0f);
@@ -71,7 +71,7 @@ class ReconstructionFilter
             return 0.0f;
     }
 
-    inline float lanczos(float x) const
+    inline Float lanczos(Float x) const
     {
         if (x == 0.0f)
             return 1.0f;
@@ -83,7 +83,7 @@ class ReconstructionFilter
 
     void precompute();
 
-    void sample(float xi, float &u, float &pdf) const
+    void sample(Float xi, Float &u, Float &pdf) const
     {
         bool negative = xi < 0.5f;
         xi = negative ? xi*2.0f : (xi - 0.5f)*2.0f;
@@ -102,20 +102,20 @@ class ReconstructionFilter
             u = -u;
     }
 
-    float invert(float u) const
+    Float invert(Float u) const
     {
         bool negative = u < 0.0f;
         u = std::abs(u)*_invBinSize;
 
         int idx = min(int(u), RFILTER_RESOLUTION);
 
-        float xi = _cdf[idx - 1] + (u - idx)*(_cdf[idx] - _cdf[idx - 1]);
+        Float xi = _cdf[idx - 1] + (u - idx)*(_cdf[idx] - _cdf[idx - 1]);
         xi = negative ? xi*0.5f : 0.5f + xi*0.5f;
 
         return xi;
     }
 
-    bool invert(int minX, int maxX, float x, float mu, int &pixel, float &xi) const
+    bool invert(int minX, int maxX, Float x, Float mu, int &pixel, Float &xi) const
     {
         CONSTEXPR int MaxWidth = 2;
         CONSTEXPR int NumBins = (MaxWidth + 1)*2;
@@ -123,9 +123,9 @@ class ReconstructionFilter
         // can't be more than the filter width below zero, so we shift-round-shift to make sure we
         // round down always
         int ix = int(x + 2*MaxWidth) - 2*MaxWidth;
-        float cx = ix + 0.5f;
+        Float cx = ix + 0.5f;
 
-        float pixelCdf[NumBins];
+        Float pixelCdf[NumBins];
         for (int dx = -MaxWidth; dx <= MaxWidth; ++dx)
             pixelCdf[dx + MaxWidth] = evalApproximate(x - (cx + dx))*(ix + dx >= minX && ix + dx < maxX ? 1.0f : 0.0f);
         for (int i = 1; i < NumBins; ++i)
@@ -134,7 +134,7 @@ class ReconstructionFilter
         if (pixelCdf[NumBins - 1] == 0.0f)
             return false;
 
-        float target = pixelCdf[NumBins - 1]*mu;
+        Float target = pixelCdf[NumBins - 1]*mu;
         int idx;
         for (idx = 0; idx < NumBins - 1; ++idx)
             if (target < pixelCdf[idx])
@@ -149,7 +149,7 @@ public:
     ReconstructionFilter(const std::string &name = "tent") : _type(name ) { precompute(); }
     ReconstructionFilter(JsonPtr value)                    : _type(value) { precompute(); }
 
-    inline Vec2f sample(Vec2f uv, float &pdf) const
+    inline Vec2f sample(Vec2f uv, Float &pdf) const
     {
         if (_type == Dirac) {
             pdf = 1.0f;
@@ -160,7 +160,7 @@ public:
         }
 
         Vec2f result;
-        float pdfX, pdfY;
+        Float pdfX, pdfY;
         sample(uv.x(), result.x(), pdfX);
         sample(uv.y(), result.y(), pdfY);
 
@@ -184,7 +184,7 @@ public:
         return successX && successY;
     }
 
-    float eval(float x) const
+    Float eval(Float x) const
     {
         switch (_type) {
         case Dirac:
@@ -194,8 +194,8 @@ public:
         case Tent:
             return 1.0f - std::abs(x);
         case Gaussian: {
-            const float Alpha = 2.0f;
-            return max(std::exp(-Alpha*x*x) - std::exp(-Alpha*4.0f), 0.0f);
+            const Float Alpha = 2.0f;
+            return max(std::exp(-Alpha*x*x) - std::exp(-Alpha*4.0f), Float(0.0f));
         } case MitchellNetravali:
             return mitchellNetravali(std::abs(x));
         case CatmullRom:
@@ -207,12 +207,12 @@ public:
         }
     }
 
-    inline float evalApproximate(float x) const
+    inline Float evalApproximate(Float x) const
     {
         return _filter[min(int(std::abs(x*_invBinSize)), RFILTER_RESOLUTION)];
     }
 
-    float width() const
+    Float width() const
     {
         return _width;
     }

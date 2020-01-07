@@ -25,7 +25,7 @@ void Instance::buildProxy()
     std::vector<TriangleI> tris(_instanceCount*2);
     for (uint32 i = 0; i < _instanceCount; ++i) {
         Vec3f diag = masterSize[_instanceId[i]];
-        float size = diag.length();
+        Float size = diag.length();
 
         Vec3f v0 = _master[_instanceId[i]]->transform()*Vec3f( size, 0.0f,  size);
         Vec3f v1 = _master[_instanceId[i]]->transform()*Vec3f(-size, 0.0f,  size);
@@ -52,7 +52,7 @@ const Primitive &Instance::getMaster(const IntersectionTemporary &data) const
     return *_master[_instanceId[data.flags]];
 }
 
-float Instance::powerToRadianceFactor() const
+Float Instance::powerToRadianceFactor() const
 {
     return 0.0f;
 }
@@ -150,12 +150,12 @@ void loadLossyInstance(InputStreamHandle &in, const Box3f &bounds, Vec3f &pos, Q
     uint32 axisX = (c >> RotW) & ((1 << AxisW) - 1);
     uint32 axisY = (c >> (RotW + AxisW)) & ((1 << AxisW) - 1);
 
-    float axisXf = (axisX/float(1 << AxisW))*2.0f - 1.0f;
-    float axisYf = (axisY/float(1 << AxisW))*2.0f - 1.0f;
-    float rotW = TWO_PI*rot/(1 << RotW);
-    Vec3f w(axisXf, axisYf, std::sqrt(max(1 - sqr(axisXf) - sqr(axisYf), 0.0f)));
+    Float axisXf = (axisX/Float(1 << AxisW))*2.0f - 1.0f;
+    Float axisYf = (axisY/Float(1 << AxisW))*2.0f - 1.0f;
+    Float rotW = TWO_PI*rot/(1 << RotW);
+    Vec3f w(axisXf, axisYf, std::sqrt(max(1 - sqr(axisXf) - sqr(axisYf), Float(0.0f))));
 
-    pos = lerp(bounds.min(), bounds.max(), Vec3f(Vec3u(x, y, z))/float(1 << PosW));
+    pos = lerp(bounds.min(), bounds.max(), Vec3f(Vec3u(x, y, z))/Float(1 << PosW));
     f = QuaternionF(rotW, w);
 }
 void loadLosslessInstance(InputStreamHandle &in, Vec3f &pos, QuaternionF &f)
@@ -164,7 +164,7 @@ void loadLosslessInstance(InputStreamHandle &in, Vec3f &pos, QuaternionF &f)
     Vec3f w;
     FileUtils::streamRead(in, w);
 
-    float angle = w.length();
+    Float angle = w.length();
     w = (angle > 0 ? w/angle : Vec3f(0.0f, 1.0f, 0.0f));
     f = QuaternionF(angle, w);
 }
@@ -179,7 +179,7 @@ void saveLossyInstance(OutputStreamHandle &out, const Box3f &bounds, Vec3f pos, 
     a = (xyz[0] << 11) | (xyz[1] >> 10);
     b = (xyz[1] << 22) | (xyz[2] << 1);
 
-    float angle = std::acos(clamp(f.x(), -1.0f, 1.0f))*2.0f;
+    Float angle = std::acos(clamp(f.x(), Float(-1.0f), Float(1.0f)))*2.0f;
     Vec3f w = Vec3f(f[1], f[2], f[3]).normalized();
     if (f[3] < 0) {
         w = -w;
@@ -199,7 +199,7 @@ void saveLossyInstance(OutputStreamHandle &out, const Box3f &bounds, Vec3f pos, 
 void saveLosslessInstance(OutputStreamHandle &out, Vec3f pos, QuaternionF f)
 {
     FileUtils::streamWrite(out, pos);
-    float angle = std::acos(clamp(f.x(), -1.0f, 1.0f))*2.0f;
+    Float angle = std::acos(clamp(f.x(), Float(-1.0f), Float(1.0f)))*2.0f;
     Vec3f w = Vec3f(f[1], f[2], f[3]).normalized()*angle;
     FileUtils::streamWrite(out, w);
 }
@@ -291,7 +291,7 @@ bool Instance::intersect(Ray &ray, IntersectionTemporary &data) const
 {
     bool hit = false;
     uint32 prim;
-    _bvh->trace(ray, [&](Ray &ray, uint32 id, float tMin, const Vec3pf &/*bounds*/) {
+    _bvh->trace(ray, [&](Ray &ray, uint32 id, Float tMin, const Vec3pf &/*bounds*/) {
         QuaternionF invRot = _instanceRot[id].conjugate();
         Ray localRay = ray.scatter(invRot*(ray.pos() - _instancePos[id]), invRot*ray.dir(), tMin);
         bool hitI = _master[_instanceId[id]]->intersect(localRay, data);
@@ -314,7 +314,7 @@ bool Instance::occluded(const Ray &ray) const
 {
     Ray tmpRay = ray;
     bool occluded = false;
-    _bvh->trace(tmpRay, [&](Ray &ray, uint32 id, float tMin, const Vec3pf &/*bounds*/) {
+    _bvh->trace(tmpRay, [&](Ray &ray, uint32 id, Float tMin, const Vec3pf &/*bounds*/) {
         QuaternionF invRot = _instanceRot[id].conjugate();
         Ray localRay = ray.scatter(invRot*(ray.pos() - _instancePos[id]), invRot*ray.dir(), tMin);
         bool occludedI = _master[_instanceId[id]]->occluded(localRay);
@@ -372,7 +372,7 @@ bool Instance::isInfinite() const
     return false;
 }
 
-float Instance::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float Instance::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     return -1.0f;
 }
@@ -412,9 +412,9 @@ void Instance::prepareForRender()
         Box3f bLocal = masterBounds[_instanceId[i]];
 
         Box3f bGlobal;
-        for (float x : {0, 1})
-            for (float y : {0, 1})
-                for (float z : {0, 1})
+        for (Float x : {0, 1})
+            for (Float y : {0, 1})
+                for (Float z : {0, 1})
                     bGlobal.grow(_instancePos[i] + _instanceRot[i]*lerp(bLocal.min(), bLocal.max(), Vec3f(x, y, z)));
 
         _bounds.grow(bGlobal);

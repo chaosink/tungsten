@@ -7,9 +7,9 @@ namespace Tungsten {
 
 class HenyeyGreensteinPhaseFunction : public PhaseFunction
 {
-    float _g;
+    Float _g;
 
-    inline float henyeyGreenstein(float cosTheta) const;
+    inline Float henyeyGreenstein(Float cosTheta) const;
 
 public:
     HenyeyGreensteinPhaseFunction();
@@ -20,9 +20,9 @@ public:
     virtual Vec3f eval(const Vec3f &wi, const Vec3f &wo) const override;
     virtual bool sample(PathSampleGenerator &sampler, const Vec3f &wi, PhaseSample &sample) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const Vec3f &wi, const Vec3f &wo) const;
-    virtual float pdf(const Vec3f &wi, const Vec3f &wo) const override;
+    virtual Float pdf(const Vec3f &wi, const Vec3f &wo) const override;
 
-    float g() const
+    Float g() const
     {
         return _g;
     }

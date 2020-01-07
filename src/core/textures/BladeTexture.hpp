@@ -10,11 +10,11 @@ class BladeTexture : public Texture
     typedef JsonSerializable::Allocator Allocator;
 
     int _numBlades;
-    float _angle;
+    Float _angle;
     Vec3f _value;
 
-    float _area;
-    float _bladeAngle;
+    Float _area;
+    Float _bladeAngle;
     Vec2f _baseNormal;
     Vec2f _baseEdge;
 
@@ -38,13 +38,13 @@ public:
 
     virtual void makeSamplable(TextureMapJacobian jacobian) override;
     virtual Vec2f sample(TextureMapJacobian jacobian, const Vec2f &uv) const override;
-    virtual float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const override;
+    virtual Float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const override;
 
-    virtual void scaleValues(float factor) override;
+    virtual void scaleValues(Float factor) override;
 
     virtual Texture *clone() const override;
 
-    float angle() const
+    Float angle() const
     {
         return _angle;
     }
@@ -54,7 +54,7 @@ public:
         return _numBlades;
     }
 
-    void setAngle(float angle);
+    void setAngle(Float angle);
     void setNumBlades(int numBlades);
 };
 

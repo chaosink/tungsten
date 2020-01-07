@@ -40,16 +40,16 @@ Vec3f ExponentialTransmittance::mediumMedium(const Vec3f &tau) const
     return FastMath::exp(-tau);
 }
 
-float ExponentialTransmittance::sigmaBar() const
+Float ExponentialTransmittance::sigmaBar() const
 {
     return 1.0f;
 }
 
-float ExponentialTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float ExponentialTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
     return -std::log(1.0f - sampler.next1D());
 }
-float ExponentialTransmittance::sampleMedium(PathSampleGenerator &sampler) const
+Float ExponentialTransmittance::sampleMedium(PathSampleGenerator &sampler) const
 {
     return -std::log(1.0f - sampler.next1D());
 }

@@ -10,20 +10,20 @@ class RoughWireBcsdf : public Bsdf
     std::string _materialName;
     Vec3f _eta;
     Vec3f _k;
-    float _roughness;
+    Float _roughness;
 
-    float _v;
+    Float _v;
 
     bool lookupMaterial();
 
-    static float I0(float x);
-    static float logI0(float x);
+    static Float I0(Float x);
+    static Float logI0(Float x);
 
-    float N(float cosPhi) const;
-    float M(float v, float sinThetaI, float sinThetaO, float cosThetaI, float cosThetaO) const;
+    Float N(Float cosPhi) const;
+    Float M(Float v, Float sinThetaI, Float sinThetaO, Float cosThetaI, Float cosThetaO) const;
 
-    float sampleN(float xi) const;
-    float sampleM(float v, float sinThetaI, float cosThetaI, float xi1, float xi2) const;
+    Float sampleN(Float xi) const;
+    Float sampleM(Float v, Float sinThetaI, Float cosThetaI, Float xi1, Float xi2) const;
 
 public:
     RoughWireBcsdf();
@@ -33,7 +33,7 @@ public:
 
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
     virtual bool sample(SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 };

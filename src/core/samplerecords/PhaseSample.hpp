@@ -9,7 +9,7 @@ struct PhaseSample
 {
     Vec3f w;
     Vec3f weight;
-    float pdf;
+    Float pdf;
 };
 
 }

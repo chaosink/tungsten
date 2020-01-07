@@ -18,13 +18,13 @@ class LightPath
     std::unique_ptr<PathVertex[]> _vertices;
     std::unique_ptr<PathEdge[]> _edges;
 
-    float geometryFactor(int startVertex) const;
-    float invGeometryFactor(int startVertex) const;
+    Float geometryFactor(int startVertex) const;
+    Float invGeometryFactor(int startVertex) const;
 
     void toAreaMeasure();
 
-    static float misWeight(const LightPath &camera, const LightPath &emitter,
-            const PathEdge &edge, int s, int t, float *ratios);
+    static Float misWeight(const LightPath &camera, const LightPath &emitter,
+            const PathEdge &edge, int s, int t, Float *ratios);
 
 public:
     LightPath(int maxLength)
@@ -62,7 +62,7 @@ public:
         _adjoint = false;
     }
 
-    void startEmitterPath(const Primitive *emitter, float emitterPdf)
+    void startEmitterPath(const Primitive *emitter, Float emitterPdf)
     {
         _vertices[0] = PathVertex(emitter, emitterPdf);
         _length = 0;
@@ -110,12 +110,12 @@ public:
 
     void copy(const LightPath &o);
 
-    Vec3f bdptWeightedPathEmission(int minLength, int maxLength, float *ratios = nullptr, Vec3f *directEmissionByBounce = nullptr) const;
+    Vec3f bdptWeightedPathEmission(int minLength, int maxLength, Float *ratios = nullptr, Vec3f *directEmissionByBounce = nullptr) const;
 
     static Vec3f bdptConnect(const TraceBase &tracer, const LightPath &camera, const LightPath &emitter,
-            int s, int t, int maxBounce, PathSampleGenerator &sampler, float *ratios = nullptr);
+            int s, int t, int maxBounce, PathSampleGenerator &sampler, Float *ratios = nullptr);
     static bool bdptCameraConnect(const TraceBase &tracer, const LightPath &camera, const LightPath &emitter,
-            int s, int maxBounce, PathSampleGenerator &sampler, Vec3f &weight, Vec2f &pixel, float *ratios = nullptr);
+            int s, int maxBounce, PathSampleGenerator &sampler, Vec3f &weight, Vec2f &pixel, Float *ratios = nullptr);
 
     bool extendSampleSpace(WritablePathSampleGenerator &sampler, const LightPath &source, int numVerts) const;
 

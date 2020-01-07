@@ -13,7 +13,7 @@
 
 namespace Tungsten {
 
-float LightPath::geometryFactor(int startVertex) const
+Float LightPath::geometryFactor(int startVertex) const
 {
     const PathEdge &edge = _edges[startVertex];
     const PathVertex &v0 = _vertices[startVertex + 0];
@@ -21,7 +21,7 @@ float LightPath::geometryFactor(int startVertex) const
     return v0.cosineFactor(edge.d)*v1.cosineFactor(edge.d)/edge.rSq;
 }
 
-float LightPath::invGeometryFactor(int startVertex) const
+Float LightPath::invGeometryFactor(int startVertex) const
 {
     const PathEdge &edge = _edges[startVertex];
     const PathVertex &v0 = _vertices[startVertex + 0];
@@ -93,11 +93,11 @@ void LightPath::toAreaMeasure()
     }
 }
 
-float LightPath::misWeight(const LightPath &camera, const LightPath &emitter,
-            const PathEdge &edge, int s, int t, float *ratios)
+Float LightPath::misWeight(const LightPath &camera, const LightPath &emitter,
+            const PathEdge &edge, int s, int t, Float *ratios)
 {
-    float *pdfForward           = reinterpret_cast<float *>(alloca((s + t)*sizeof(float)));
-    float *pdfBackward          = reinterpret_cast<float *>(alloca((s + t)*sizeof(float)));
+    Float *pdfForward           = reinterpret_cast<Float *>(alloca((s + t)*sizeof(Float)));
+    Float *pdfBackward          = reinterpret_cast<Float *>(alloca((s + t)*sizeof(Float)));
     bool  *connectable          = reinterpret_cast<bool  *>(alloca((s + t)*sizeof(bool)));
     const PathVertex **vertices = reinterpret_cast<const PathVertex **>(alloca((s + t)*sizeof(const PathVertex *)));
 
@@ -137,8 +137,8 @@ float LightPath::misWeight(const LightPath &camera, const LightPath &emitter,
         if (connectable[i] && !connectable[i - 1])
             pdfBackward[i - 1] *= (i < s) ? emitter.invGeometryFactor(i - 1) : camera.invGeometryFactor(s + t - 1 - i);
 
-    float weight = 1.0f;
-    float pi = 1.0f;
+    Float weight = 1.0f;
+    Float pi = 1.0f;
     if (ratios)
         ratios[s] = 1.0f;
     for (int i = s + 1; i < s + t; ++i) {
@@ -225,12 +225,12 @@ void LightPath::copy(const LightPath &o)
             _vertices[i].pointerFixup();
 }
 
-Vec3f LightPath::bdptWeightedPathEmission(int minLength, int maxLength, float *ratios, Vec3f *directEmissionByBounce) const
+Vec3f LightPath::bdptWeightedPathEmission(int minLength, int maxLength, Float *ratios, Vec3f *directEmissionByBounce) const
 {
     // TODO: Naive, slow version to make sure it's correct. Optimize this
 
-    float *pdfForward  = reinterpret_cast<float *>(alloca(_length*sizeof(float)));
-    float *pdfBackward = reinterpret_cast<float *>(alloca(_length*sizeof(float)));
+    Float *pdfForward  = reinterpret_cast<Float *>(alloca(_length*sizeof(Float)));
+    Float *pdfBackward = reinterpret_cast<Float *>(alloca(_length*sizeof(Float)));
     bool  *connectable = reinterpret_cast<bool  *>(alloca(_length*sizeof(bool)));
 
     if (directEmissionByBounce)
@@ -295,8 +295,8 @@ Vec3f LightPath::bdptWeightedPathEmission(int minLength, int maxLength, float *r
             if (connectable[i] && !connectable[i - 1])
                 pdfBackward[i - 1] *= invGeometryFactor(t - 1 - i);
 
-        float weight = 1.0f;
-        float pi = 1.0f;
+        Float weight = 1.0f;
+        Float pi = 1.0f;
         if (ratios)
             ratios[0] = 1.0f;
         for (int i = 1; i < t; ++i) {
@@ -321,7 +321,7 @@ Vec3f LightPath::bdptWeightedPathEmission(int minLength, int maxLength, float *r
 }
 
 Vec3f LightPath::bdptConnect(const TraceBase &tracer, const LightPath &camera, const LightPath &emitter,
-        int s, int t, int maxBounce, PathSampleGenerator &sampler, float *ratios)
+        int s, int t, int maxBounce, PathSampleGenerator &sampler, Float *ratios)
 {
     const PathVertex &a = emitter[s - 1];
     const PathVertex &b = camera[t - 1];
@@ -367,7 +367,7 @@ Vec3f LightPath::bdptConnect(const TraceBase &tracer, const LightPath &camera, c
 }
 
 bool LightPath::bdptCameraConnect(const TraceBase &tracer, const LightPath &camera, const LightPath &emitter,
-        int s, int maxBounce, PathSampleGenerator &sampler, Vec3f &weight, Vec2f &pixel, float *ratios)
+        int s, int maxBounce, PathSampleGenerator &sampler, Vec3f &weight, Vec2f &pixel, Float *ratios)
 {
     const PathVertex &a = emitter[s - 1];
     const PathVertex &b = camera[0];

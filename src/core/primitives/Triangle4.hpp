@@ -52,7 +52,7 @@ inline Vec<float4, 3> transpose(const Vec3f &p)
 }
 
 inline void intersectTriangle4(Ray &ray, const Triangle4 &t,
-        float &resultU, float &resultV, uint32 &resultId)
+        Float &resultU, Float &resultV, uint32 &resultId)
 {
     typedef SimdBool<4> pbool;
 
@@ -84,7 +84,7 @@ inline void intersectTriangle4(Ray &ray, const Triangle4 &t,
     maxT = maxT.blend(float4(ray.farT()), invalidMask);
 
     int minId = -1;
-    float tMin = ray.farT();
+    Float tMin = ray.farT();
     if (maxT[0] < tMin) { minId = 0; tMin = maxT[0]; }
     if (maxT[1] < tMin) { minId = 1; tMin = maxT[1]; }
     if (maxT[2] < tMin) { minId = 2; tMin = maxT[2]; }

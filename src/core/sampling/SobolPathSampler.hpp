@@ -54,7 +54,7 @@ public:
     {
     }
 
-    virtual bool nextBoolean(float pTrue) override final
+    virtual bool nextBoolean(Float pTrue) override final
     {
         return _supplementalSampler.next1D() < pTrue;
     }
@@ -64,7 +64,7 @@ public:
         return int(_supplementalSampler.next1D()*numChoices);
     }
 
-    virtual float next1D() override final
+    virtual Float next1D() override final
     {
         if (_dimension >= 1024)
             return _supplementalSampler.next1D();
@@ -73,8 +73,8 @@ public:
 
     inline virtual Vec2f next2D() override final
     {
-        float a = next1D();
-        float b = next1D();
+        Float a = next1D();
+        Float b = next1D();
         return Vec2f(a, b);
     }
 

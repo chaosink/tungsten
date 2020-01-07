@@ -32,9 +32,9 @@ bool DiffuseTransmissionBsdf::sample(SurfaceScatterEvent &event) const
     if (!sampleR && !sampleT)
         return false;
 
-    float transmittanceProbability = sampleR && sampleT ? _transmittance : (sampleR ? 0.0f : 1.0f);
+    Float transmittanceProbability = sampleR && sampleT ? _transmittance : (sampleR ? 0.0f : 1.0f);
     bool transmit = event.sampler->nextBoolean(transmittanceProbability);
-    float weight = sampleR && sampleT ? 1.0f : (transmit ? _transmittance : 1.0f - _transmittance);
+    Float weight = sampleR && sampleT ? 1.0f : (transmit ? _transmittance : 1.0f - _transmittance);
 
     event.wo = SampleWarp::cosineHemisphere(event.sampler->next2D());
     event.wo.z() = std::copysign(event.wo.z(), event.wi.z());
@@ -51,7 +51,7 @@ Vec3f DiffuseTransmissionBsdf::eval(const SurfaceScatterEvent &event) const
     if (!event.requestedLobe.test(BsdfLobes::DiffuseTransmissionLobe))
         return Vec3f(0.0f);
 
-    float factor = event.wi.z()*event.wo.z() < 0.0f ? _transmittance : 1.0f - _transmittance;
+    Float factor = event.wi.z()*event.wo.z() < 0.0f ? _transmittance : 1.0f - _transmittance;
     return albedo(event.info)*factor*INV_PI*std::abs(event.wo.z());
 }
 
@@ -66,7 +66,7 @@ bool DiffuseTransmissionBsdf::invert(WritablePathSampleGenerator &sampler, const
     if ((transmit && !sampleT) || (!transmit && !sampleR))
         return false;
 
-    float transmittanceProbability = sampleR && sampleT ? _transmittance : (sampleR ? 0.0f : 1.0f);
+    Float transmittanceProbability = sampleR && sampleT ? _transmittance : (sampleR ? 0.0f : 1.0f);
 
     sampler.putBoolean(transmittanceProbability, transmit);
     sampler.put2D(SampleWarp::invertCosineHemisphere(event.wo, sampler.untracked1D()));
@@ -74,16 +74,16 @@ bool DiffuseTransmissionBsdf::invert(WritablePathSampleGenerator &sampler, const
     return true;
 }
 
-float DiffuseTransmissionBsdf::pdf(const SurfaceScatterEvent &event) const
+Float DiffuseTransmissionBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::DiffuseReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::DiffuseTransmissionLobe);
     if (!sampleR && !sampleT)
         return 0.0f;
 
-    float transmittanceProbability = sampleR && sampleT ? _transmittance : (sampleR ? 0.0f : 1.0f);
+    Float transmittanceProbability = sampleR && sampleT ? _transmittance : (sampleR ? 0.0f : 1.0f);
 
-    float factor = event.wi.z()*event.wo.z() < 0.0f ? transmittanceProbability : 1.0f - transmittanceProbability;
+    Float factor = event.wi.z()*event.wo.z() < 0.0f ? transmittanceProbability : 1.0f - transmittanceProbability;
     return factor*SampleWarp::cosineHemispherePdf(event.wo);
 }
 

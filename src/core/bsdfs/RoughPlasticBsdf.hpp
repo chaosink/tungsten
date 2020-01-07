@@ -10,15 +10,15 @@ class Scene;
 
 class RoughPlasticBsdf : public Bsdf
 {
-    float _ior;
-    float _thickness;
-    float _substrateWeight;
+    Float _ior;
+    Float _thickness;
+    Float _substrateWeight;
     Vec3f _sigmaA;
     Microfacet::Distribution _distribution;
     std::shared_ptr<Texture> _roughness;
 
-    float _diffuseFresnel;
-    float _avgTransmittance;
+    Float _diffuseFresnel;
+    Float _avgTransmittance;
     Vec3f _scaledSigmaA;
 
 public:
@@ -30,7 +30,7 @@ public:
     virtual bool sample(SurfaceScatterEvent &event) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const override;
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 
@@ -39,7 +39,7 @@ public:
         return _distribution.toString();
     }
 
-    float ior() const
+    Float ior() const
     {
         return _ior;
     }
@@ -54,7 +54,7 @@ public:
         return _sigmaA;
     }
 
-    float thickness() const
+    Float thickness() const
     {
         return _thickness;
     }
@@ -64,7 +64,7 @@ public:
         _distribution = distributionName;
     }
 
-    void setIor(float ior)
+    void setIor(Float ior)
     {
         _ior = ior;
     }
@@ -79,7 +79,7 @@ public:
         _sigmaA = sigmaA;
     }
 
-    void setThickness(float thickness)
+    void setThickness(Float thickness)
     {
         _thickness = thickness;
     }

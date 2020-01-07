@@ -9,14 +9,14 @@ namespace Tungsten {
 namespace Spectral {
 
 static CONSTEXPR int CIE_samples = 471;
-static CONSTEXPR float CIE_Min = 360.0f;
-static CONSTEXPR float CIE_Max = 830.0f;
+static CONSTEXPR Float CIE_Min = 360.0f;
+static CONSTEXPR Float CIE_Max = 830.0f;
 
-extern const float CIE_X_entries[];
-extern const float CIE_Y_entries[];
-extern const float CIE_Z_entries[];
+extern const Float CIE_X_entries[];
+extern const Float CIE_Y_entries[];
+extern const Float CIE_Z_entries[];
 
-void spectralXyzWeights(int samples, float lambdas[], Vec3f weights[]);
+void spectralXyzWeights(int samples, Float lambdas[], Vec3f weights[]);
 
 inline Vec3f xyzToRgb(Vec3f xyz) {
     return Vec3f(
@@ -26,18 +26,18 @@ inline Vec3f xyzToRgb(Vec3f xyz) {
     );
 }
 
-static inline Vec3f wavelengthToXyz(float lambda)
+static inline Vec3f wavelengthToXyz(Float lambda)
 {
-    float x = CIE_samples*(lambda - CIE_Min)/(CIE_Max - CIE_Min);
+    Float x = CIE_samples*(lambda - CIE_Min)/(CIE_Max - CIE_Min);
     int i = clamp(int(x), 0, CIE_samples - 2);
-    float u = x - i;
+    Float u = x - i;
     Vec3f xyz0 = Vec3f(CIE_X_entries[i + 0], CIE_Y_entries[i + 0], CIE_Z_entries[i + 0]);
     Vec3f xyz1 = Vec3f(CIE_X_entries[i + 1], CIE_Y_entries[i + 1], CIE_Z_entries[i + 1]);
 
     return xyz0*(1.0f - u) + xyz1*u;
 }
 
-static inline Vec3f wavelengthToRgb(float lambda)
+static inline Vec3f wavelengthToRgb(Float lambda)
 {
     return xyzToRgb(wavelengthToXyz(lambda));
 }

@@ -31,13 +31,13 @@ void ThinlensCamera::precompute()
     _planeDist = 1.0f/std::tan(_fovRad*0.5f);
     _aperture->makeSamplable(MAP_UNIFORM);
 
-    float planeArea = (2.0f/_planeDist)*(2.0f*_ratio/_planeDist);
+    Float planeArea = (2.0f/_planeDist)*(2.0f*_ratio/_planeDist);
     _invPlaneArea = 1.0f/planeArea;
 }
 
-float ThinlensCamera::evalApertureThroughput(Vec3f planePos, Vec2f aperturePos) const
+Float ThinlensCamera::evalApertureThroughput(Vec3f planePos, Vec2f aperturePos) const
 {
-    float aperture = (*_aperture)[aperturePos].x();
+    Float aperture = (*_aperture)[aperturePos].x();
 
     if (_catEye > 0.0f) {
         aperturePos = (aperturePos*2.0f - 1.0f)*_apertureSize;
@@ -105,11 +105,11 @@ bool ThinlensCamera::sampleDirectionAndPixel(PathSampleGenerator &sampler, const
 bool ThinlensCamera::sampleDirection(PathSampleGenerator &sampler, const PositionSample &point, Vec2u pixel,
         DirectionSample &sample) const
 {
-    float pdf;
+    Float pdf;
     Vec2f pixelUv = _filter.sample(sampler.next2D(), pdf);
     Vec3f planePos = Vec3f(
-        -1.0f  + (float(pixel.x()) + pixelUv.x())*2.0f*_pixelSize.x(),
-        _ratio - (float(pixel.y()) + pixelUv.y())*2.0f*_pixelSize.x(),
+        -1.0f  + (Float(pixel.x()) + pixelUv.x())*2.0f*_pixelSize.x(),
+        _ratio - (Float(pixel.y()) + pixelUv.y())*2.0f*_pixelSize.x(),
         _planeDist
     );
     planePos *= _focusDist/planePos.z();
@@ -140,7 +140,7 @@ bool ThinlensCamera::sampleDirect(const Vec3f &p, PathSampleGenerator &sampler, 
     if (!evalDirection(sampler, point, DirectionSample(-sample.d), sample.weight, sample.pixel))
         return false;
 
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
     sample.weight *= point.weight/rSq;
@@ -174,7 +174,7 @@ bool ThinlensCamera::evalDirection(PathSampleGenerator &/*sampler*/, const Posit
     return true;
 }
 
-float ThinlensCamera::directionPdf(const PositionSample &point, const DirectionSample &direction) const
+Float ThinlensCamera::directionPdf(const PositionSample &point, const DirectionSample &direction) const
 {
     Vec3f localLensPos = _invTransform*point.p;
     Vec3f localDir = _invTransform.transformVector(direction.d);
@@ -190,8 +190,8 @@ float ThinlensCamera::directionPdf(const PositionSample &point, const DirectionS
             return false;
     }
 
-    float u = (planePos.x() + 1.0f)*0.5f;
-    float v = (1.0f - planePos.y()/_ratio)*0.5f;
+    Float u = (planePos.x() + 1.0f)*0.5f;
+    Float v = (1.0f - planePos.y()/_ratio)*0.5f;
     if (u < 0.0f || v < 0.0f || u > 1.0f || v > 1.0f)
         return 0.0f;
 

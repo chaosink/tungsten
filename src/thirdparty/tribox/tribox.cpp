@@ -1,8 +1,8 @@
 /********************************************************/
 /* AABB-triangle overlap test code                      */
-/* by Tomas Akenine-Möller                              */
-/* Function: int triBoxOverlap(float boxcenter[3],      */
-/*          float boxhalfsize[3],float triverts[3][3]); */
+/* by Tomas Akenine-Mï¿½ller                              */
+/* Function: int triBoxOverlap(Float boxcenter[3],      */
+/*          Float boxhalfsize[3],Float triverts[3][3]); */
 /* History:                                             */
 /*   2001-03-05: released the code in its first version */
 /*   2001-06-18: changed the order of the tests, faster */
@@ -13,6 +13,7 @@
 /********************************************************/
 #include <math.h>
 #include <stdio.h>
+#include "IntTypes.hpp"
 
 #define X 0
 #define Y 1
@@ -21,14 +22,14 @@
 #define CROSS(dest,v1,v2) \
           dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
           dest[1]=v1[2]*v2[0]-v1[0]*v2[2]; \
-          dest[2]=v1[0]*v2[1]-v1[1]*v2[0]; 
+          dest[2]=v1[0]*v2[1]-v1[1]*v2[0];
 
 #define DOT(v1,v2) (v1[0]*v2[0]+v1[1]*v2[1]+v1[2]*v2[2])
 
 #define SUB(dest,v1,v2) \
           dest[0]=v1[0]-v2[0]; \
           dest[1]=v1[1]-v2[1]; \
-          dest[2]=v1[2]-v2[2]; 
+          dest[2]=v1[2]-v2[2];
 
 #define FINDMINMAX(x0,x1,x2,min,max) \
   min = max = x0;   \
@@ -37,10 +38,10 @@
   if(x2<min) min=x2;\
   if(x2>max) max=x2;
 
-int planeBoxOverlap(float normal[3], float vert[3], float maxbox[3])	// -NJMP-
+int planeBoxOverlap(Float normal[3], Float vert[3], Float maxbox[3])	// -NJMP-
 {
   int q;
-  float vmin[3],vmax[3],v;
+  Float vmin[3],vmax[3],v;
   for(q=X;q<=Z;q++)
   {
     v=vert[q];					// -NJMP-
@@ -57,7 +58,7 @@ int planeBoxOverlap(float normal[3], float vert[3], float maxbox[3])	// -NJMP-
   }
   if(DOT(normal,vmin)>0.0f) return 0;	// -NJMP-
   if(DOT(normal,vmax)>=0.0f) return 1;	// -NJMP-
-  
+
   return 0;
 }
 
@@ -108,7 +109,7 @@ int planeBoxOverlap(float normal[3], float vert[3], float maxbox[3])	// -NJMP-
 	rad = fa * boxhalfsize[X] + fb * boxhalfsize[Y];   \
 	if(min>rad || max<-rad) return 0;
 
-int triBoxOverlap(float boxcenter[3],float boxhalfsize[3],float triverts[3][3])
+int triBoxOverlap(Float boxcenter[3],Float boxhalfsize[3],Float triverts[3][3])
 {
 
   /*    use separating axis theorem to test overlap between triangle and box */
@@ -118,10 +119,10 @@ int triBoxOverlap(float boxcenter[3],float boxhalfsize[3],float triverts[3][3])
   /*    2) normal of the triangle */
   /*    3) crossproduct(edge from tri, {x,y,z}-directin) */
   /*       this gives 3x3=9 more tests */
-   float v0[3],v1[3],v2[3];
-//   float axis[3];
-   float min,max,p0,p1,p2,rad,fex,fey,fez;		// -NJMP- "d" local variable removed
-   float normal[3],e0[3],e1[3],e2[3];
+   Float v0[3],v1[3],v2[3];
+//   Float axis[3];
+   Float min,max,p0,p1,p2,rad,fex,fey,fez;		// -NJMP- "d" local variable removed
+   Float normal[3],e0[3],e1[3],e2[3];
 
    /* This is the fastest branch on Sun */
    /* move everything so that the boxcenter is in (0,0,0) */

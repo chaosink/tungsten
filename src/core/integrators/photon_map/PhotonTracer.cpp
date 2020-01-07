@@ -14,7 +14,7 @@ PhotonTracer::PhotonTracer(TraceableScene *scene, const PhotonMapSettings &setti
   _settings(settings),
   _mailIdx(0),
   _photonQuery(new const Photon *[settings.gatherCount]),
-  _distanceQuery(new float[settings.gatherCount]),
+  _distanceQuery(new Float[settings.gatherCount]),
   _mailboxes(zeroAlloc<uint32>(settings.volumePhotonCount)),
   _indirectCache(settings.volumePhotonCount*100),
   _frustumGrid(scene->cam())
@@ -27,13 +27,13 @@ void PhotonTracer::clearCache()
     _indirectCache.clear();
 }
 
-static inline Vec3f exponentialIntegral(Vec3f a, Vec3f b, float t0, float t1)
+static inline Vec3f exponentialIntegral(Vec3f a, Vec3f b, Float t0, Float t1)
 {
     return (FastMath::exp(-a - b*t0) - FastMath::exp(-a - b*t1))/b;
 }
 
 static inline bool intersectBeam1D(const PhotonBeam &beam, const Ray &ray, const Vec3pf *bounds,
-        float tMin, float tMax, float radius, float &invSinTheta, float &t)
+        Float tMin, Float tMax, Float radius, Float &invSinTheta, Float &t)
 {
     Vec3f l = beam.p0 - ray.pos();
     Vec3f u = l.cross(beam.dir).normalized();
@@ -42,14 +42,14 @@ static inline bool intersectBeam1D(const PhotonBeam &beam, const Ray &ray, const
     t = n.dot(l)/n.dot(ray.dir());
     Vec3f hitPoint = ray.pos() + ray.dir()*t;
 
-    invSinTheta = 1.0f/std::sqrt(max(0.0f, 1.0f - sqr(ray.dir().dot(beam.dir))));
+    invSinTheta = 1.0f/std::sqrt(max(Float(0.0f), Float(1.0f) - sqr(ray.dir().dot(beam.dir))));
     if (std::abs(u.dot(hitPoint - beam.p0)) > radius)
         return false;
 
     if (bounds) {
         int majorAxis = std::abs(beam.dir).maxDim();
-        float intervalMin = min((*bounds)[majorAxis][0], (*bounds)[majorAxis][1]);
-        float intervalMax = max((*bounds)[majorAxis][2], (*bounds)[majorAxis][3]);
+        Float intervalMin = min((*bounds)[majorAxis][0], (*bounds)[majorAxis][1]);
+        Float intervalMax = max((*bounds)[majorAxis][2], (*bounds)[majorAxis][3]);
 
         if (hitPoint[majorAxis] < intervalMin || hitPoint[majorAxis] > intervalMax)
             return false;
@@ -58,34 +58,34 @@ static inline bool intersectBeam1D(const PhotonBeam &beam, const Ray &ray, const
     if (t < tMin || t > tMax)
         return false;
 
-    float s = beam.dir.dot(hitPoint - beam.p0);
+    Float s = beam.dir.dot(hitPoint - beam.p0);
     if (s < 0.0f || s > beam.length)
         return false;
 
     return true;
 }
-static inline bool intersectPlane0D(const Ray &ray, float tMin, float tMax, Vec3f p0, Vec3f p1, Vec3f p2,
-        float &invDet, float &farT, Vec2f &uv)
+static inline bool intersectPlane0D(const Ray &ray, Float tMin, Float tMax, Vec3f p0, Vec3f p1, Vec3f p2,
+        Float &invDet, Float &farT, Vec2f &uv)
 {
     Vec3f e1 = p1 - p0;
     Vec3f e2 = p2 - p0;
     Vec3f P = ray.dir().cross(e2);
-    float det = e1.dot(P);
+    Float det = e1.dot(P);
     if (std::abs(det) < 1e-5f)
         return false;
 
     invDet = 1.0f/det;
     Vec3f T = ray.pos() - p0;
-    float u = T.dot(P)*invDet;
+    Float u = T.dot(P)*invDet;
     if (u < 0.0f || u > 1.0f)
         return false;
 
     Vec3f Q = T.cross(e1);
-    float v = ray.dir().dot(Q)*invDet;
+    Float v = ray.dir().dot(Q)*invDet;
     if (v < 0.0f || v > 1.0f)
         return false;
 
-    float maxT = e2.dot(Q)*invDet;
+    Float maxT = e2.dot(Q)*invDet;
     if (maxT <= tMin || maxT >= tMax)
         return false;
 
@@ -93,21 +93,21 @@ static inline bool intersectPlane0D(const Ray &ray, float tMin, float tMax, Vec3
     uv = Vec2f(u, v);
     return true;
 }
-static inline bool intersectPlane1D(const Ray &ray, float minT, float maxT, Vec3f p0, Vec3f u, Vec3f v, Vec3f w,
-        Vec3f &o, Vec3f &d, float &tMin, float &tMax)
+static inline bool intersectPlane1D(const Ray &ray, Float minT, Float maxT, Vec3f p0, Vec3f u, Vec3f v, Vec3f w,
+        Vec3f &o, Vec3f &d, Float &tMin, Float &tMax)
 {
     o = ray.pos() - p0;
     d = ray.dir();
 
     o = Vec3f(u.dot(o), v.dot(o), w.dot(o));
     d = Vec3f(u.dot(d), v.dot(d), w.dot(d));
-    Vec3f invD = 1.0f/d;
+    Vec3f invD = Float(1.0f)/d;
 
     Vec3f t0 = -o*invD;
     Vec3f t1 = t0 + invD;
 
-    float ttMin = max(min(t0, t1).max(), minT);
-    float ttMax = min(max(t0, t1).min(), maxT);
+    Float ttMin = max(min(t0, t1).max(), minT);
+    Float ttMax = min(max(t0, t1).min(), maxT);
 
     if (ttMin <= ttMax) {
         tMin = ttMin;
@@ -118,9 +118,9 @@ static inline bool intersectPlane1D(const Ray &ray, float minT, float maxT, Vec3
 }
 
 static bool evalBeam1D(const PhotonBeam &beam, PathSampleGenerator &sampler, const Ray &ray, const Medium *medium,
-        const Vec3pf *bounds, float tMin, float tMax, float radius, Vec3f &beamEstimate)
+        const Vec3pf *bounds, Float tMin, Float tMax, Float radius, Vec3f &beamEstimate)
 {
-    float invSinTheta, t;
+    Float invSinTheta, t;
     if (intersectBeam1D(beam, ray, bounds, tMin, tMax, radius, invSinTheta, t)) {
         Vec3f hitPoint = ray.pos() + ray.dir()*t;
 
@@ -136,10 +136,10 @@ static bool evalBeam1D(const PhotonBeam &beam, PathSampleGenerator &sampler, con
     return false;
 }
 static bool evalPlane0D(const PhotonPlane0D &p, PathSampleGenerator &sampler, const Ray &ray, const Medium *medium,
-        const TraceableScene *scene, float tMin, float tMax, Vec3f &beamEstimate)
+        const TraceableScene *scene, Float tMin, Float tMax, Vec3f &beamEstimate)
 {
     Vec2f uv;
-    float invDet, t;
+    Float invDet, t;
     if (intersectPlane0D(ray, tMin, tMax, p.p0, p.p1, p.p3, invDet, t, uv)) {
         Vec3f hitPoint = ray.pos() + ray.dir()*t;
 
@@ -158,13 +158,13 @@ static bool evalPlane0D(const PhotonPlane0D &p, PathSampleGenerator &sampler, co
 }
 template<typename ShadowCache>
 bool evalPlane1D(const PhotonPlane1D &p, PathSampleGenerator &sampler, const Ray &ray, const Medium *medium,
-        const TraceableScene *_scene, float tMin, float tMax, uint32 photonIdx,
+        const TraceableScene *_scene, Float tMin, Float tMax, uint32 photonIdx,
         ShadowCache &shadowCache, Vec3f &beamEstimate)
 {
     Vec3f o, d;
-    float minT, maxT;
+    Float minT, maxT;
     if (intersectPlane1D(ray, tMin, tMax, p.p, p.invU, p.invV, p.invW, o, d, minT, maxT)) {
-        float t = lerp(minT, maxT, sampler.next1D());
+        Float t = lerp(minT, maxT, sampler.next1D());
         Vec3f uvw = o + d*t;
         if (uvw.min() < 0.0f || uvw.max() > 1.0f)
             return false;
@@ -178,7 +178,7 @@ bool evalPlane1D(const PhotonPlane1D &p, PathSampleGenerator &sampler, const Ray
         Vec3f sigmaT = medium->sigmaT(v2);
         Vec3f controlVariate = exponentialIntegral(Vec3f(0.0f), sigmaT, minT, maxT);
 
-        float dist = shadowCache.hitDistance(photonIdx, uint32(p.binCount*uvw.x()), [&]() {
+        Float dist = shadowCache.hitDistance(photonIdx, uint32(p.binCount*uvw.x()), [&]() {
             Ray shadowRay = Ray(v1, p.d1, 0.0f, p.l1);
             return _scene->hitDistance(shadowRay);
         });
@@ -197,7 +197,7 @@ bool evalPlane1D(const PhotonPlane1D &p, PathSampleGenerator &sampler, const Ray
 }
 
 void PhotonTracer::evalPrimaryRays(const PhotonBeam *beams, const PhotonPlane0D *planes0D, const PhotonPlane1D *planes1D,
-            uint32 start, uint32 end, float radius, const Ray *depthBuffer, PathSampleGenerator &sampler, float scale)
+            uint32 start, uint32 end, Float radius, const Ray *depthBuffer, PathSampleGenerator &sampler, Float scale)
 {
     const Medium *medium = _scene->cam().medium().get();
     auto splatBuffer = _scene->cam().splatBuffer();
@@ -246,7 +246,7 @@ void PhotonTracer::evalPrimaryRays(const PhotonBeam *beams, const PhotonPlane0D 
 Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTree,
         const KdTree<VolumePhoton> *mediumTree, const Bvh::BinaryBvh *mediumBvh, const GridAccel *mediumGrid,
         const PhotonBeam *beams, const PhotonPlane0D *planes0D, const PhotonPlane1D *planes1D, PathSampleGenerator &sampler,
-        float gatherRadius, float volumeGatherRadius,
+        Float gatherRadius, Float volumeGatherRadius,
         PhotonMapSettings::VolumePhotonType photonType, Ray &depthRay, bool useFrustumGrid)
 {
     _mailIdx++;
@@ -280,7 +280,7 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
             if (bounce > 1 || !useFrustumGrid) {
                 Vec3f estimate(0.0f);
 
-                auto pointContribution = [&](const VolumePhoton &p, float t, float distSq) {
+                auto pointContribution = [&](const VolumePhoton &p, Float t, Float distSq) {
                     int fullPathBounce = bounce + p.bounce - 1;
                     if (fullPathBounce < _settings.minBounces || fullPathBounce >= _settings.maxBounces)
                         return;
@@ -291,7 +291,7 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
                             *medium->phaseFunction(p.pos)->eval(p.dir, -ray.dir())
                             *medium->transmittance(sampler, mediumQuery, true, false)*p.power;
                 };
-                auto beamContribution = [&](uint32 photonIndex, const Vec3pf *bounds, float tMin, float tMax) {
+                auto beamContribution = [&](uint32 photonIndex, const Vec3pf *bounds, Float tMin, Float tMax) {
                     const PhotonBeam &beam = beams[photonIndex];
                     int fullPathBounce = bounce + beam.bounce;
                     if (fullPathBounce < _settings.minBounces || fullPathBounce >= _settings.maxBounces)
@@ -299,7 +299,7 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
 
                     evalBeam1D(beam, sampler, ray, medium, bounds, tMin, tMax, volumeGatherRadius, estimate);
                 };
-                auto planeContribution = [&](uint32 photon, const Vec3pf *bounds, float tMin, float tMax) {
+                auto planeContribution = [&](uint32 photon, const Vec3pf *bounds, Float tMin, Float tMax) {
                     int photonBounce = beams[photon].valid ? beams[photon].bounce : (planes0D ? planes0D[photon].bounce : planes1D[photon].bounce);
                     int fullPathBounce = bounce + photonBounce;
                     if (fullPathBounce < _settings.minBounces || fullPathBounce >= _settings.maxBounces)
@@ -318,21 +318,21 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
                     mediumTree->beamQuery(ray.pos(), ray.dir(), ray.farT(), pointContribution);
                 } else if (photonType == PhotonMapSettings::VOLUME_BEAMS) {
                     if (mediumBvh) {
-                        mediumBvh->trace(ray, [&](Ray &ray, uint32 photonIndex, float /*tMin*/, const Vec3pf &bounds) {
+                        mediumBvh->trace(ray, [&](Ray &ray, uint32 photonIndex, Float /*tMin*/, const Vec3pf &bounds) {
                             beamContribution(photonIndex, &bounds, ray.nearT(), ray.farT());
                         });
                     } else {
-                        mediumGrid->trace(ray, [&](uint32 photonIndex, float tMin, float tMax) {
+                        mediumGrid->trace(ray, [&](uint32 photonIndex, Float tMin, Float tMax) {
                             beamContribution(photonIndex, nullptr, tMin, tMax);
                         });
                     }
                 } else if (photonType == PhotonMapSettings::VOLUME_PLANES || photonType == PhotonMapSettings::VOLUME_PLANES_1D) {
                     if (mediumBvh) {
-                        mediumBvh->trace(ray, [&](Ray &ray, uint32 photonIndex, float /*tMin*/, const Vec3pf &bounds) {
+                        mediumBvh->trace(ray, [&](Ray &ray, uint32 photonIndex, Float /*tMin*/, const Vec3pf &bounds) {
                             planeContribution(photonIndex, &bounds, ray.nearT(), ray.farT());
                         });
                     } else {
-                        mediumGrid->trace(ray, [&](uint32 photonIndex, float /*tMin*/, float /*tMax*/) {
+                        mediumGrid->trace(ray, [&](uint32 photonIndex, Float /*tMin*/, Float /*tMax*/) {
                             if (_mailboxes[photonIndex] == _mailIdx)
                                 return;
                             _mailboxes[photonIndex] = _mailIdx;
@@ -353,7 +353,7 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
         SurfaceScatterEvent event = makeLocalScatterEvent(data, info, ray, &sampler);
 
         Vec3f transparency = bsdf.eval(event.makeForwardEvent(), false);
-        float transparencyScalar = transparency.avg();
+        Float transparencyScalar = transparency.avg();
 
         Vec3f wo;
         if (sampler.nextBoolean(transparencyScalar)) {
@@ -413,7 +413,7 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
         // so we don't use the adjoint BSDF here
         surfaceEstimate += _photonQuery[i]->power*bsdf.eval(event, false)/std::abs(event.wo.z());
     }
-    float radiusSq = count == int(_settings.gatherCount) ? _distanceQuery[0] : gatherRadius*gatherRadius;
+    Float radiusSq = count == int(_settings.gatherCount) ? _distanceQuery[0] : gatherRadius*gatherRadius;
     result += throughput*surfaceEstimate*(INV_PI/radiusSq);
 
     return result;
@@ -422,7 +422,7 @@ Vec3f PhotonTracer::traceSensorPath(Vec2u pixel, const KdTree<Photon> &surfaceTr
 void PhotonTracer::tracePhotonPath(SurfacePhotonRange &surfaceRange, VolumePhotonRange &volumeRange,
         PathPhotonRange &pathRange, PathSampleGenerator &sampler)
 {
-    float lightPdf;
+    Float lightPdf;
     const Primitive *light = chooseLightAdjoint(sampler, lightPdf);
     const Medium *medium = light->extMedium().get();
 

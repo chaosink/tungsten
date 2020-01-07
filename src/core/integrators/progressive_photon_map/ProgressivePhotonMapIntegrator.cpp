@@ -55,22 +55,22 @@ void ProgressivePhotonMapIntegrator::renderSegment(std::function<void()> complet
         [](){}
     ));
 
-    float gamma = 1.0f;
+    Float gamma = 1.0f;
     for (uint32 i = 1; i <= _iteration; ++i)
         gamma *= (i + _progressiveSettings.alpha)/(i + 1.0f);
 
-    float gamma1D = gamma;
-    float gamma2D = std::sqrt(gamma);
-    float gamma3D = std::cbrt(gamma);
+    Float gamma1D = gamma;
+    Float gamma2D = std::sqrt(gamma);
+    Float gamma3D = std::cbrt(gamma);
 
-    float volumeScale;
+    Float volumeScale;
     if (_settings.volumePhotonType == PhotonMapSettings::VOLUME_POINTS)
         volumeScale = gamma3D;
     else
         volumeScale = gamma1D;
 
-    float surfaceRadius = _settings.gatherRadius*gamma2D;
-    float volumeRadius = _settings.volumeGatherRadius*volumeScale;
+    Float surfaceRadius = _settings.gatherRadius*gamma2D;
+    Float volumeRadius = _settings.volumeGatherRadius*volumeScale;
 
     buildPhotonDataStructures(volumeScale);
 

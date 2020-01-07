@@ -29,7 +29,7 @@ class SplatQueue
     int _maxSplats;
     int _filteredSplatCount;
     int _splatCount;
-    float _totalLuminance;
+    Float _totalLuminance;
     std::unique_ptr<FilteredSplat[]> _filteredSplats;
     std::unique_ptr<Splat[]> _splats;
 
@@ -67,12 +67,12 @@ public:
         _totalLuminance += value.luminance();
     }
 
-    float totalLuminance() const
+    Float totalLuminance() const
     {
         return _totalLuminance;
     }
 
-    void apply(AtomicFramebuffer &buffer, float scale)
+    void apply(AtomicFramebuffer &buffer, Float scale)
     {
         for (int i = 0; i < _filteredSplatCount; ++i)
             buffer.splatFiltered(_filteredSplats[i].pixel, _filteredSplats[i].value*scale);
@@ -80,7 +80,7 @@ public:
             buffer.splat(_splats[i].pixel, _splats[i].value*scale);
     }
 
-    void apply(ImagePyramid &pyramid, float scale)
+    void apply(ImagePyramid &pyramid, Float scale)
     {
         for (int i = 0; i < _filteredSplatCount; ++i)
             pyramid.splatFiltered(_filteredSplats[i].s, _filteredSplats[i].t, _filteredSplats[i].pixel, _filteredSplats[i].value*scale);

@@ -13,8 +13,8 @@ struct ReversibleJumpMltSettings : public TraceSettings
     int iterationsPerBatch;
     bool imagePyramid;
     bool gaussianMutation;
-    float largeStepProbability;
-    float strategyPerturbationProbability;
+    Float largeStepProbability;
+    Float strategyPerturbationProbability;
 
     ReversibleJumpMltSettings()
     : initialSamplePool(3000000),

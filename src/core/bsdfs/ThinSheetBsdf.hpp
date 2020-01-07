@@ -9,7 +9,7 @@ class Scene;
 
 class ThinSheetBsdf : public Bsdf
 {
-    float _ior;
+    Float _ior;
     bool _enableInterference;
     std::shared_ptr<Texture> _thickness;
     Vec3f _sigmaA;
@@ -23,9 +23,9 @@ public:
     virtual bool sample(SurfaceScatterEvent &event) const override;
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
-    float ior() const
+    Float ior() const
     {
         return _ior;
     }
@@ -50,7 +50,7 @@ public:
         _enableInterference = enableInterference;
     }
 
-    void setIor(float ior)
+    void setIor(Float ior)
     {
         _ior = ior;
     }

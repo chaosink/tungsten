@@ -286,7 +286,7 @@ template<typename T>
 static inline T erfApprox(T x)
 {
     const T a = T(0.147);
-    float xSq = x*x;
+    Float xSq = x*x;
     return std::copysignf(std::sqrt(T(1.0) - std::exp(-xSq*(T(4.0f*INV_PI) + a*xSq)/(T(1.0) + a*xSq))), x);
 }
 template<typename T>

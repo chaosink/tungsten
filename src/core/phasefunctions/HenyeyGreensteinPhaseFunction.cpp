@@ -16,9 +16,9 @@ HenyeyGreensteinPhaseFunction::HenyeyGreensteinPhaseFunction()
 {
 }
 
-inline float HenyeyGreensteinPhaseFunction::henyeyGreenstein(float cosTheta) const
+inline Float HenyeyGreensteinPhaseFunction::henyeyGreenstein(Float cosTheta) const
 {
-    float term = 1.0f + _g*_g - 2.0f*_g*cosTheta;
+    Float term = 1.0f + _g*_g - 2.0f*_g*cosTheta;
     return INV_FOUR_PI*(1.0f - _g*_g)/(term*std::sqrt(term));
 }
 
@@ -49,9 +49,9 @@ bool HenyeyGreensteinPhaseFunction::sample(PathSampleGenerator &sampler, const V
         sample.weight = Vec3f(1.0f);
         sample.pdf = SampleWarp::uniformSpherePdf();
     } else {
-        float phi = xi.x()*TWO_PI;
-        float cosTheta = (1.0f + _g*_g - sqr((1.0f - _g*_g)/(1.0f + _g*(xi.y()*2.0f - 1.0f))))/(2.0f*_g);
-        float sinTheta = std::sqrt(max(1.0f - cosTheta*cosTheta, 0.0f));
+        Float phi = xi.x()*TWO_PI;
+        Float cosTheta = (1.0f + _g*_g - sqr((1.0f - _g*_g)/(1.0f + _g*(xi.y()*2.0f - 1.0f))))/(2.0f*_g);
+        Float sinTheta = std::sqrt(max(1.0f - cosTheta*cosTheta, Float(0.0f)));
         sample.w = TangentFrame(wi).toGlobal(Vec3f(
             std::cos(phi)*sinTheta,
             std::sin(phi)*sinTheta,
@@ -72,14 +72,14 @@ bool HenyeyGreensteinPhaseFunction::invert(WritablePathSampleGenerator &sampler,
 
         sampler.put2D(Vec2f(
             SampleWarp::invertPhi(w, sampler.untracked1D()),
-            clamp(0.5f*(((1.0f - _g*_g)/std::sqrt(-((2.0f*_g)*w.z() - 1.0f - _g*_g)) - 1.0f)/_g + 1.0f), 0.0f, 1.0f)
+            clamp(0.5f*(((1.0f - _g*_g)/std::sqrt(-((2.0f*_g)*w.z() - 1.0f - _g*_g)) - 1.0f)/_g + 1.0f), Float(0.0f), Float(1.0f))
         ));
     }
 
     return true;
 }
 
-float HenyeyGreensteinPhaseFunction::pdf(const Vec3f &wi, const Vec3f &wo) const
+Float HenyeyGreensteinPhaseFunction::pdf(const Vec3f &wi, const Vec3f &wo) const
 {
     return henyeyGreenstein(wi.dot(wo));
 }

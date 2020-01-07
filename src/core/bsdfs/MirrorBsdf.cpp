@@ -54,7 +54,7 @@ bool MirrorBsdf::invert(WritablePathSampleGenerator &/*sampler*/, const SurfaceS
         return false;
 }
 
-float MirrorBsdf::pdf(const SurfaceScatterEvent &event) const
+Float MirrorBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     if (sampleR && checkReflectionConstraint(event.wi, event.wo))

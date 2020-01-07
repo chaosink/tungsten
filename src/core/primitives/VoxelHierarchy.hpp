@@ -82,7 +82,7 @@ class VoxelHierarchy
     }
 
     template<int Level, typename Intersect>
-    inline bool dda(const Cubelet &cube, const Vec3f &o, const Vec3f &dir, float tMin, float tMax, const Vec3f &dT,
+    inline bool dda(const Cubelet &cube, const Vec3f &o, const Vec3f &dir, Float tMin, Float tMax, const Vec3f &dT,
             Vec3i corner, Intersect intersect) const
     {
         Vec3f p  = o + dir*tMin;
@@ -93,17 +93,17 @@ class VoxelHierarchy
         for (int i = 0; i < 3; ++i) {
             if (dir[i] > 0.0f) {
                 iP   [i] = corner[i] + max(iP[i] - corner[i], 0);
-                nextT[i] = tMin + (float((iP[i] + 1) << (Level*SizePower)) - p[i])*dT[i];
+                nextT[i] = tMin + (Float((iP[i] + 1) << (Level*SizePower)) - p[i])*dT[i];
                 iStep[i] = 1;
             } else {
                 iP   [i] = corner[i] + min(iP[i] - corner[i], BrickSize - 1);
-                nextT[i] = tMin + (p[i] - float(iP[i] << (Level*SizePower)))*dT[i];
+                nextT[i] = tMin + (p[i] - Float(iP[i] << (Level*SizePower)))*dT[i];
                 iStep[i] = -1;
             }
             iP[i] &= (1 << SizePower) - 1;
         }
 
-        Vec3f tStep = dT*float(1 << (Level*SizePower));
+        Vec3f tStep = dT*Float(1 << (Level*SizePower));
 
         while (tMin < tMax) {
             ElementType element = cube.at(iP.x(), iP.y(), iP.z());
@@ -173,7 +173,7 @@ public:
     }
 
     template<typename LAMBDA>
-    inline bool trace(Ray &ray, const Vec3f &dT, float tMin, LAMBDA intersect) const
+    inline bool trace(Ray &ray, const Vec3f &dT, Float tMin, LAMBDA intersect) const
     {
         return dda<NumLevels - 1>(_grids[NumLevels - 1][0], ray.pos() - _offset, ray.dir(),
                 tMin, ray.farT(), std::abs(dT), Vec3i(0), intersect);
@@ -182,14 +182,14 @@ public:
     template<typename LAMBDA>
     inline bool trace(Ray &ray, LAMBDA intersect) const
     {
-        Vec3f dT = 1.0f/ray.dir();
+        Vec3f dT = Float(1.0f)/ray.dir();
 
         Vec3f o = ray.pos() - _offset;
 
         Vec3f relMin(-o);
-        Vec3f relMax(float(1 << (NumLevels*SizePower)) - o);
+        Vec3f relMax(Float(1 << (NumLevels*SizePower)) - o);
 
-        float tMin = ray.nearT(), tMax = ray.farT();
+        Float tMin = ray.nearT(), tMax = ray.farT();
         Vec3f tMins;
         for (int i = 0; i < 3; ++i) {
             if (dT[i] >= 0.0f) {

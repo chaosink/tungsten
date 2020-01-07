@@ -21,17 +21,17 @@ EquirectangularCamera::EquirectangularCamera(const Mat4f &transform, const Vec2u
 {
 }
 
-Vec2f EquirectangularCamera::directionToUV(const Vec3f &wi, float &sinTheta) const
+Vec2f EquirectangularCamera::directionToUV(const Vec3f &wi, Float &sinTheta) const
 {
     Vec3f wLocal = _invRot*wi;
-    sinTheta = std::sqrt(max(1.0f - wLocal.y()*wLocal.y(), 0.0f));
-    return Vec2f(std::atan2(wLocal.z(), wLocal.x())*INV_TWO_PI + 0.5f, 1.0f - std::acos(clamp(-wLocal.y(), -1.0f, 1.0f))*INV_PI);
+    sinTheta = std::sqrt(max(1.0f - wLocal.y()*wLocal.y(), Float(0.0f)));
+    return Vec2f(std::atan2(wLocal.z(), wLocal.x())*INV_TWO_PI + 0.5f, 1.0f - std::acos(clamp(-wLocal.y(), Float(-1.0f), Float(1.0f)))*INV_PI);
 }
 
-Vec3f EquirectangularCamera::uvToDirection(Vec2f uv, float &sinTheta) const
+Vec3f EquirectangularCamera::uvToDirection(Vec2f uv, Float &sinTheta) const
 {
-    float phi   = (uv.x() - 0.5f)*TWO_PI;
-    float theta = (1.0f - uv.y())*PI;
+    Float phi   = (uv.x() - 0.5f)*TWO_PI;
+    Float theta = (1.0f - uv.y())*PI;
     sinTheta = std::sin(theta);
     return _rot*Vec3f(
         std::cos(phi)*sinTheta,
@@ -67,10 +67,10 @@ bool EquirectangularCamera::sampleDirectionAndPixel(PathSampleGenerator &sampler
 bool EquirectangularCamera::sampleDirection(PathSampleGenerator &sampler, const PositionSample &/*point*/, Vec2u pixel,
         DirectionSample &sample) const
 {
-    float pdf;
+    Float pdf;
     Vec2f uv = (Vec2f(pixel) + 0.5f + _filter.sample(sampler.next2D(), pdf))*_pixelSize;
 
-    float sinTheta;
+    Float sinTheta;
     sample.d = uvToDirection(uv, sinTheta);
     sample.weight = Vec3f(1.0f);
     sample.pdf = INV_PI*INV_TWO_PI/sinTheta;
@@ -81,11 +81,11 @@ bool EquirectangularCamera::sampleDirection(PathSampleGenerator &sampler, const 
 bool EquirectangularCamera::sampleDirect(const Vec3f &p, PathSampleGenerator &/*sampler*/, LensSample &sample) const
 {
     sample.d = _pos - p;
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
 
-    float sinTheta;
+    Float sinTheta;
     Vec2f uv = directionToUV(-sample.d, sinTheta);
 
     sample.pixel = uv/_pixelSize;
@@ -97,7 +97,7 @@ bool EquirectangularCamera::sampleDirect(const Vec3f &p, PathSampleGenerator &/*
 bool EquirectangularCamera::evalDirection(PathSampleGenerator &/*sampler*/, const PositionSample &/*point*/,
         const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const
 {
-    float sinTheta;
+    Float sinTheta;
     Vec2f uv = directionToUV(direction.d, sinTheta);
 
     pixel = uv/_pixelSize;
@@ -106,9 +106,9 @@ bool EquirectangularCamera::evalDirection(PathSampleGenerator &/*sampler*/, cons
     return true;
 }
 
-float EquirectangularCamera::directionPdf(const PositionSample &/*point*/, const DirectionSample &direction) const
+Float EquirectangularCamera::directionPdf(const PositionSample &/*point*/, const DirectionSample &direction) const
 {
-    float sinTheta;
+    Float sinTheta;
     directionToUV(direction.d, sinTheta);
 
     return INV_PI*INV_TWO_PI/sinTheta;
@@ -119,7 +119,7 @@ bool EquirectangularCamera::isDirac() const
     return true;
 }
 
-float EquirectangularCamera::approximateFov() const
+Float EquirectangularCamera::approximateFov() const
 {
     return 90.0f;
 }

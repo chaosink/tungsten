@@ -36,8 +36,8 @@ public:
 
     void tracePath(PathSampleGenerator &cameraSampler, PathSampleGenerator &emitterSampler, SplatQueue &splatQueue, bool record);
 
-    void startSampleChain(UniformSampler &replaySampler, float luminance);
-    void runSampleChain(int chainLength, float luminanceScale);
+    void startSampleChain(UniformSampler &replaySampler, Float luminance);
+    void runSampleChain(int chainLength, Float luminanceScale);
 
     UniformSampler &sampler()
     {

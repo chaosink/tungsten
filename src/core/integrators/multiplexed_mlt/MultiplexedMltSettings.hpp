@@ -11,7 +11,7 @@ struct MultiplexedMltSettings : public TraceSettings
 {
     int initialSamplePool;
     bool imagePyramid;
-    float largeStepProbability;
+    Float largeStepProbability;
 
     MultiplexedMltSettings()
     : initialSamplePool(3000000),

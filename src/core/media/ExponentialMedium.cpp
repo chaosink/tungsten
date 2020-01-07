@@ -72,17 +72,17 @@ Vec3f ExponentialMedium::sigmaT(Vec3f p) const
     return density(p)*_sigmaT;
 }
 
-inline float ExponentialMedium::density(Vec3f p) const
+inline Float ExponentialMedium::density(Vec3f p) const
 {
     return std::exp(-_falloffScale*(p - _unitPoint).dot(_unitFalloffDirection));
 }
 
-inline float ExponentialMedium::density(float x, float dx, float t) const
+inline Float ExponentialMedium::density(Float x, Float dx, Float t) const
 {
     return std::exp(-(x + dx*t));
 }
 
-inline float ExponentialMedium::densityIntegral(float x, float dx, float tMax) const
+inline Float ExponentialMedium::densityIntegral(Float x, Float dx, Float tMax) const
 {
     if (tMax == Ray::infinity())
         return std::exp(-x)/dx;
@@ -92,12 +92,12 @@ inline float ExponentialMedium::densityIntegral(float x, float dx, float tMax) c
         return (std::exp(-x) - std::exp(-dx*tMax - x))/dx;
 }
 
-inline float ExponentialMedium::inverseOpticalDepth(float x, float dx, float tau) const
+inline Float ExponentialMedium::inverseOpticalDepth(Float x, Float dx, Float tau) const
 {
     if (dx == 0.0f) {
         return tau/std::exp(-x);
     } else {
-        float denom = 1.0f - dx*std::exp(x)*tau;
+        Float denom = 1.0f - dx*std::exp(x)*tau;
         return denom <= 0.0f ? Ray::infinity() : -std::log(denom)/dx;
     }
 }
@@ -110,10 +110,10 @@ bool ExponentialMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
     if (state.bounce > _maxBounce)
         return false;
 
-    float  x = _falloffScale*(ray.pos() - _unitPoint).dot(_unitFalloffDirection);
-    float dx = _falloffScale*ray.dir().dot(_unitFalloffDirection);
+    Float  x = _falloffScale*(ray.pos() - _unitPoint).dot(_unitFalloffDirection);
+    Float dx = _falloffScale*ray.dir().dot(_unitFalloffDirection);
 
-    float maxT = ray.farT();
+    Float maxT = ray.farT();
     if (_absorptionOnly) {
         if (maxT == Ray::infinity() && dx <= 0.0f)
             return false;
@@ -124,10 +124,10 @@ bool ExponentialMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
         sample.exited = true;
     } else {
         int component = sampler.nextDiscrete(3);
-        float sigmaTc = _sigmaT[component];
-        float tauC = _transmittance->sample(sampler, state.firstScatter)/sigmaTc;
+        Float sigmaTc = _sigmaT[component];
+        Float tauC = _transmittance->sample(sampler, state.firstScatter)/sigmaTc;
 
-        float t = inverseOpticalDepth(x, dx, tauC);
+        Float t = inverseOpticalDepth(x, dx, tauC);
         sample.t = min(t, maxT);
         Vec3f tau = densityIntegral(x, dx, sample.t)*_sigmaT;
         sample.weight = _transmittance->eval(tau, state.firstScatter, sample.exited);
@@ -135,7 +135,7 @@ bool ExponentialMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
         if (sample.exited) {
             sample.pdf = _transmittance->surfaceProbability(tau, state.firstScatter).avg();
         } else {
-            float rho = density(x, dx, sample.t);
+            Float rho = density(x, dx, sample.t);
             sample.pdf = (rho*_sigmaT*_transmittance->mediumPdf(tau, state.firstScatter)).avg();
             sample.weight *= rho*_sigmaS*_transmittance->sigmaBar();
         }
@@ -151,8 +151,8 @@ bool ExponentialMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
 Vec3f ExponentialMedium::transmittance(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface,
         bool endOnSurface) const
 {
-    float  x = _falloffScale*(ray.pos() - _unitPoint).dot(_unitFalloffDirection);
-    float dx = _falloffScale*ray.dir().dot(_unitFalloffDirection);
+    Float  x = _falloffScale*(ray.pos() - _unitPoint).dot(_unitFalloffDirection);
+    Float dx = _falloffScale*ray.dir().dot(_unitFalloffDirection);
 
     if (ray.farT() == Ray::infinity() && dx <= 0.0f) {
         return Vec3f(0.0f);
@@ -162,13 +162,13 @@ Vec3f ExponentialMedium::transmittance(PathSampleGenerator &/*sampler*/, const R
     }
 }
 
-float ExponentialMedium::pdf(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface, bool endOnSurface) const
+Float ExponentialMedium::pdf(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface, bool endOnSurface) const
 {
     if (_absorptionOnly) {
         return 1.0f;
     } else {
-        float  x = _falloffScale*(ray.pos() - _unitPoint).dot(_unitFalloffDirection);
-        float dx = _falloffScale*ray.dir().dot(_unitFalloffDirection);
+        Float  x = _falloffScale*(ray.pos() - _unitPoint).dot(_unitFalloffDirection);
+        Float dx = _falloffScale*ray.dir().dot(_unitFalloffDirection);
 
         Vec3f tau = _sigmaT*densityIntegral(x, dx, ray.farT());
         if (endOnSurface)

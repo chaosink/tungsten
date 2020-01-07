@@ -51,7 +51,7 @@ class BinnedSahSplitter
         int lCount = _counts[dim][0];
         Box3fp lBox = _geomBounds[dim][0];
         for (int i = 1; i < BinCount; ++i) {
-            float cost = Splitter::IntersectionCost*(lBox.area()*lCount + rBoxes[i].area()*rCounts[i]);
+            Float cost = Splitter::IntersectionCost*(lBox.area()*lCount + rBoxes[i].area()*rCounts[i]);
 
             if (cost < split.cost) {
                 split.dim = dim;

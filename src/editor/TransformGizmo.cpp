@@ -208,7 +208,7 @@ void TransformGizmo::drawStatic(AbstractPainter &painter)
             p1[i] = depth*0.1f;
             Vec2f q0 = project(tform*p0);
             Vec2f q1 = project(tform*p1);
-            float alpha = smoothStep(4.0f, 20.0f, (origin - q1).length());
+            float alpha = smoothStep(Float(4.0f), Float(20.0f), (origin - q1).length());
             painter.labelShape(alpha > 0.5f ? i : -1);
             painter.setColor(colors[i]);
             painter.setAlpha(alpha);
@@ -243,7 +243,7 @@ void TransformGizmo::drawStatic(AbstractPainter &painter)
             p1[i] = depth*0.1f;
             Vec2f q0 = project(tform*p0);
             Vec2f q1 = project(tform*p1);
-            float alpha = smoothStep(4.0f, 20.0f, (origin - q1).length());
+            float alpha = smoothStep(Float(4.0f), Float(20.0f), (origin - q1).length());
             painter.labelShape(alpha > 0.5f ? i : -1);
             painter.setColor(colors[i]);
             painter.setAlpha(alpha);

@@ -9,16 +9,16 @@ class Scene;
 
 class PinholeCamera : public Camera
 {
-    float _fovDeg;
-    float _fovRad;
-    float _planeDist;
-    float _invPlaneArea;
+    Float _fovDeg;
+    Float _fovRad;
+    Float _planeDist;
+    Float _invPlaneArea;
 
     void precompute();
 
 public:
     PinholeCamera();
-    PinholeCamera(const Mat4f &transform, const Vec2u &res, float fov);
+    PinholeCamera(const Mat4f &transform, const Vec2u &res, Float fov);
 
     virtual void fromJson(JsonPtr value, const Scene &scene) override;
     virtual rapidjson::Value toJson(Allocator &allocator) const override;
@@ -34,16 +34,16 @@ public:
             const DirectionSample &sample) const override final;
     virtual bool evalDirection(PathSampleGenerator &sampler, const PositionSample &point,
                 const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const override final;
-    virtual float directionPdf(const PositionSample &point, const DirectionSample &direction) const override final;
+    virtual Float directionPdf(const PositionSample &point, const DirectionSample &direction) const override final;
 
     virtual bool isDirac() const override;
 
-    virtual float approximateFov() const override
+    virtual Float approximateFov() const override
     {
         return _fovRad;
     }
 
-    float fovDeg() const
+    Float fovDeg() const
     {
         return _fovDeg;
     }

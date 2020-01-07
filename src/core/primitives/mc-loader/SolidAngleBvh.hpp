@@ -14,18 +14,18 @@ namespace Tungsten {
 namespace MinecraftLoader {
 
 namespace SolidAngleBvhParams {
-    static CONSTEXPR float InitialCoverageThreshold = 0.5f;
-    static CONSTEXPR float InitialThreshold = 1.0f - (1.0f - InitialCoverageThreshold)*(1.0f - InitialCoverageThreshold);
-    static CONSTEXPR float SubdivisionFactor = 0.5f;
+    static CONSTEXPR Float InitialCoverageThreshold = 0.5f;
+    static CONSTEXPR Float InitialThreshold = 1.0f - (1.0f - InitialCoverageThreshold)*(1.0f - InitialCoverageThreshold);
+    static CONSTEXPR Float SubdivisionFactor = 0.5f;
 }
 
 class SolidAngleBvh
 {
     struct Node {
         Vec3f point;
-        float radiusSq;
+        Float radiusSq;
         uint32 children;
-        float cumulativeEmission;
+        Float cumulativeEmission;
         uint32 parent;
         uint32 padding; // Pad size to 32 bytes
     };
@@ -35,8 +35,8 @@ class SolidAngleBvh
     aligned_vector<Node> _nodes;
     std::vector<uint32> _primToNode;
 
-    float recursiveBuild(const Bvh::NaiveBvhNode *node, uint32 head, uint32 &tail,
-            const std::vector<float> &emission)
+    Float recursiveBuild(const Bvh::NaiveBvhNode *node, uint32 head, uint32 &tail,
+            const std::vector<Float> &emission)
     {
         if (node->isLeaf()) {
             _nodes[head].point = node->bbox().center();
@@ -48,8 +48,8 @@ class SolidAngleBvh
             _nodes[head].children = tail;
             tail += 2;
 
-            float  leftSum = recursiveBuild(node->child(0), _nodes[head].children + 0, tail, emission);
-            float rightSum = recursiveBuild(node->child(1), _nodes[head].children + 1, tail, emission);
+            Float  leftSum = recursiveBuild(node->child(0), _nodes[head].children + 0, tail, emission);
+            Float rightSum = recursiveBuild(node->child(1), _nodes[head].children + 1, tail, emission);
 
             Node &lNode = _nodes[_nodes[head].children + 0];
             Node &rNode = _nodes[_nodes[head].children + 1];
@@ -59,11 +59,11 @@ class SolidAngleBvh
 
             Vec3f pL = lNode.point;
             Vec3f pR = rNode.point;
-            float rL = lNode.radiusSq;
-            float rR = rNode.radiusSq;
+            Float rL = lNode.radiusSq;
+            Float rR = rNode.radiusSq;
 
             Vec3f d = pR - pL;
-            float dist = d.length();
+            Float dist = d.length();
             if (dist < 1e-4f) {
                 _nodes[head].point = pL;
                 _nodes[head].radiusSq = rL;
@@ -81,7 +81,7 @@ class SolidAngleBvh
     }
 
     template<typename InternalHandler, typename LeafHandler>
-    void traverse(const Vec3f &p, float threshold, uint32 node, InternalHandler internalHandler,
+    void traverse(const Vec3f &p, Float threshold, uint32 node, InternalHandler internalHandler,
             LeafHandler leafHandler) const
     {
         uint32 stack[32];
@@ -93,11 +93,11 @@ class SolidAngleBvh
             if (children & 0x80000000u) {
                 leafHandler(children);
             } else {
-                float dSqL = (_nodes[children + 0].point - p).lengthSq();
-                float dSqR = (_nodes[children + 1].point - p).lengthSq();
+                Float dSqL = (_nodes[children + 0].point - p).lengthSq();
+                Float dSqR = (_nodes[children + 1].point - p).lengthSq();
 
-                float factorL = _nodes[children + 0].radiusSq/dSqL;
-                float factorR = _nodes[children + 1].radiusSq/dSqR;
+                Float factorL = _nodes[children + 0].radiusSq/dSqL;
+                Float factorR = _nodes[children + 1].radiusSq/dSqR;
 
                 bool traverseL = factorL >= threshold;
                 bool traverseR = factorR >= threshold;
@@ -127,7 +127,7 @@ class SolidAngleBvh
     }
 
 public:
-    SolidAngleBvh(Bvh::PrimVector prims, std::vector<float> emission)
+    SolidAngleBvh(Bvh::PrimVector prims, std::vector<Float> emission)
     {
         if (prims.empty()) {
             _nodes.emplace_back();
@@ -149,10 +149,10 @@ public:
     }
 
     template<typename LeafWeight>
-    inline float approximateContribution(const Vec3f &p, LeafWeight leafWeight) const
+    inline Float approximateContribution(const Vec3f &p, LeafWeight leafWeight) const
     {
-        float result = 0.0f;
-        traverse(p, SolidAngleBvhParams::InitialThreshold, 0, [&](float weight, uint32 /*id*/) {
+        Float result = 0.0f;
+        traverse(p, SolidAngleBvhParams::InitialThreshold, 0, [&](Float weight, uint32 /*id*/) {
             result += weight;
         }, [&](uint32 id) {
             result += leafWeight(id & 0x7FFFFFFFu);
@@ -162,7 +162,7 @@ public:
     }
 
     template<typename LeafWeight>
-    inline float lightPdf(const Vec3f &p, uint32 prim, LeafWeight leafWeight) const
+    inline Float lightPdf(const Vec3f &p, uint32 prim, LeafWeight leafWeight) const
     {
         uint32 stack[32];
         uint32 stackIndex = 0;
@@ -172,16 +172,16 @@ public:
             node = _nodes[node].parent;
         }
 
-        float pdf = 1.0f;
+        Float pdf = 1.0f;
 
-        float coverageThreshold = SolidAngleBvhParams::InitialCoverageThreshold;
-        float threshold = SolidAngleBvhParams::InitialThreshold;
+        Float coverageThreshold = SolidAngleBvhParams::InitialCoverageThreshold;
+        Float threshold = SolidAngleBvhParams::InitialThreshold;
 
         prim |= 0x80000000u;
         node = 0;
         while (prim != node) {
-            float totalWeight = 0.0f, specificWeight = 0.0f;
-            traverse(p, threshold, node, [&](float weight, uint32 id) {
+            Float totalWeight = 0.0f, specificWeight = 0.0f;
+            traverse(p, threshold, node, [&](Float weight, uint32 id) {
                 totalWeight += weight;
                 for (uint32 i = 0; i < stackIndex; ++i) {
                     if (id == stack[i]) {
@@ -190,7 +190,7 @@ public:
                     }
                 }
             }, [&](uint32 id) {
-                float weight = leafWeight(id & 0x7FFFFFFFu);
+                Float weight = leafWeight(id & 0x7FFFFFFFu);
                 totalWeight += weight;
                 if (id == prim) {
                     specificWeight = weight;
@@ -210,19 +210,19 @@ public:
     }
 
     template<typename LeafWeight>
-    inline std::pair<int, float> sampleLight(const Vec3f &p, float *cdf, int *ids, float xi,
+    inline std::pair<int, Float> sampleLight(const Vec3f &p, Float *cdf, int *ids, Float xi,
             LeafWeight leafWeight) const
     {
-        float coverageThreshold = SolidAngleBvhParams::InitialCoverageThreshold;
-        float threshold = SolidAngleBvhParams::InitialThreshold;
+        Float coverageThreshold = SolidAngleBvhParams::InitialCoverageThreshold;
+        Float threshold = SolidAngleBvhParams::InitialThreshold;
 
         int sampleIndex = 1;
         cdf[0] = 0.0f;
 
-        float pdf = 1.0f;
+        Float pdf = 1.0f;
         uint32 node = 0;
         while (true) {
-            traverse(p, threshold, node, [&](float weight, uint32 id) {
+            traverse(p, threshold, node, [&](Float weight, uint32 id) {
                 ids[sampleIndex] = id;
                 cdf[sampleIndex] = cdf[sampleIndex - 1] + weight;
                 sampleIndex++;
@@ -236,15 +236,15 @@ public:
                 return std::make_pair(-1, 0.0f);
 
             int idx = sampleIndex - 1;
-            float P = xi*cdf[sampleIndex - 1];
+            Float P = xi*cdf[sampleIndex - 1];
             for (int i = 1; i < sampleIndex; ++i) {
                 if (cdf[i] > P) {
                     idx = i;
                     break;
                 }
             }
-            float weight = cdf[idx] - cdf[idx - 1];
-            xi = clamp((P - cdf[idx - 1])/weight, 0.0f, 1.0f);
+            Float weight = cdf[idx] - cdf[idx - 1];
+            xi = clamp((P - cdf[idx - 1])/weight, Float(0.0f), Float(1.0f));
             pdf *= weight/cdf[sampleIndex - 1];
 
             if (ids[idx] & 0x80000000u)
@@ -256,7 +256,7 @@ public:
             node = ids[idx];
         }
 
-        return std::pair<int, float>(-1, 0.0f);
+        return std::pair<int, Float>(-1, 0.0f);
     }
 };
 

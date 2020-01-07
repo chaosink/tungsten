@@ -15,7 +15,7 @@ class Instance : public Primitive
 
     PathPtr _instanceFileA;
     PathPtr _instanceFileB;
-    float _ratio;
+    Float _ratio;
 
     uint32 _instanceCount;
     std::unique_ptr<Vec3f[]> _instancePos;
@@ -33,7 +33,7 @@ class Instance : public Primitive
     const Primitive &getMaster(const IntersectionTemporary &data) const;
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     Instance();
@@ -58,7 +58,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;

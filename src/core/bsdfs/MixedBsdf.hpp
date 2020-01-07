@@ -15,11 +15,11 @@ class MixedBsdf : public Bsdf
     std::shared_ptr<Bsdf> _bsdf0, _bsdf1;
     std::shared_ptr<Texture> _ratio;
 
-    bool adjustedRatio(BsdfLobes requestedLobe, const IntersectionInfo *info, float &ratio) const;
+    bool adjustedRatio(BsdfLobes requestedLobe, const IntersectionInfo *info, Float &ratio) const;
 
 public:
     MixedBsdf();
-    MixedBsdf(std::shared_ptr<Bsdf> bsdf0, std::shared_ptr<Bsdf> bsdf1, float ratio);
+    MixedBsdf(std::shared_ptr<Bsdf> bsdf0, std::shared_ptr<Bsdf> bsdf1, Float ratio);
 
     virtual void fromJson(JsonPtr value, const Scene &scene) override;
     virtual rapidjson::Value toJson(Allocator &allocator) const override;
@@ -27,7 +27,7 @@ public:
     virtual bool sample(SurfaceScatterEvent &event) const override;
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 

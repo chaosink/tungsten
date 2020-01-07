@@ -490,9 +490,9 @@ typedef Vec<double, 4> Vec4d;
 typedef Vec<double, 3> Vec3d;
 typedef Vec<double, 2> Vec2d;
 
-typedef Vec<float, 4> Vec4f;
-typedef Vec<float, 3> Vec3f;
-typedef Vec<float, 2> Vec2f;
+typedef Vec<Float, 4> Vec4f;
+typedef Vec<Float, 3> Vec3f;
+typedef Vec<Float, 2> Vec2f;
 
 typedef Vec<uint32, 4> Vec4u;
 typedef Vec<uint32, 3> Vec3u;
@@ -548,6 +548,19 @@ public:
         Tungsten::uint32 result = 0;
         for (unsigned i = 0; i < Size; ++i)
             result ^= Tungsten::BitManip::floatBitsToUint(v[i]) + 0x9E3779B9 + (result << 6) + (result >> 2);
+        return result;
+    }
+};
+
+template<unsigned Size>
+class hash<Tungsten::Vec<double, Size>>
+{
+public:
+    std::size_t operator()(const Tungsten::Vec<double, Size> &v) const {
+        // See http://www.boost.org/doc/libs/1_33_1/doc/html/hash_combine.html
+        Tungsten::uint32 result = 0;
+        for (unsigned i = 0; i < Size; ++i)
+            result ^= std::hash<double>()(v[i]);
         return result;
     }
 };

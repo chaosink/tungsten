@@ -9,7 +9,7 @@ struct LensSample
 {
     Vec2f pixel;
     Vec3f d;
-    float dist;
+    Float dist;
     Vec3f weight;
 };
 

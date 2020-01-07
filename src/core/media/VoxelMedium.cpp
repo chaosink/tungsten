@@ -54,13 +54,13 @@ void VoxelMedium::prepareForRender()
 }
 
 static inline bool bboxIntersection(const Box3f &box, const Vec3f &o, const Vec3f &d,
-        float &tMin, float &tMax)
+        Float &tMin, Float &tMax)
 {
-    Vec3f invD = 1.0f/d;
+    Vec3f invD = Float(1.0f)/d;
     Vec3f relMin((box.min() - o));
     Vec3f relMax((box.max() - o));
 
-    float ttMin = tMin, ttMax = tMax;
+    Float ttMin = tMin, ttMax = tMax;
     for (int i = 0; i < 3; ++i) {
         if (invD[i] >= 0.0f) {
             ttMin = max(ttMin, relMin[i]*invD[i]);
@@ -102,12 +102,12 @@ bool VoxelMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &ray,
     if (state.bounce > _maxBounce)
         return false;
 
-    float maxT = ray.farT();
+    Float maxT = ray.farT();
     Vec3f p = _worldToGrid*ray.pos();
     Vec3f w = _worldToGrid.transformVector(ray.dir());
-    float wPrime = w.length();
+    Float wPrime = w.length();
     w /= wPrime;
-    float t0 = 0.0f, t1 = maxT*wPrime;
+    Float t0 = 0.0f, t1 = maxT*wPrime;
     if (!bboxIntersection(_gridBounds, p, w, t0, t1)) {
         sample.t = maxT;
         sample.weight = Vec3f(1.0f);
@@ -124,8 +124,8 @@ bool VoxelMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &ray,
         sample.exited = true;
     } else {
         int component = sampler.nextDiscrete(3);
-        float sigmaTc = _sigmaT[component];
-        float tauC = _transmittance->sample(sampler, state.firstScatter)/(sigmaTc/wPrime);
+        Float sigmaTc = _sigmaT[component];
+        Float tauC = _transmittance->sample(sampler, state.firstScatter)/(sigmaTc/wPrime);
 
         Vec2f tAndDensity = _grid->inverseOpticalDepth(sampler, p, w, t0, t1, tauC);
         sample.t = tAndDensity.x();
@@ -137,7 +137,7 @@ bool VoxelMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &ray,
         if (sample.exited) {
             sample.pdf = _transmittance->surfaceProbability(tau, state.firstScatter).avg();
         } else {
-            float rho = tAndDensity.y();
+            Float rho = tAndDensity.y();
             sample.pdf = (rho*_sigmaT*_transmittance->mediumPdf(tau, state.firstScatter)).avg();
             sample.emission = _grid->emission(p + w*sample.t)*sample.weight/sample.pdf;
             sample.weight *= rho*_sigmaS*_transmittance->sigmaBar();
@@ -158,9 +158,9 @@ Vec3f VoxelMedium::transmittance(PathSampleGenerator &sampler, const Ray &ray, b
 {
     Vec3f p = _worldToGrid*ray.pos();
     Vec3f w = _worldToGrid.transformVector(ray.dir());
-    float wPrime = w.length();
+    Float wPrime = w.length();
     w /= wPrime;
-    float t0 = 0.0f, t1 = ray.farT()*wPrime;
+    Float t0 = 0.0f, t1 = ray.farT()*wPrime;
     if (!bboxIntersection(_gridBounds, p, w, t0, t1))
         return Vec3f(1.0f);
 
@@ -168,16 +168,16 @@ Vec3f VoxelMedium::transmittance(PathSampleGenerator &sampler, const Ray &ray, b
     return _transmittance->eval(tau, startOnSurface, endOnSurface);
 }
 
-float VoxelMedium::pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const
+Float VoxelMedium::pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const
 {
     if (_absorptionOnly) {
         return 1.0f;
     } else {
         Vec3f p = _worldToGrid*ray.pos();
         Vec3f w = _worldToGrid.transformVector(ray.dir());
-        float wPrime = w.length();
+        Float wPrime = w.length();
         w /= wPrime;
-        float t0 = 0.0f, t1 = ray.farT()*wPrime;
+        Float t0 = 0.0f, t1 = ray.farT()*wPrime;
         if (!bboxIntersection(_gridBounds, p, w, t0, t1))
             return 1.0f;
 

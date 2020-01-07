@@ -9,7 +9,7 @@ PrecomputedAzimuthalLobe::PrecomputedAzimuthalLobe(std::unique_ptr<Vec3f[]> tabl
 {
     const int Size = AzimuthalResolution;
 
-    std::vector<float> weights(Size*Size);
+    std::vector<Float> weights(Size*Size);
     for (int i = 0; i < Size*Size; ++i)
         weights[i] = _table[i].max();
 

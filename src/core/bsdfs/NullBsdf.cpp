@@ -31,7 +31,7 @@ bool NullBsdf::invert(WritablePathSampleGenerator &/*sampler*/, const SurfaceSca
     return false;
 }
 
-float NullBsdf::pdf(const SurfaceScatterEvent &/*event*/) const
+Float NullBsdf::pdf(const SurfaceScatterEvent &/*event*/) const
 {
     return 0.0f;
 }

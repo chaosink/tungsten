@@ -40,7 +40,7 @@ class FullSahSplitter
 
         Box3fp lBox(prims[start].box());
         for (uint32 i = start + 1; i <= end; ++i) {
-            float cost = Splitter::IntersectionCost*(lBox.area()*(i - start) + prims[i].area()*(end - i + 1));
+            Float cost = Splitter::IntersectionCost*(lBox.area()*(i - start) + prims[i].area()*(end - i + 1));
 
             if (cost < split.cost) {
                 split.dim = dim;

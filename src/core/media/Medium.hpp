@@ -65,9 +65,9 @@ public:
     virtual bool invertDistance(WritablePathSampleGenerator &sampler, const Ray &ray, bool onSurface) const;
     virtual Vec3f transmittance(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface,
             bool endOnSurface) const = 0;
-    virtual float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const = 0;
+    virtual Float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const = 0;
     virtual Vec3f transmittanceAndPdfs(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface,
-            bool endOnSurface, float &pdfForward, float &pdfBackward) const;
+            bool endOnSurface, Float &pdfForward, Float &pdfBackward) const;
     virtual const PhaseFunction *phaseFunction(const Vec3f &p) const;
 
     bool isDirac() const;

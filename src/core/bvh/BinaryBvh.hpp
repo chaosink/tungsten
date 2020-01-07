@@ -143,13 +143,13 @@ class BinaryBvh
         }
     }
 
-    bool bboxIntersection(const Box3f &box, const Vec3f &o, const Vec3f &d, float &tMin, float &tMax) const
+    bool bboxIntersection(const Box3f &box, const Vec3f &o, const Vec3f &d, Float &tMin, Float &tMax) const
     {
-        Vec3f invD = 1.0f/d;
+        Vec3f invD = Float(1.0f)/d;
         Vec3f relMin((box.min() - o));
         Vec3f relMax((box.max() - o));
 
-        float ttMin = tMin, ttMax = tMax;
+        Float ttMin = tMin, ttMax = tMax;
         for (int i = 0; i < 3; ++i) {
             if (invD[i] >= 0.0f) {
                 ttMin = max(ttMin, relMin[i]*invD[i]);
@@ -200,9 +200,9 @@ public:
         struct StackNode
         {
             const TinyBvhNode *node;
-            float tMin;
+            Float tMin;
 
-            void set(const TinyBvhNode *n, float t)
+            void set(const TinyBvhNode *n, Float t)
             {
                 node = n;
                 tMin = t;
@@ -212,7 +212,7 @@ public:
         StackNode *stackPtr = stack;
 
         const TinyBvhNode *node = &_nodes[0];
-        float tMin = ray.nearT(), tMax = ray.farT();
+        Float tMin = ray.nearT(), tMax = ray.farT();
         if (!bboxIntersection(_bounds, ray.pos(), ray.dir(), tMin, tMax))
             return;
 

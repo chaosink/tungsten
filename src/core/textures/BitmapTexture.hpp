@@ -34,22 +34,22 @@ private:
     int _w;
     int _h;
     TexelType _texelType;
-    float _scale;
+    Float _scale;
 
     std::unique_ptr<Distribution2D> _distribution[MAP_JACOBIAN_COUNT];
 
     inline bool isRgb() const;
     inline bool isHdr() const;
 
-    inline float lerp(float x00, float x01, float x10, float x11, float u, float v) const;
-    inline Vec3f lerp(Vec3f x00, Vec3f x01, Vec3f x10, Vec3f x11, float u, float v) const;
+    inline Float lerp(Float x00, Float x01, Float x10, Float x11, Float u, Float v) const;
+    inline Vec3f lerp(Vec3f x00, Vec3f x01, Vec3f x10, Vec3f x11, Float u, Float v) const;
 
     template<typename T>
     inline const T *as() const;
 
-    inline float getScalar(int x, int y) const;
+    inline Float getScalar(int x, int y) const;
     inline Vec3f getRgb(int x, int y) const;
-    inline float weight(int x, int y) const;
+    inline Float weight(int x, int y) const;
 
 protected:
     TexelType getTexelType(bool isRgb, bool isHdr);
@@ -84,9 +84,9 @@ public:
     virtual void makeSamplable(TextureMapJacobian jacobian) override;
     virtual Vec2f sample(TextureMapJacobian jacobian, const Vec2f &uv) const override;
     virtual Vec2f invert(TextureMapJacobian jacobian, const Vec2f &uv) const override;
-    virtual float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const override;
+    virtual Float pdf(TextureMapJacobian jacobian, const Vec2f &uv) const override;
 
-    virtual void scaleValues(float factor) override;
+    virtual void scaleValues(Float factor) override;
 
     virtual Texture *clone() const override;
 

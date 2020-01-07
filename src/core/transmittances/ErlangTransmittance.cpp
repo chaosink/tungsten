@@ -31,7 +31,7 @@ rapidjson::Value ErlangTransmittance::toJson(Allocator &allocator) const
 
 Vec3f ErlangTransmittance::surfaceSurface(const Vec3f &tau) const
 {
-    return 0.5f*std::exp(-_lambda*tau)*(2.0f + _lambda*tau);
+    return Float(0.5f)*std::exp(-_lambda*tau)*(Float(2.0f) + _lambda*tau);
 }
 Vec3f ErlangTransmittance::surfaceMedium(const Vec3f &tau) const
 {
@@ -39,29 +39,29 @@ Vec3f ErlangTransmittance::surfaceMedium(const Vec3f &tau) const
 }
 Vec3f ErlangTransmittance::mediumSurface(const Vec3f &tau) const
 {
-    return std::exp(-_lambda*tau)*(1.0f + _lambda*tau);
+    return std::exp(-_lambda*tau)*(Float(1.0f) + _lambda*tau);
 }
 Vec3f ErlangTransmittance::mediumMedium(const Vec3f &tau) const
 {
     return sqr(_lambda)*tau*std::exp(-_lambda*tau);
 }
 
-float ErlangTransmittance::sigmaBar() const
+Float ErlangTransmittance::sigmaBar() const
 {
     return _lambda*0.5f;
 }
 
-float ErlangTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float ErlangTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
-    float xi = sampler.next1D();
-    float x = 0.5f;
+    Float xi = sampler.next1D();
+    Float x = 0.5f;
     for (int i = 0; i < 10; ++i) {
         x += (xi - (1.0f - surfaceSurface(Vec3f(x))[0]))/surfaceMedium(Vec3f(x))[0];
-        x = max(x, 0.0f);
+        x = max(x, Float(0.0f));
     }
     return x;
 }
-float ErlangTransmittance::sampleMedium(PathSampleGenerator &sampler) const
+Float ErlangTransmittance::sampleMedium(PathSampleGenerator &sampler) const
 {
     return -1.0f/_lambda*std::log(sampler.next1D()*sampler.next1D());
 }

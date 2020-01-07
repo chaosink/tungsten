@@ -29,7 +29,7 @@ void Cylinder::buildProxy()
     _proxy->makeCylinder(0.5f, 0.5f);
 }
 
-float Cylinder::powerToRadianceFactor() const
+Float Cylinder::powerToRadianceFactor() const
 {
     return INV_PI*_invArea;
 }
@@ -64,8 +64,8 @@ bool Cylinder::intersect(Ray &ray, IntersectionTemporary &data) const
     CylinderIntersection *isect = data.as<CylinderIntersection>();
 
     if (_capped && std::abs(dLocal.y()) > 1e-6f) {
-        for (float sign : {1.0f, -1.0f}) {
-            float t = (sign*_halfHeight - pLocal.y())/dLocal.y();
+        for (Float sign : {1.0f, -1.0f}) {
+            Float t = (sign*_halfHeight - pLocal.y())/dLocal.y();
             if (t > ray.nearT() && t < ray.farT()) {
                 Vec2f pHit = p + t*d;
                 if (pHit.lengthSq() < 1.0f) {
@@ -80,16 +80,16 @@ bool Cylinder::intersect(Ray &ray, IntersectionTemporary &data) const
         }
     }
 
-    float A = d.dot(d);
-    float B = p.dot(d);
-    float C = p.lengthSq() - 1.0f;
-    float detSq = B*B - A*C;
+    Float A = d.dot(d);
+    Float B = p.dot(d);
+    Float C = p.lengthSq() - 1.0f;
+    Float detSq = B*B - A*C;
     if (detSq >= 0.0f) {
-        float det = std::sqrt(detSq);
-        for (float sign : {1.0f, -1.0f}) {
-            float t = (-B - sign*det)/A;
+        Float det = std::sqrt(detSq);
+        for (Float sign : {1.0f, -1.0f}) {
+            Float t = (-B - sign*det)/A;
             if (t > ray.nearT() && t < ray.farT()) {
-                float h = pLocal.y() + dLocal.y()*t;
+                Float h = pLocal.y() + dLocal.y()*t;
                 if (h >= -_halfHeight && h <= _halfHeight) {
                     didHit = true;
                     Vec2f pHit = p + t*d;
@@ -153,7 +153,7 @@ bool Cylinder::samplePosition(PathSampleGenerator &sampler, PositionSample &samp
 {
     if (_capped && sampler.nextBoolean(TWO_PI*sqr(_radius)*_invArea)) {
         Vec3f pd = SampleWarp::uniformDisk(sampler.next2D());
-        float sign = sampler.nextBoolean(0.5f) ? -1.0f : 1.0f;
+        Float sign = sampler.nextBoolean(0.5f) ? -1.0f : 1.0f;
         sample.Ng = Vec3f(0.0f, sign, 0.0f);
         sample.p = Vec3f(pd.x()*_radius, sign*_halfHeight, pd.y()*_radius);
         sample.uv = pd.xy() + 0.5f;
@@ -189,10 +189,10 @@ bool Cylinder::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p, PathSampleGe
 
     Vec3f L = point.p - p;
 
-    float rSq = L.lengthSq();
+    Float rSq = L.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d = L/sample.dist;
-    float cosTheta = -(point.Ng.dot(sample.d));
+    Float cosTheta = -(point.Ng.dot(sample.d));
     if (cosTheta <= 0.0f)
         return false;
     sample.pdf = rSq/(cosTheta*_area);
@@ -217,17 +217,17 @@ bool Cylinder::invertDirection(WritablePathSampleGenerator &sampler, const Posit
     return true;
 }
 
-float Cylinder::positionalPdf(const PositionSample &/*point*/) const
+Float Cylinder::positionalPdf(const PositionSample &/*point*/) const
 {
     return _invArea;
 }
 
-float Cylinder::directionalPdf(const PositionSample &point, const DirectionSample &sample) const
+Float Cylinder::directionalPdf(const PositionSample &point, const DirectionSample &sample) const
 {
-    return max(sample.d.dot(point.Ng)*INV_PI, 0.0f);
+    return max(sample.d.dot(point.Ng)*INV_PI, Float(0.0f));
 }
 
-float Cylinder::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float Cylinder::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &info, const Vec3f &p) const
 {
     return (p - info.p).lengthSq()/(-info.w.dot(info.Ng)*_area);
@@ -240,7 +240,7 @@ Vec3f Cylinder::evalPositionalEmission(const PositionSample &sample) const
 
 Vec3f Cylinder::evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const
 {
-    return Vec3f(max(sample.d.dot(point.Ng), 0.0f)*INV_PI);
+    return Vec3f(max(sample.d.dot(point.Ng), Float(0.0f))*INV_PI);
 }
 
 Vec3f Cylinder::evalDirect(const IntersectionTemporary &data, const IntersectionInfo &info) const
@@ -263,7 +263,7 @@ bool Cylinder::isInfinite() const
     return false;
 }
 
-float Cylinder::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float Cylinder::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     // TODO
     return -1.0f;

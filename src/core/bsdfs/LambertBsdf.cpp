@@ -58,7 +58,7 @@ bool LambertBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceScat
     return true;
 }
 
-float LambertBsdf::pdf(const SurfaceScatterEvent &event) const
+Float LambertBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     if (!event.requestedLobe.test(BsdfLobes::DiffuseReflectionLobe))
         return 0.0f;

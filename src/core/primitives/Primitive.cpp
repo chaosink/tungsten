@@ -73,17 +73,17 @@ bool Primitive::invertDirection(WritablePathSampleGenerator &/*sampler*/, const 
     FAIL("Primitive::invertDirection not implemented!");
 }
 
-float Primitive::positionalPdf(const PositionSample &/*point*/) const
+Float Primitive::positionalPdf(const PositionSample &/*point*/) const
 {
     return 0.0f;
 }
 
-float Primitive::directionalPdf(const PositionSample &/*point*/, const DirectionSample &/*sample*/) const
+Float Primitive::directionalPdf(const PositionSample &/*point*/, const DirectionSample &/*sample*/) const
 {
     return 0.0f;
 }
 
-float Primitive::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float Primitive::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &/*info*/, const Vec3f &/*p*/) const
 {
     return 0.0f;

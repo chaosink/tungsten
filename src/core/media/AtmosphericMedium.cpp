@@ -91,26 +91,26 @@ Vec3f AtmosphericMedium::sigmaT(Vec3f p) const
     return density(p)*_sigmaT;
 }
 
-inline float AtmosphericMedium::density(Vec3f p) const
+inline Float AtmosphericMedium::density(Vec3f p) const
 {
     return std::exp(-sqr(_effectiveFalloffScale)*((p - _center).lengthSq() - _radius*_radius));
 }
 
-inline float AtmosphericMedium::density(float h, float t0) const
+inline Float AtmosphericMedium::density(Float h, Float t0) const
 {
     return std::exp(-sqr(_effectiveFalloffScale)*(h*h - _radius*_radius + t0*t0));
 }
 
-inline float AtmosphericMedium::densityIntegral(float h, float t0, float t1) const
+inline Float AtmosphericMedium::densityIntegral(Float h, Float t0, Float t1) const
 {
-    float s = _effectiveFalloffScale;
+    Float s = _effectiveFalloffScale;
     if (t1 == Ray::infinity())
         return (SQRT_PI*0.5f/s)*std::exp((-h*h + _radius*_radius)*s*s)*Erf::erfc(s*t0);
     else
         return (SQRT_PI*0.5f/s)*std::exp((-h*h + _radius*_radius)*s*s)*Erf::erfDifference(s*t0, s*t1);
 }
 
-inline float AtmosphericMedium::inverseOpticalDepth(double h, double t0, double tau) const
+inline Float AtmosphericMedium::inverseOpticalDepth(double h, double t0, double tau) const
 {
     double s = _effectiveFalloffScale;
     double inner = std::erf(s*t0) + 2.0*double(INV_SQRT_PI)*std::exp(s*s*(h - _radius)*(h + _radius))*s*tau;
@@ -130,10 +130,10 @@ bool AtmosphericMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
         return false;
 
     Vec3f p = (ray.pos() - _center);
-    float t0 = p.dot(ray.dir());
-    float  h = (p - t0*ray.dir()).length();
+    Float t0 = p.dot(ray.dir());
+    Float  h = (p - t0*ray.dir()).length();
 
-    float maxT = ray.farT() + t0;
+    Float maxT = ray.farT() + t0;
     if (_absorptionOnly) {
         sample.t = ray.farT();
         Vec3f tau = densityIntegral(h, t0, maxT)*_sigmaT;
@@ -142,10 +142,10 @@ bool AtmosphericMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
         sample.exited = true;
     } else {
         int component = sampler.nextDiscrete(3);
-        float sigmaTc = _sigmaT[component];
-        float tauC = _transmittance->sample(sampler, state.firstScatter)/sigmaTc;
+        Float sigmaTc = _sigmaT[component];
+        Float tauC = _transmittance->sample(sampler, state.firstScatter)/sigmaTc;
 
-        float t = inverseOpticalDepth(h, t0, tauC);
+        Float t = inverseOpticalDepth(h, t0, tauC);
         sample.t = min(t, maxT);
         Vec3f tau = densityIntegral(h, t0, sample.t)*_sigmaT;
         sample.weight = _transmittance->eval(tau, state.firstScatter, sample.exited);
@@ -153,7 +153,7 @@ bool AtmosphericMedium::sampleDistance(PathSampleGenerator &sampler, const Ray &
         if (sample.exited) {
             sample.pdf = _transmittance->surfaceProbability(tau, state.firstScatter).avg();
         } else {
-            float rho = density(h, sample.t);
+            Float rho = density(h, sample.t);
             sample.pdf = (rho*_sigmaT*_transmittance->mediumPdf(tau, state.firstScatter)).avg();
             sample.weight *= rho*_sigmaS*_transmittance->sigmaBar();
         }
@@ -172,23 +172,23 @@ Vec3f AtmosphericMedium::transmittance(PathSampleGenerator &/*sampler*/, const R
         bool endOnSurface) const
 {
     Vec3f p = (ray.pos() - _center);
-    float t0 = p.dot(ray.dir());
-    float t1 = ray.farT() + t0;
-    float  h = (p - t0*ray.dir()).length();
+    Float t0 = p.dot(ray.dir());
+    Float t1 = ray.farT() + t0;
+    Float  h = (p - t0*ray.dir()).length();
 
     Vec3f tau = _sigmaT*densityIntegral(h, t0, t1);
     return _transmittance->eval(tau, startOnSurface, endOnSurface);
 }
 
-float AtmosphericMedium::pdf(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface, bool endOnSurface) const
+Float AtmosphericMedium::pdf(PathSampleGenerator &/*sampler*/, const Ray &ray, bool startOnSurface, bool endOnSurface) const
 {
     if (_absorptionOnly) {
         return 1.0f;
     } else {
         Vec3f p = (ray.pos() - _center);
-        float t0 = p.dot(ray.dir());
-        float t1 = ray.farT() + t0;
-        float  h = (p - t0*ray.dir()).length();
+        Float t0 = p.dot(ray.dir());
+        Float t1 = ray.farT() + t0;
+        Float  h = (p - t0*ray.dir()).length();
 
 
         Vec3f tau = _sigmaT*densityIntegral(h, t0, t1);

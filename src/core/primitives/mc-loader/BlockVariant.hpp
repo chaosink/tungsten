@@ -25,11 +25,11 @@ public:
         } else if (value.isObject())
             _models.emplace_back(value, resolver);
 
-        float weightSum = 0.0f;
+        Float weightSum = 0.0f;
         for (const ModelRef &m : _models)
             weightSum += m.weight();
         if (weightSum != 0.0f) {
-            float cdf = 0.0f;
+            Float cdf = 0.0f;
             for (ModelRef &m : _models) {
                 cdf += m.weight();
                 m.setWeight(cdf/weightSum);

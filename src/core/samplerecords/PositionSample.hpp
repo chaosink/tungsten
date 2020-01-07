@@ -9,7 +9,7 @@ struct PositionSample
 {
     Vec3f p;
     Vec3f weight;
-    float pdf;
+    Float pdf;
 
     Vec2f uv;
     Vec3f Ng;

@@ -53,26 +53,26 @@ rapidjson::Value RoughDielectricBsdf::toJson(Allocator &allocator) const
 }
 
 bool RoughDielectricBsdf::sampleBase(SurfaceScatterEvent &event, bool sampleR, bool sampleT,
-        float roughness, float ior, Microfacet::Distribution distribution)
+        Float roughness, Float ior, Microfacet::Distribution distribution)
 {
-    float wiDotN = event.wi.z();
+    Float wiDotN = event.wi.z();
 
-    float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
+    Float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
 
-    float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(wiDotN)))*roughness;
-    float alpha = Microfacet::roughnessToAlpha(distribution, roughness);
-    float sampleAlpha = Microfacet::roughnessToAlpha(distribution, sampleRoughness);
+    Float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(wiDotN)))*roughness;
+    Float alpha = Microfacet::roughnessToAlpha(distribution, roughness);
+    Float sampleAlpha = Microfacet::roughnessToAlpha(distribution, sampleRoughness);
 
     Vec3f m = Microfacet::sample(distribution, sampleAlpha, event.sampler->next2D());
-    float pm = Microfacet::pdf(distribution, sampleAlpha, m);
+    Float pm = Microfacet::pdf(distribution, sampleAlpha, m);
 
     if (pm < 1e-10f)
         return false;
 
-    float wiDotM = event.wi.dot(m);
-    float cosThetaT = 0.0f;
-    float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM, cosThetaT);
-    float etaM = wiDotM < 0.0f ? ior : 1.0f/ior;
+    Float wiDotM = event.wi.dot(m);
+    Float cosThetaT = 0.0f;
+    Float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM, cosThetaT);
+    Float etaM = wiDotM < 0.0f ? ior : 1.0f/ior;
 
     bool reflect;
     if (sampleR && sampleT) {
@@ -96,15 +96,15 @@ bool RoughDielectricBsdf::sampleBase(SurfaceScatterEvent &event, bool sampleR, b
         // Version from the paper (wrong!)
         //event.wo = (etaM*wiDotM - sgnE(wiDotN)*std::sqrt(1.0f + etaM*(wiDotM*wiDotM - 1.0f)))*m - etaM*event.wi;
 
-    float woDotN = event.wo.z();
+    Float woDotN = event.wo.z();
 
     bool reflected = wiDotN*woDotN > 0.0f;
     if (reflected != reflect)
         return false;
 
-    float woDotM = event.wo.dot(m);
-    float G = Microfacet::G(distribution, alpha, event.wi, event.wo, m);
-    float D = Microfacet::D(distribution, alpha, m);
+    Float woDotM = event.wo.dot(m);
+    Float G = Microfacet::G(distribution, alpha, event.wi, event.wo, m);
+    Float D = Microfacet::D(distribution, alpha, m);
     event.weight = Vec3f(std::abs(wiDotM)*G*D/(std::abs(wiDotN)*pm));
 
     if (reflect) {
@@ -131,52 +131,52 @@ bool RoughDielectricBsdf::sampleBase(SurfaceScatterEvent &event, bool sampleR, b
 }
 
 Vec3f RoughDielectricBsdf::evalBase(const SurfaceScatterEvent &event, bool sampleR, bool sampleT,
-        float roughness, float ior, Microfacet::Distribution distribution)
+        Float roughness, Float ior, Microfacet::Distribution distribution)
 {
-    float wiDotN = event.wi.z();
-    float woDotN = event.wo.z();
+    Float wiDotN = event.wi.z();
+    Float woDotN = event.wo.z();
 
     bool reflect = wiDotN*woDotN >= 0.0f;
     if ((reflect && !sampleR) || (!reflect && !sampleT))
         return Vec3f(0.0f);
 
-    float alpha = Microfacet::roughnessToAlpha(distribution, roughness);
+    Float alpha = Microfacet::roughnessToAlpha(distribution, roughness);
 
-    float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
+    Float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
     Vec3f m;
     if (reflect)
         m = sgnE(wiDotN)*(event.wi + event.wo).normalized();
     else
         m = -(event.wi*eta + event.wo).normalized();
-    float wiDotM = event.wi.dot(m);
-    float woDotM = event.wo.dot(m);
-    float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM);
-    float G = Microfacet::G(distribution, alpha, event.wi, event.wo, m);
-    float D = Microfacet::D(distribution, alpha, m);
+    Float wiDotM = event.wi.dot(m);
+    Float woDotM = event.wo.dot(m);
+    Float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM);
+    Float G = Microfacet::G(distribution, alpha, event.wi, event.wo, m);
+    Float D = Microfacet::D(distribution, alpha, m);
 
     if (reflect) {
-        float fr = (F*G*D*0.25f)/std::abs(wiDotN);
+        Float fr = (F*G*D*0.25f)/std::abs(wiDotN);
         return Vec3f(fr);
     } else {
-        float fs = std::abs(wiDotM*woDotM)*(1.0f - F)*G*D/(sqr(eta*wiDotM + woDotM)*std::abs(wiDotN));
+        Float fs = std::abs(wiDotM*woDotM)*(1.0f - F)*G*D/(sqr(eta*wiDotM + woDotM)*std::abs(wiDotN));
         return Vec3f(fs);
     }
 }
 
 bool RoughDielectricBsdf::invertBase(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event,
-        bool sampleR, bool sampleT, float roughness, float ior, Microfacet::Distribution distribution)
+        bool sampleR, bool sampleT, Float roughness, Float ior, Microfacet::Distribution distribution)
 {
-    float wiDotN = event.wi.z();
-    float woDotN = event.wo.z();
+    Float wiDotN = event.wi.z();
+    Float woDotN = event.wo.z();
 
     bool reflect = wiDotN*woDotN >= 0.0f;
     if ((reflect && !sampleR) || (!reflect && !sampleT))
         return false;
 
-    float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(wiDotN)))*roughness;
-    float sampleAlpha = Microfacet::roughnessToAlpha(distribution, sampleRoughness);
+    Float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(wiDotN)))*roughness;
+    Float sampleAlpha = Microfacet::roughnessToAlpha(distribution, sampleRoughness);
 
-    float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
+    Float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
     Vec3d m;
     if (reflect)
         m = Vec3d(event.wi + event.wo).normalized();
@@ -184,8 +184,8 @@ bool RoughDielectricBsdf::invertBase(WritablePathSampleGenerator &sampler, const
         m = Vec3d(event.wi*eta + event.wo).normalized();
     if (m.z() < 0.0f)
         m = -m;
-    float wiDotM = event.wi.dot(Vec3f(m));
-    float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM);
+    Float wiDotM = event.wi.dot(Vec3f(m));
+    Float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM);
 
     sampler.put2D(Microfacet::invert(distribution, sampleAlpha, m, sampler.untracked1D()));
 
@@ -195,31 +195,31 @@ bool RoughDielectricBsdf::invertBase(WritablePathSampleGenerator &sampler, const
     return true;
 }
 
-float RoughDielectricBsdf::pdfBase(const SurfaceScatterEvent &event, bool sampleR, bool sampleT,
-        float roughness, float ior, Microfacet::Distribution distribution)
+Float RoughDielectricBsdf::pdfBase(const SurfaceScatterEvent &event, bool sampleR, bool sampleT,
+        Float roughness, Float ior, Microfacet::Distribution distribution)
 {
-    float wiDotN = event.wi.z();
-    float woDotN = event.wo.z();
+    Float wiDotN = event.wi.z();
+    Float woDotN = event.wo.z();
 
     bool reflect = wiDotN*woDotN >= 0.0f;
     if ((reflect && !sampleR) || (!reflect && !sampleT))
         return 0.0f;
 
-    float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(wiDotN)))*roughness;
-    float sampleAlpha = Microfacet::roughnessToAlpha(distribution, sampleRoughness);
+    Float sampleRoughness = (1.2f - 0.2f*std::sqrt(std::abs(wiDotN)))*roughness;
+    Float sampleAlpha = Microfacet::roughnessToAlpha(distribution, sampleRoughness);
 
-    float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
+    Float eta = wiDotN < 0.0f ? ior : 1.0f/ior;
     Vec3f m;
     if (reflect)
         m = sgnE(wiDotN)*(event.wi + event.wo).normalized();
     else
         m = -(event.wi*eta + event.wo).normalized();
-    float wiDotM = event.wi.dot(m);
-    float woDotM = event.wo.dot(m);
-    float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM);
-    float pm = Microfacet::pdf(distribution, sampleAlpha, m);
+    Float wiDotM = event.wi.dot(m);
+    Float woDotM = event.wo.dot(m);
+    Float F = Fresnel::dielectricReflectance(1.0f/ior, wiDotM);
+    Float pm = Microfacet::pdf(distribution, sampleAlpha, m);
 
-    float pdf;
+    Float pdf;
     if (reflect)
         pdf = pm*0.25f/std::abs(wiDotM);
     else
@@ -237,7 +237,7 @@ bool RoughDielectricBsdf::sample(SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::GlossyTransmissionLobe) && _enableT;
-    float roughness = (*_roughness)[*event.info].x();
+    Float roughness = (*_roughness)[*event.info].x();
 
     bool result = sampleBase(event, sampleR, sampleT, roughness, _ior, _distribution);
     event.weight *= albedo(event.info);
@@ -248,7 +248,7 @@ Vec3f RoughDielectricBsdf::eval(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::GlossyTransmissionLobe) && _enableT;
-    float roughness = (*_roughness)[*event.info].x();
+    Float roughness = (*_roughness)[*event.info].x();
 
     return evalBase(event, sampleR, sampleT, roughness, _ior, _distribution)*albedo(event.info);
 }
@@ -257,21 +257,21 @@ bool RoughDielectricBsdf::invert(WritablePathSampleGenerator &sampler, const Sur
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::GlossyTransmissionLobe) && _enableT;
-    float roughness = (*_roughness)[*event.info].x();
+    Float roughness = (*_roughness)[*event.info].x();
 
     return invertBase(sampler, event, sampleR, sampleT, roughness, _ior, _distribution);
 }
 
-float RoughDielectricBsdf::pdf(const SurfaceScatterEvent &event) const
+Float RoughDielectricBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::GlossyTransmissionLobe) && _enableT;
-    float roughness = (*_roughness)[*event.info].x();
+    Float roughness = (*_roughness)[*event.info].x();
 
     return pdfBase(event, sampleR, sampleT, roughness, _ior, _distribution);
 }
 
-float RoughDielectricBsdf::eta(const SurfaceScatterEvent &event) const
+Float RoughDielectricBsdf::eta(const SurfaceScatterEvent &event) const
 {
     if (event.wi.z()*event.wo.z() >= 0.0f)
         return 1.0f;

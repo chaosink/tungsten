@@ -8,15 +8,15 @@ namespace Tungsten {
 
 class Disk : public Primitive
 {
-    float _coneAngle;
+    Float _coneAngle;
 
     Vec3f _center;
-    float _r;
+    Float _r;
     Vec3f _n;
-    float _area;
-    float _invArea;
+    Float _area;
+    Float _invArea;
     TangentFrame _frame;
-    float _cosApex;
+    Float _cosApex;
     Vec3f _coneBase;
 
     std::shared_ptr<Bsdf> _bsdf;
@@ -25,11 +25,11 @@ class Disk : public Primitive
     void buildProxy();
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     Disk();
-    Disk(const Vec3f &pos, const Vec3f &n, float r, const std::string &name, std::shared_ptr<Bsdf> bsdf);
+    Disk(const Vec3f &pos, const Vec3f &n, Float r, const std::string &name, std::shared_ptr<Bsdf> bsdf);
 
     virtual void fromJson(JsonPtr value, const Scene &scene) override;
     virtual rapidjson::Value toJson(Allocator &allocator) const override;
@@ -49,9 +49,9 @@ public:
     virtual bool sampleDirect(uint32 threadIndex, const Vec3f &p, PathSampleGenerator &sampler, LightSample &sample) const override;
     bool invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const;
     bool invertDirection(WritablePathSampleGenerator &sampler, const PositionSample &/*point*/, const DirectionSample &direction) const;
-    virtual float positionalPdf(const PositionSample &point) const override;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const override;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const override;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const override;
@@ -62,7 +62,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;

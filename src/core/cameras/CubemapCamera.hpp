@@ -29,15 +29,15 @@ class CubemapCamera : public Camera
     std::array<Vec3f, 6> _basisU;
     std::array<Vec3f, 6> _basisV;
     std::array<Vec2f, 6> _faceOffset;
-    float _visibleArea;
+    Float _visibleArea;
     Vec2f _faceSize;
 
     inline void directionToFace(const Vec3f &d, int &face, Vec2f &offset) const;
     inline Vec3f faceToDirection(int face, Vec2f offset) const;
     inline bool uvToFace(Vec2f uv, int &face) const;
 
-    inline Vec2f directionToUV(const Vec3f &wi, float &pdf) const;
-    inline Vec3f uvToDirection(int face, Vec2f uv, float &pdf) const;
+    inline Vec2f directionToUV(const Vec3f &wi, Float &pdf) const;
+    inline Vec3f uvToDirection(int face, Vec2f uv, Float &pdf) const;
 
 public:
     CubemapCamera();
@@ -54,11 +54,11 @@ public:
     virtual bool sampleDirect(const Vec3f &p, PathSampleGenerator &sampler, LensSample &sample) const override final;
     virtual bool evalDirection(PathSampleGenerator &sampler, const PositionSample &point,
                 const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const override final;
-    virtual float directionPdf(const PositionSample &point, const DirectionSample &direction) const override final;
+    virtual Float directionPdf(const PositionSample &point, const DirectionSample &direction) const override final;
 
     virtual bool isDirac() const override;
 
-    virtual float approximateFov() const override;
+    virtual Float approximateFov() const override;
 
     virtual void prepareForRender() override;
 };

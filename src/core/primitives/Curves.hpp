@@ -31,8 +31,8 @@ class Curves : public Primitive
 
     PathPtr _path;
     CurveMode _mode;
-    float _curveThickness;
-    float _subsample;
+    Float _curveThickness;
+    Float _subsample;
     bool _overrideThickness;
     bool _taperThickness;
 
@@ -87,7 +87,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;
@@ -100,7 +100,7 @@ public:
     virtual void setBsdf(int index, std::shared_ptr<Bsdf> &bsdf) override;
 
     virtual Primitive *clone() override;
-    
+
     const PathPtr& path() const
     {
         return _path;

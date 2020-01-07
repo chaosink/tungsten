@@ -38,7 +38,7 @@ protected:
     uint32 _threadId;
 
     // For computing direct lighting probabilities
-    std::vector<float> _lightPdf;
+    std::vector<Float> _lightPdf;
     // For sampling light sources in adjoint light tracing
     std::unique_ptr<Distribution1D> _lightSampler;
 
@@ -54,13 +54,13 @@ protected:
                                int bounce,
                                bool startsOnSurface,
                                bool endsOnSurface,
-                               float &pdfForward,
-                               float &pdfBackward) const;
+                               Float &pdfForward,
+                               Float &pdfBackward) const;
 
     Vec3f attenuatedEmission(PathSampleGenerator &sampler,
                              const Primitive &light,
                              const Medium *medium,
-                             float expectedDist,
+                             Float expectedDist,
                              IntersectionTemporary &data,
                              IntersectionInfo &info,
                              int bounce,
@@ -126,8 +126,8 @@ protected:
                         int bounce,
                         const Ray &parentRay);
 
-    const Primitive *chooseLight(PathSampleGenerator &sampler, const Vec3f &p, float &weight);
-    const Primitive *chooseLightAdjoint(PathSampleGenerator &sampler, float &pdf);
+    const Primitive *chooseLight(PathSampleGenerator &sampler, const Vec3f &p, Float &weight);
+    const Primitive *chooseLightAdjoint(PathSampleGenerator &sampler, Float &pdf);
 
     Vec3f volumeEstimateDirect(PathSampleGenerator &sampler,
                         MediumSample &mediumSample,
@@ -159,8 +159,8 @@ public:
                                int bounce,
                                bool startsOnSurface,
                                bool endsOnSurface,
-                               float &pdfForward,
-                               float &pdfBackward) const;
+                               Float &pdfForward,
+                               Float &pdfBackward) const;
 
     bool handleVolume(PathSampleGenerator &sampler, MediumSample &mediumSample,
                const Medium *&medium, int bounce, bool adjoint, bool enableLightSampling,

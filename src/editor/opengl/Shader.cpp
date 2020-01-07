@@ -195,7 +195,14 @@ void Shader::uniformF(const std::string &name, const Vec4f &v)
 
 void Shader::uniformMat(const std::string &name, const Mat4f &m, bool transpose)
 {
+#ifdef DOUBLE_PRECISION
+    float a[16];
+    for (uint32 i = 0; i < 16; ++i)
+        a[i] = m[i];
+    glf->glUniformMatrix4fv(uniform(name), 1, transpose, a);
+#else
     glf->glUniformMatrix4fv(uniform(name), 1, transpose, m.data());
+#endif
 }
 
 }

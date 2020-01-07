@@ -23,9 +23,9 @@ struct TangentFrame
     : normal(n)
     {
         // [Duff et al. 17] Building An Orthonormal Basis, Revisited. JCGT. 2017.
-        float sign = copysignf(1.0f, normal.z());
-        const float a = -1.0f/(sign + normal.z());
-        const float b = normal.x()*normal.y()*a;
+        Float sign = copysignf(1.0f, normal.z());
+        const Float a = -1.0f/(sign + normal.z());
+        const Float b = normal.x()*normal.y()*a;
         tangent = Vec3f(1.0f + sign*normal.x()*normal.x()*a, sign*b, -sign*normal.x());
         bitangent = Vec3f(b, sign + normal.y()*normal.y()*a, -normal.y());
     }

@@ -13,13 +13,13 @@ class EmissiveBvh
     struct Node {
         Box3f bounds;
         uint32 children;
-        float cumulativeEmission;
+        Float cumulativeEmission;
     };
 
     std::vector<Node> _nodes;
 
-    float recursiveBuild(const Bvh::NaiveBvhNode *node, uint32 head, uint32 &tail,
-            const std::vector<float> &emission)
+    Float recursiveBuild(const Bvh::NaiveBvhNode *node, uint32 head, uint32 &tail,
+            const std::vector<Float> &emission)
     {
         _nodes[head].bounds = node->bbox();
 
@@ -30,8 +30,8 @@ class EmissiveBvh
             _nodes[head].children = tail;
             tail += 2;
 
-            float  leftSum = recursiveBuild(node->child(0), _nodes[head].children + 0, tail, emission);
-            float rightSum = recursiveBuild(node->child(1), _nodes[head].children + 1, tail, emission);
+            Float  leftSum = recursiveBuild(node->child(0), _nodes[head].children + 0, tail, emission);
+            Float rightSum = recursiveBuild(node->child(1), _nodes[head].children + 1, tail, emission);
 
             _nodes[head].cumulativeEmission = leftSum + rightSum;
         }
@@ -40,7 +40,7 @@ class EmissiveBvh
     }
 
 public:
-    EmissiveBvh(Bvh::PrimVector prims, std::vector<float> emission)
+    EmissiveBvh(Bvh::PrimVector prims, std::vector<Float> emission)
     {
         if (prims.empty()) {
             _nodes.emplace_back();
@@ -56,9 +56,9 @@ public:
     }
 
     template<typename LAMBDA>
-    inline float traverse(const Vec3f &p, LAMBDA traverser) const
+    inline Float traverse(const Vec3f &p, LAMBDA traverser) const
     {
-        float totalOutside = 0.0f;
+        Float totalOutside = 0.0f;
 
         if (!_nodes[0].bounds.contains(p))
             return _nodes[0].cumulativeEmission;

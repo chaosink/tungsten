@@ -7,7 +7,7 @@ namespace Tungsten {
 
 class LinearTransmittance : public Transmittance
 {
-    float _maxT;
+    Float _maxT;
 
 public:
     LinearTransmittance();
@@ -22,10 +22,10 @@ public:
 
     virtual bool isDirac() const override final;
 
-    virtual float sigmaBar() const override final;
+    virtual Float sigmaBar() const override final;
 
-    virtual float sampleSurface(PathSampleGenerator &sampler) const override final;
-    virtual float sampleMedium(PathSampleGenerator &sampler) const override final;
+    virtual Float sampleSurface(PathSampleGenerator &sampler) const override final;
+    virtual Float sampleMedium(PathSampleGenerator &sampler) const override final;
 };
 
 }

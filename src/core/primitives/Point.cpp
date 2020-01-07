@@ -22,7 +22,7 @@ void Point::buildProxy()
     _proxy->makeSphere(0.05f);
 }
 
-float Point::powerToRadianceFactor() const
+Float Point::powerToRadianceFactor() const
 {
     return INV_FOUR_PI;
 }
@@ -98,7 +98,7 @@ bool Point::sampleDirection(PathSampleGenerator &sampler, const PositionSample &
 bool Point::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p, PathSampleGenerator &/*sampler*/, LightSample &sample) const
 {
     sample.d = _pos - p;
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
     sample.pdf = rSq;
@@ -117,17 +117,17 @@ bool Point::invertDirection(WritablePathSampleGenerator &sampler, const Position
     return true;
 }
 
-float Point::positionalPdf(const PositionSample &/*point*/) const
+Float Point::positionalPdf(const PositionSample &/*point*/) const
 {
     return 1.0f;
 }
 
-float Point::directionalPdf(const PositionSample &/*point*/, const DirectionSample &/*sample*/) const
+Float Point::directionalPdf(const PositionSample &/*point*/, const DirectionSample &/*sample*/) const
 {
     return SampleWarp::uniformSpherePdf();
 }
 
-float Point::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float Point::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &/*info*/, const Vec3f &p) const
 {
     return (p - _pos).lengthSq();
@@ -163,7 +163,7 @@ bool Point::isInfinite() const
     return false;
 }
 
-float Point::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
+Float Point::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
 {
     return INV_FOUR_PI*_power.max()/(_pos - p).lengthSq();
 }

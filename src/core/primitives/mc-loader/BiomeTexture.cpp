@@ -42,7 +42,7 @@ Vec3f BiomeTexture::operator[](const IntersectionInfo &info) const
 {
     Vec3f overlay = _overlay ? (*_overlay)[info.uv] : Vec3f(0.0f);
     Vec3f substrate = _substrate ? (*_substrate)[info.uv] : Vec3f(0.0f);
-    float alpha = _overlayOpacity ? (*_overlayOpacity)[info.uv].x() : 1.0f;
+    Float alpha = _overlayOpacity ? (*_overlayOpacity)[info.uv].x() : 1.0f;
 
     if (_tintType == ResourcePackLoader::TINT_NONE)
         return lerp(substrate, overlay, alpha);
@@ -65,9 +65,9 @@ Vec3f BiomeTexture::operator[](const IntersectionInfo &info) const
         bottom = (*iter->second->grassBottom)[pf];
         top    = (*iter->second->grassTop)   [pf];
     }
-    float height = iter->second->heights[pi.x() + 256*pi.y()];
+    Float height = iter->second->heights[pi.x() + 256*pi.y()];
 
-    float t = clamp((info.p.y() - 64.0f)/height, 0.0f, 1.0f);
+    Float t = clamp((info.p.y() - 64.0f)/height, Float(0.0f), Float(1.0f));
 
     return lerp(substrate, lerp(bottom, top, t)*overlay, alpha);
 }
@@ -87,12 +87,12 @@ Vec2f BiomeTexture::sample(TextureMapJacobian jacobian, const Vec2f &uv) const
     return _substrate->sample(jacobian, uv);
 }
 
-float BiomeTexture::pdf(TextureMapJacobian jacobian, const Vec2f &uv) const
+Float BiomeTexture::pdf(TextureMapJacobian jacobian, const Vec2f &uv) const
 {
     return _substrate->pdf(jacobian, uv);
 }
 
-void BiomeTexture::scaleValues(float factor)
+void BiomeTexture::scaleValues(Float factor)
 {
     if (_substrate)
         _substrate->scaleValues(factor);

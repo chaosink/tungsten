@@ -42,7 +42,7 @@ rapidjson::Value IesTexture::toJson(Allocator &allocator) const
     return result;
 }
 
-void wrapHorzAngles(int type, std::vector<float> &angles, std::vector<int> &indices)
+void wrapHorzAngles(int type, std::vector<Float> &angles, std::vector<int> &indices)
 {
     if (type == 1) {
         if (angles.back() == 0.0f) {
@@ -75,13 +75,13 @@ void wrapHorzAngles(int type, std::vector<float> &angles, std::vector<int> &indi
 // The IES format does not allow for comma separated values,
 // but sadly this doesn't stop certain manufacturers from adding
 // commas anyway. We ignore them here.
-static float readFloat(std::istream &i)
+static Float readFloat(std::istream &i)
 {
     i >> std::skipws;
     if (i.peek() == ',')
         i.get();
 
-    float result;
+    Float result;
     i >> result;
     return result;
 }
@@ -91,7 +91,7 @@ void IesTexture::loadResources()
     std::string data;
     if (_path)
         data = FileUtils::loadText(*_path);
-    std::vector<float> vertAngles, horzAngles, candelas;
+    std::vector<Float> vertAngles, horzAngles, candelas;
     int photometricType, verticalCount;
 
     std::istringstream in(data);
@@ -103,13 +103,13 @@ void IesTexture::loadResources()
                 std::getline(in, line);
                 int numAngles;
                 in >> numAngles;
-                float dummy;
+                Float dummy;
                 for (int i = 0; i < numAngles*2; ++i)
                     in >> dummy;
             }
 
             int numLamps, horizontalCount, unitType;
-            float lumensPerLamp, candelaMultiplier, width, height, length, ballast, future, watts;
+            Float lumensPerLamp, candelaMultiplier, width, height, length, ballast, future, watts;
             in >> numLamps >> lumensPerLamp >> candelaMultiplier >> verticalCount >> horizontalCount
                >> photometricType >> unitType >> width >> height >> length
                >> ballast >> future >> watts;
@@ -136,7 +136,7 @@ void IesTexture::loadResources()
 
     wrapHorzAngles(photometricType, horzAngles, horzIndex);
 
-    std::unique_ptr<float[]> texels(new float[_resolution*_resolution*2]);
+    std::unique_ptr<Float[]> texels(new Float[_resolution*_resolution*2]);
 
     if (horzAngles.empty() || vertAngles.empty()) {
         if (_path && !_path->empty())
@@ -149,13 +149,13 @@ void IesTexture::loadResources()
         return;
     }
 
-    float maxValue = 0.0f;
+    Float maxValue = 0.0f;
     for (int y = 0; y < _resolution; ++y) {
         for (int x = 0; x < _resolution*2; ++x) {
-            float u = (x + 0.5f)/(_resolution*2);
-            float v = (y + 0.5f)/_resolution;
-            float horz = u*360.0f;
-            float vert = (1.0f - v)*180.0f;
+            Float u = (x + 0.5f)/(_resolution*2);
+            Float v = (y + 0.5f)/_resolution;
+            Float horz = u*360.0f;
+            Float vert = (1.0f - v)*180.0f;
 
             if (photometricType != 1) {
                 if (horz > 180.0f)
@@ -182,22 +182,22 @@ void IesTexture::loadResources()
                 }
             }
 
-            float value = 0.0f;
+            Float value = 0.0f;
             if (row0 != -1 && row1 != -1 && col0 != -1 && col1 != -1) {
-                float horz0 = horzAngles[row0];
-                float horz1 = horzAngles[row1];
-                float vert0 = vertAngles[col0];
-                float vert1 = vertAngles[col1];
+                Float horz0 = horzAngles[row0];
+                Float horz1 = horzAngles[row1];
+                Float vert0 = vertAngles[col0];
+                Float vert1 = vertAngles[col1];
                 if (horz0 > horz1)
                     horz0 -= 360.0f;
 
-                float c00 = candelas[horzIndex[row0]*verticalCount + vertIndex[col0]];
-                float c01 = candelas[horzIndex[row0]*verticalCount + vertIndex[col1]];
-                float c10 = candelas[horzIndex[row1]*verticalCount + vertIndex[col0]];
-                float c11 = candelas[horzIndex[row1]*verticalCount + vertIndex[col1]];
+                Float c00 = candelas[horzIndex[row0]*verticalCount + vertIndex[col0]];
+                Float c01 = candelas[horzIndex[row0]*verticalCount + vertIndex[col1]];
+                Float c10 = candelas[horzIndex[row1]*verticalCount + vertIndex[col0]];
+                Float c11 = candelas[horzIndex[row1]*verticalCount + vertIndex[col1]];
 
-                float u = horz0 == horz1 ? 0.0f : (horz - horz0)/(horz1 - horz0);
-                float v = vert0 == vert1 ? 0.0f : (vert - vert0)/(vert1 - vert0);
+                Float u = horz0 == horz1 ? 0.0f : (horz - horz0)/(horz1 - horz0);
+                Float v = vert0 == vert1 ? 0.0f : (vert - vert0)/(vert1 - vert0);
                 value = (c00*(1.0f - u) + c10*u)*(1.0f - v)
                       + (c01*(1.0f - u) + c11*u)*v;
             }

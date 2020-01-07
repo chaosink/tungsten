@@ -36,7 +36,7 @@ Camera::Camera(const Mat4f &transform, const Vec2u &res)
 
 void Camera::precompute()
 {
-    _ratio = _res.y()/float(_res.x());
+    _ratio = _res.y()/Float(_res.x());
     _pixelSize = Vec2f(1.0f/_res.x(), 1.0f/_res.y());
     _invTransform = _transform.invert();
 }
@@ -124,7 +124,7 @@ bool Camera::evalDirection(PathSampleGenerator &/*sampler*/, const PositionSampl
     return false;
 }
 
-float Camera::directionPdf(const PositionSample &/*point*/, const DirectionSample &/*direction*/) const
+Float Camera::directionPdf(const PositionSample &/*point*/, const DirectionSample &/*direction*/) const
 {
     return 0.0f;
 }

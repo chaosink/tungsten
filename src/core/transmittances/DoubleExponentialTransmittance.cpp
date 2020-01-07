@@ -34,11 +34,11 @@ rapidjson::Value DoubleExponentialTransmittance::toJson(Allocator &allocator) co
 
 Vec3f DoubleExponentialTransmittance::surfaceSurface(const Vec3f &tau) const
 {
-    return 0.5f*(std::exp(-_sigmaA*tau) + std::exp(-_sigmaB*tau));
+    return Float(0.5f)*(std::exp(-_sigmaA*tau) + std::exp(-_sigmaB*tau));
 }
 Vec3f DoubleExponentialTransmittance::surfaceMedium(const Vec3f &tau) const
 {
-    return 0.5f*(_sigmaA*std::exp(-_sigmaA*tau) + _sigmaB*std::exp(-_sigmaB*tau));
+    return Float(0.5f)*(_sigmaA*std::exp(-_sigmaA*tau) + _sigmaB*std::exp(-_sigmaB*tau));
 }
 Vec3f DoubleExponentialTransmittance::mediumSurface(const Vec3f &tau) const
 {
@@ -49,19 +49,19 @@ Vec3f DoubleExponentialTransmittance::mediumMedium(const Vec3f &tau) const
     return (sqr(_sigmaA)*std::exp(-_sigmaA*tau) + sqr(_sigmaB)*std::exp(-_sigmaB*tau))/(_sigmaA + _sigmaB);
 }
 
-float DoubleExponentialTransmittance::sigmaBar() const
+Float DoubleExponentialTransmittance::sigmaBar() const
 {
     return 0.5f*(_sigmaA + _sigmaB);
 }
 
-float DoubleExponentialTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float DoubleExponentialTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
-    float t = -std::log(1.0f - sampler.next1D());
+    Float t = -std::log(1.0f - sampler.next1D());
     return sampler.nextBoolean(0.5f) ? t/_sigmaA : t/_sigmaB;
 }
-float DoubleExponentialTransmittance::sampleMedium(PathSampleGenerator &sampler) const
+Float DoubleExponentialTransmittance::sampleMedium(PathSampleGenerator &sampler) const
 {
-    float t = -std::log(1.0f - sampler.next1D());
+    Float t = -std::log(1.0f - sampler.next1D());
     return sampler.nextBoolean(_sigmaA/(_sigmaA + _sigmaB)) ? t/_sigmaA : t/_sigmaB;
 }
 

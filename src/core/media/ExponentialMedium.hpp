@@ -8,8 +8,8 @@ namespace Tungsten {
 class ExponentialMedium : public Medium
 {
     Vec3f _materialSigmaA, _materialSigmaS;
-    float _density;
-    float _falloffScale;
+    Float _density;
+    Float _falloffScale;
     Vec3f _unitPoint;
     Vec3f _falloffDirection;
 
@@ -18,10 +18,10 @@ class ExponentialMedium : public Medium
     Vec3f _sigmaT;
     bool _absorptionOnly;
 
-    inline float density(Vec3f p) const;
-    inline float density(float x, float dx, float t) const;
-    inline float densityIntegral(float x, float dx, float tMax) const;
-    inline float inverseOpticalDepth(float x, float dx, float tau) const;
+    inline Float density(Vec3f p) const;
+    inline Float density(Float x, Float dx, Float t) const;
+    inline Float densityIntegral(Float x, Float dx, Float tMax) const;
+    inline Float inverseOpticalDepth(Float x, Float dx, Float tau) const;
 
 public:
     ExponentialMedium();
@@ -41,7 +41,7 @@ public:
             MediumState &state, MediumSample &sample) const override;
     virtual Vec3f transmittance(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface,
             bool endOnSurface) const override;
-    virtual float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
+    virtual Float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
 };
 
 }

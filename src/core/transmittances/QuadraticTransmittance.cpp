@@ -32,15 +32,15 @@ rapidjson::Value QuadraticTransmittance::toJson(Allocator &allocator) const
 Vec3f QuadraticTransmittance::surfaceSurface(const Vec3f &tau) const
 {
     Vec3f t = min(tau/_maxT, Vec3f(1.0f));
-    return 1.0f - 2.0f*t + t*t;
+    return Float(1.0f) - t*2.0f + t*t;
 }
 Vec3f QuadraticTransmittance::surfaceMedium(const Vec3f &tau) const
 {
-    return (2.0f/_maxT)*(1.0f - min(tau/_maxT, Vec3f(1.0f)));
+    return (2.0f/_maxT)*(Float(1.0f) - min(tau/_maxT, Vec3f(1.0f)));
 }
 Vec3f QuadraticTransmittance::mediumSurface(const Vec3f &tau) const
 {
-    return 1.0f - min(tau/_maxT, Vec3f(1.0f));
+    return Float(1.0f) - min(tau/_maxT, Vec3f(1.0f));
 }
 Vec3f QuadraticTransmittance::mediumMedium(const Vec3f &tau) const
 {
@@ -51,16 +51,16 @@ Vec3f QuadraticTransmittance::mediumMedium(const Vec3f &tau) const
     return result;
 }
 
-float QuadraticTransmittance::sigmaBar() const
+Float QuadraticTransmittance::sigmaBar() const
 {
     return 2.0f/_maxT;
 }
 
-float QuadraticTransmittance::sampleSurface(PathSampleGenerator &sampler) const
+Float QuadraticTransmittance::sampleSurface(PathSampleGenerator &sampler) const
 {
     return _maxT*(1.0f - std::sqrt(1.0f - sampler.next1D()));
 }
-float QuadraticTransmittance::sampleMedium(PathSampleGenerator &sampler) const
+Float QuadraticTransmittance::sampleMedium(PathSampleGenerator &sampler) const
 {
     return _maxT*sampler.next1D();
 }

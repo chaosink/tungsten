@@ -62,7 +62,7 @@ class ObjLoader
     std::string extractPath(const char *line);
 
     template<unsigned Size>
-    Vec<float, Size> loadVector(const char *s);
+    Vec<Float, Size> loadVector(const char *s);
     void loadCurve(const char *line);
     void loadFace(const char *line);
     void loadMaterialLibrary(const char *path);

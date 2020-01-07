@@ -13,7 +13,7 @@
 
 namespace Tungsten {
 
-PhongBsdf::PhongBsdf(float exponent, float diffuseRatio)
+PhongBsdf::PhongBsdf(Float exponent, Float diffuseRatio)
 : _exponent(exponent),
   _diffuseRatio(diffuseRatio)
 {
@@ -54,9 +54,9 @@ bool PhongBsdf::sample(SurfaceScatterEvent &event) const
 
     if (sampleGlossy) {
         Vec2f xi = event.sampler->next2D();
-        float phi      = xi.x()*TWO_PI;
-        float cosTheta = std::pow(xi.y(), _invExponent);
-        float sinTheta = std::sqrt(max(0.0f, 1.0f - cosTheta*cosTheta));
+        Float phi      = xi.x()*TWO_PI;
+        Float cosTheta = std::pow(xi.y(), _invExponent);
+        Float sinTheta = std::sqrt(max(Float(0.0f), 1.0f - cosTheta*cosTheta));
 
         Vec3f woLocal(std::cos(phi)*sinTheta, std::sin(phi)*sinTheta, cosTheta);
 
@@ -87,11 +87,11 @@ Vec3f PhongBsdf::eval(const SurfaceScatterEvent &event) const
     if (event.wi.z() <= 0.0f || event.wo.z() <= 0.0f)
         return Vec3f(0.0f);
 
-    float result = 0.0f;
+    Float result = 0.0f;
     if (evalDiffuse)
         result += _diffuseRatio*INV_PI;
     if (evalGlossy) {
-        float cosTheta = Vec3f(-event.wi.x(), -event.wi.y(), event.wi.z()).dot(event.wo);
+        Float cosTheta = Vec3f(-event.wi.x(), -event.wi.y(), event.wi.z()).dot(event.wo);
         if (cosTheta > 0.0f)
             result += std::pow(cosTheta, _exponent)*_brdfFactor*(1.0f - _diffuseRatio);
     }
@@ -99,7 +99,7 @@ Vec3f PhongBsdf::eval(const SurfaceScatterEvent &event) const
     return albedo(event.info)*event.wo.z()*result;
 }
 
-float PhongBsdf::pdf(const SurfaceScatterEvent &event) const
+Float PhongBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool evalGlossy  = event.requestedLobe.test(BsdfLobes::GlossyReflectionLobe);
     bool evalDiffuse = event.requestedLobe.test(BsdfLobes::DiffuseReflectionLobe);
@@ -109,9 +109,9 @@ float PhongBsdf::pdf(const SurfaceScatterEvent &event) const
     if (event.wi.z() <= 0.0f || event.wo.z() <= 0.0f)
         return 0.0f;
 
-    float result = 0.0f;
+    Float result = 0.0f;
     if (evalGlossy) {
-        float cosTheta = Vec3f(-event.wi.x(), -event.wi.y(), event.wi.z()).dot(event.wo);
+        Float cosTheta = Vec3f(-event.wi.x(), -event.wi.y(), event.wi.z()).dot(event.wo);
         if (cosTheta > 0.0f)
             result += std::pow(cosTheta, _exponent)*_pdfFactor;
     }

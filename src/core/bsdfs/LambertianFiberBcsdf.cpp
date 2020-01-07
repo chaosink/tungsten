@@ -17,10 +17,10 @@ LambertianFiberBcsdf::LambertianFiberBcsdf()
 // Closed form far-field solution for perfect Lambertian cylinder
 // Problem first described in "Light Scattering from Filaments",
 // exact solution presented in "Importance Sampling for Physically-Based Hair Fiber Models"
-inline float LambertianFiberBcsdf::lambertianCylinder(const Vec3f &wo) const
+inline Float LambertianFiberBcsdf::lambertianCylinder(const Vec3f &wo) const
 {
-    float cosThetaO = trigInverse(wo.y());
-    float phi = std::atan2(wo.x(), wo.z());
+    Float cosThetaO = trigInverse(wo.y());
+    Float phi = std::atan2(wo.x(), wo.z());
     if (phi < 0.0f)
         phi += TWO_PI;
 
@@ -46,9 +46,9 @@ bool LambertianFiberBcsdf::sample(SurfaceScatterEvent &event) const
     if (!event.requestedLobe.test(BsdfLobes::DiffuseLobe))
         return false;
 
-    float h = event.sampler->next1D()*2.0f - 1.0f;
-    float nx = h;
-    float nz = trigInverse(nx);
+    Float h = event.sampler->next1D()*2.0f - 1.0f;
+    Float nx = h;
+    Float nz = trigInverse(nx);
 
     Vec3f d = SampleWarp::cosineHemisphere(event.sampler->next2D());
 
@@ -60,7 +60,7 @@ bool LambertianFiberBcsdf::sample(SurfaceScatterEvent &event) const
     return true;
 }
 
-float LambertianFiberBcsdf::pdf(const SurfaceScatterEvent &event) const
+Float LambertianFiberBcsdf::pdf(const SurfaceScatterEvent &event) const
 {
     if (!event.requestedLobe.test(BsdfLobes::DiffuseLobe))
         return 0.0f;

@@ -44,9 +44,9 @@ class KdTree
         });
 
         uint32 splitIdx = start + (end - start + 1)/2;
-        float rightPlane = _nodes[splitIdx].pos[splitDim];
-        float  headPlane = _nodes[dst].pos[splitDim];
-        float  leftPlane = _nodes[splitIdx - 1].pos[splitDim];
+        Float rightPlane = _nodes[splitIdx].pos[splitDim];
+        Float  headPlane = _nodes[dst].pos[splitDim];
+        Float  leftPlane = _nodes[splitIdx - 1].pos[splitDim];
 
         if (headPlane < leftPlane || headPlane > rightPlane) {
             uint32 swapIdx = headPlane > rightPlane ? splitIdx : splitIdx - 1;
@@ -103,21 +103,21 @@ public:
         _treeEnd = rangeEnd;
     }
 
-    void buildVolumeHierarchy(bool fixedRadius, float radiusScale)
+    void buildVolumeHierarchy(bool fixedRadius, Float radiusScale)
     {
         if (fixedRadius) {
             for (uint32 i = 0; i < _treeEnd; ++i)
                 _nodes[i].radiusSq = radiusScale*radiusScale;
         } else {
             int m = min(30, int(_treeEnd));
-            float scale = radiusScale*(std::sqrt(float(_treeEnd))*0.05f)/float(m);
+            Float scale = radiusScale*(std::sqrt(Float(_treeEnd))*0.05f)/Float(m);
             ThreadUtils::pool->yield(*ThreadUtils::pool->enqueue([&](uint32 idx, uint32 num, uint32 /*threadId*/) {
                 uint32 span = (_treeEnd + num - 1)/num;
                 uint32 start = span*idx;
                 uint32 end = min(start + span, _treeEnd);
 
                 std::unique_ptr<const PhotonType *[]> photons(new const PhotonType *[m]);
-                std::unique_ptr<float[]> dists(new float[m]);
+                std::unique_ptr<Float[]> dists(new Float[m]);
                 for (uint32 i = start; i < end; ++i) {
                     nearestNeighbours(_nodes[i].pos, photons.get(), dists.get(), m);
                     _nodes[i].radiusSq = dists[0]*scale;
@@ -128,27 +128,27 @@ public:
         buildVolumeHierarchy(0);
     }
 
-    const PhotonType *nearestNeighbour(Vec3f pos, float maxDist = 1e30f) const
+    const PhotonType *nearestNeighbour(Vec3f pos, Float maxDist = 1e30f) const
     {
         if (_treeEnd == 0)
             return nullptr;
 
         const PhotonType *nearestPhoton = nullptr;
-        float maxDistSq = maxDist*maxDist;
+        Float maxDistSq = maxDist*maxDist;
 
         const PhotonType *stack[28];
         const PhotonType **stackPtr = stack;
 
         const PhotonType *current = &_nodes[0];
         while (true) {
-            float dSq = (current->pos - pos).lengthSq();
+            Float dSq = (current->pos - pos).lengthSq();
             if (dSq < maxDistSq) {
                 maxDistSq = dSq;
                 nearestPhoton = current;
             }
 
             uint32 splitDim = current->splitDim();
-            float planeDist = pos[splitDim] - current->pos[splitDim];
+            Float planeDist = pos[splitDim] - current->pos[splitDim];
             bool traverseLeft  = current->hasLeftChild () && (planeDist <= 0.0f || planeDist*planeDist < maxDistSq);
             bool traverseRight = current->hasRightChild() && (planeDist >= 0.0f || planeDist*planeDist < maxDistSq);
 
@@ -175,20 +175,20 @@ public:
         return nullptr;
     }
 
-    int nearestNeighbours(Vec3f pos, const PhotonType **result, float *distSq, const int k, const float maxDist = 1e30f) const
+    int nearestNeighbours(Vec3f pos, const PhotonType **result, Float *distSq, const int k, const Float maxDist = 1e30f) const
     {
         if (_treeEnd == 0)
             return 0;
 
         int photonCount = 0;
-        float maxDistSq = maxDist*maxDist;
+        Float maxDistSq = maxDist*maxDist;
 
         const PhotonType *stack[28];
         const PhotonType **stackPtr = stack;
 
         const PhotonType *current = &_nodes[0];
         while (true) {
-            float dSq = (current->pos - pos).lengthSq();
+            Float dSq = (current->pos - pos).lengthSq();
             if (dSq < maxDistSq) {
                 if (photonCount < k) {
                     result[photonCount] = current;
@@ -201,7 +201,7 @@ public:
                         for (int i = halfK - 1; i >= 0; --i) {
                             int parent = i;
                             const PhotonType *reloc = result[i];
-                            float relocDist = distSq[i];
+                            Float relocDist = distSq[i];
                             while (parent < halfK) {
                                 int child = parent*2 + 1;
                                 if (child < k - 1 && distSq[child] < distSq[child + 1])
@@ -237,7 +237,7 @@ public:
             }
 
             uint32 splitDim = current->splitDim();
-            float planeDist = pos[splitDim] - current->pos[splitDim];
+            Float planeDist = pos[splitDim] - current->pos[splitDim];
             bool traverseLeft  = current->hasLeftChild () && (planeDist <= 0.0f || planeDist*planeDist < maxDistSq);
             bool traverseRight = current->hasRightChild() && (planeDist >= 0.0f || planeDist*planeDist < maxDistSq);
 
@@ -265,12 +265,12 @@ public:
     }
 
     template<typename Traverser>
-    inline void beamQuery(Vec3f pos, Vec3f dir, float farT, Traverser traverser) const
+    inline void beamQuery(Vec3f pos, Vec3f dir, Float farT, Traverser traverser) const
     {
         if (_treeEnd == 0)
             return;
 
-        const Vec3f invDir = 1.0f/dir;
+        const Vec3f invDir = Float(1.0f)/dir;
 
         const PhotonType *stack[28];
         const PhotonType **stackPtr = stack;
@@ -279,12 +279,12 @@ public:
         while (true) {
             Vec3f mins = (current->minBounds - pos)*invDir;
             Vec3f maxs = (current->maxBounds - pos)*invDir;
-            float minT = max(
+            Float minT = max(
                 invDir[0] > 0.0f ? mins[0] : maxs[0],
                 invDir[1] > 0.0f ? mins[1] : maxs[1],
                 invDir[2] > 0.0f ? mins[2] : maxs[2]
             );
-            float maxT = min(
+            Float maxT = min(
                 invDir[0] > 0.0f ? maxs[0] : mins[0],
                 invDir[1] > 0.0f ? maxs[1] : mins[1],
                 invDir[2] > 0.0f ? maxs[2] : mins[2]
@@ -292,9 +292,9 @@ public:
 
             if (minT <= maxT && minT <= farT && maxT >= 0.0f) {
                 Vec3f p = current->pos - pos;
-                float proj = p.dot(dir);
+                Float proj = p.dot(dir);
                 if (proj >= 0.0f && proj <= farT) {
-                    float distSq = p.lengthSq() - proj*proj;
+                    Float distSq = p.lengthSq() - proj*proj;
                     if (distSq <= current->radiusSq)
                         traverser(*current, proj, distSq);
                 }

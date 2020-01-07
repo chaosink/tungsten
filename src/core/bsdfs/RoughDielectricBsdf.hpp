@@ -11,8 +11,8 @@ class RoughDielectricBsdf : public Bsdf
     Microfacet::Distribution _distribution;
 
     std::shared_ptr<Texture> _roughness;
-    float _ior;
-    float _invIor;
+    Float _ior;
+    Float _invIor;
     bool _enableT;
 
 
@@ -23,22 +23,22 @@ public:
     virtual rapidjson::Value toJson(Allocator &allocator) const override;
 
     static bool sampleBase(SurfaceScatterEvent &event, bool sampleR, bool sampleT,
-            float roughness, float ior, Microfacet::Distribution distribution);
+            Float roughness, Float ior, Microfacet::Distribution distribution);
 
     static Vec3f evalBase(const SurfaceScatterEvent &event, bool sampleR, bool sampleT,
-            float roughness, float ior, Microfacet::Distribution distribution);
+            Float roughness, Float ior, Microfacet::Distribution distribution);
 
     static bool invertBase(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event,
-            bool sampleR, bool sampleT, float roughness, float ior, Microfacet::Distribution distribution);
+            bool sampleR, bool sampleT, Float roughness, Float ior, Microfacet::Distribution distribution);
 
-    static float pdfBase(const SurfaceScatterEvent &event, bool sampleR, bool sampleT,
-            float roughness, float ior, Microfacet::Distribution distribution);
+    static Float pdfBase(const SurfaceScatterEvent &event, bool sampleR, bool sampleT,
+            Float roughness, Float ior, Microfacet::Distribution distribution);
 
     virtual bool sample(SurfaceScatterEvent &event) const override;
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
-    virtual float eta(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float eta(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 
@@ -47,7 +47,7 @@ public:
         return _distribution.toString();
     }
 
-    float ior() const
+    Float ior() const
     {
         return _ior;
     }
@@ -67,7 +67,7 @@ public:
         _distribution = distributionName;
     }
 
-    void setIor(float ior)
+    void setIor(Float ior)
     {
         _ior = ior;
     }

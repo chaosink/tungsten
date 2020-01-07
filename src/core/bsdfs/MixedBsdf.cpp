@@ -14,7 +14,7 @@
 
 namespace Tungsten {
 
-bool MixedBsdf::adjustedRatio(BsdfLobes requestedLobe, const IntersectionInfo *info, float &ratio) const
+bool MixedBsdf::adjustedRatio(BsdfLobes requestedLobe, const IntersectionInfo *info, Float &ratio) const
 {
     bool sample0 = requestedLobe.test(_bsdf0->lobes());
     bool sample1 = requestedLobe.test(_bsdf1->lobes());
@@ -37,7 +37,7 @@ MixedBsdf::MixedBsdf()
 {
 }
 
-MixedBsdf::MixedBsdf(std::shared_ptr<Bsdf> bsdf0, std::shared_ptr<Bsdf> bsdf1, float ratio)
+MixedBsdf::MixedBsdf(std::shared_ptr<Bsdf> bsdf0, std::shared_ptr<Bsdf> bsdf1, Float ratio)
 : _bsdf0(bsdf0),
   _bsdf1(bsdf1),
   _ratio(std::make_shared<ConstantTexture>(ratio))
@@ -69,7 +69,7 @@ rapidjson::Value MixedBsdf::toJson(Allocator &allocator) const
 
 bool MixedBsdf::sample(SurfaceScatterEvent &event) const
 {
-    float ratio;
+    Float ratio;
     if (!adjustedRatio(event.requestedLobe, event.info, ratio))
         return false;
 
@@ -77,8 +77,8 @@ bool MixedBsdf::sample(SurfaceScatterEvent &event) const
         if (!_bsdf0->sample(event))
             return false;
 
-        float pdf0 = event.pdf*ratio;
-        float pdf1 = _bsdf1->pdf(event)*(1.0f - ratio);
+        Float pdf0 = event.pdf*ratio;
+        Float pdf1 = _bsdf1->pdf(event)*(1.0f - ratio);
         Vec3f f = event.weight*event.pdf*ratio + _bsdf1->eval(event)*(1.0f - ratio);
         event.pdf = pdf0 + pdf1;
         event.weight = f/event.pdf;
@@ -86,8 +86,8 @@ bool MixedBsdf::sample(SurfaceScatterEvent &event) const
         if (!_bsdf1->sample(event))
             return false;
 
-        float pdf0 = _bsdf0->pdf(event)*ratio;
-        float pdf1 = event.pdf*(1.0f - ratio);
+        Float pdf0 = _bsdf0->pdf(event)*ratio;
+        Float pdf1 = event.pdf*(1.0f - ratio);
         Vec3f f = _bsdf0->eval(event)*ratio + event.weight*event.pdf*(1.0f - ratio);
         event.pdf = pdf0 + pdf1;
         event.weight = f/event.pdf;
@@ -99,18 +99,18 @@ bool MixedBsdf::sample(SurfaceScatterEvent &event) const
 
 Vec3f MixedBsdf::eval(const SurfaceScatterEvent &event) const
 {
-    float ratio = (*_ratio)[*event.info].x();
+    Float ratio = (*_ratio)[*event.info].x();
     return albedo(event.info)*(_bsdf0->eval(event)*ratio + _bsdf1->eval(event)*(1.0f - ratio));
 }
 
 bool MixedBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const
 {
-    float ratio;
+    Float ratio;
     if (!adjustedRatio(event.requestedLobe, event.info, ratio))
         return false;
 
-    float pdf0 = _bsdf0->pdf(event)*ratio;
-    float pdf1 = _bsdf1->pdf(event)*(1.0f - ratio);
+    Float pdf0 = _bsdf0->pdf(event)*ratio;
+    Float pdf1 = _bsdf1->pdf(event)*(1.0f - ratio);
 
     if (sampler.untrackedBoolean(pdf0/(pdf0 + pdf1))) {
         sampler.putBoolean(ratio, true);
@@ -121,9 +121,9 @@ bool MixedBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceScatte
     }
 }
 
-float MixedBsdf::pdf(const SurfaceScatterEvent &event) const
+Float MixedBsdf::pdf(const SurfaceScatterEvent &event) const
 {
-    float ratio;
+    Float ratio;
     if (!adjustedRatio(event.requestedLobe, event.info, ratio))
         return 0.0f;
     return _bsdf0->pdf(event)*ratio + _bsdf1->pdf(event)*(1.0f - ratio);

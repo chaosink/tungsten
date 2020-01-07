@@ -31,7 +31,7 @@ class MultiplexedMltIntegrator : public Integrator
         uint64 cameraState;
         uint64 emitterState;
         uint32 sequence;
-        float luminance;
+        Float luminance;
         double luminanceSum;
         int s, t;
     };

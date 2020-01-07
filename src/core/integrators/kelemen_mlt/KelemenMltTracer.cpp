@@ -39,10 +39,10 @@ void KelemenMltTracer::tracePath(PathSampleGenerator &cameraSampler, PathSampleG
     LightPath & cameraPath = * _cameraPath;
     LightPath &emitterPath = *_emitterPath;
 
-    float lightPdf;
+    Float lightPdf;
     const Primitive *light = chooseLightAdjoint(emitterSampler, lightPdf);
 
-    float lightSplatScale = 1.0f/resF.product();
+    Float lightSplatScale = 1.0f/resF.product();
 
     cameraPath.startCameraPath(&_scene->cam(), pixel);
     emitterPath.startEmitterPath(light, lightPdf);
@@ -84,7 +84,7 @@ void KelemenMltTracer::tracePath(PathSampleGenerator &cameraSampler, PathSampleG
         splatQueue.addSplat(0, 0, pixel, primarySplat);
 }
 
-void KelemenMltTracer::startSampleChain(UniformSampler &replaySampler, float luminance)
+void KelemenMltTracer::startSampleChain(UniformSampler &replaySampler, Float luminance)
 {
     _cameraSampler.reset (new MetropolisSampler(&replaySampler, _settings.maxBounces*16));
     _emitterSampler.reset(new MetropolisSampler(&replaySampler, _settings.maxBounces*16));
@@ -100,9 +100,9 @@ void KelemenMltTracer::startSampleChain(UniformSampler &replaySampler, float lum
     _emitterSampler->setHelperGenerator(&_sampler);
 }
 
-void KelemenMltTracer::runSampleChain(int chainLength, float luminanceScale)
+void KelemenMltTracer::runSampleChain(int chainLength, Float luminanceScale)
 {
-    float accumulatedWeight = 0.0f;
+    Float accumulatedWeight = 0.0f;
     for (int i = 0; i < chainLength; ++i) {
         bool largeStep = _sampler.next1D() < _settings.largeStepProbability;
         _cameraSampler->setLargeStep(largeStep);
@@ -110,13 +110,13 @@ void KelemenMltTracer::runSampleChain(int chainLength, float luminanceScale)
 
         tracePath(*_cameraSampler, *_emitterSampler, *_proposedSplats, true);
 
-        float currentI = _currentSplats->totalLuminance();
-        float proposedI = _proposedSplats->totalLuminance();
+        Float currentI = _currentSplats->totalLuminance();
+        Float proposedI = _proposedSplats->totalLuminance();
 
-        float a = currentI == 0.0f ? 1.0f : min(proposedI/currentI, 1.0f);
+        Float a = currentI == 0.0f ? 1.0f : min(proposedI/currentI, Float(1.0f));
 
-        float currentWeight = (1.0f - a)/((currentI/luminanceScale) + _settings.largeStepProbability);
-        float proposedWeight = (a + (largeStep ? 1.0f : 0.0f))/((proposedI/luminanceScale) + _settings.largeStepProbability);
+        Float currentWeight = (1.0f - a)/((currentI/luminanceScale) + _settings.largeStepProbability);
+        Float proposedWeight = (a + (largeStep ? 1.0f : 0.0f))/((proposedI/luminanceScale) + _settings.largeStepProbability);
 
         accumulatedWeight += currentWeight;
 

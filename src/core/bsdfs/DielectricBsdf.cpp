@@ -23,7 +23,7 @@ DielectricBsdf::DielectricBsdf()
     _lobes = BsdfLobes(BsdfLobes::SpecularReflectionLobe | BsdfLobes::SpecularTransmissionLobe);
 }
 
-DielectricBsdf::DielectricBsdf(float ior)
+DielectricBsdf::DielectricBsdf(Float ior)
 : _ior(ior),
   _enableT(true)
 {
@@ -51,12 +51,12 @@ bool DielectricBsdf::sample(SurfaceScatterEvent &event) const
     bool sampleR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::SpecularTransmissionLobe) && _enableT;
 
-    float eta = event.wi.z() < 0.0f ? _ior : _invIor;
+    Float eta = event.wi.z() < 0.0f ? _ior : _invIor;
 
-    float cosThetaT = 0.0f;
-    float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
+    Float cosThetaT = 0.0f;
+    Float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
 
-    float reflectionProbability;
+    Float reflectionProbability;
     if (sampleR && sampleT)
         reflectionProbability = F;
     else if (sampleR)
@@ -90,9 +90,9 @@ Vec3f DielectricBsdf::eval(const SurfaceScatterEvent &event) const
     bool evalR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     bool evalT = event.requestedLobe.test(BsdfLobes::SpecularTransmissionLobe) && _enableT;
 
-    float eta = event.wi.z() < 0.0f ? _ior : _invIor;
-    float cosThetaT = 0.0f;
-    float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
+    Float eta = event.wi.z() < 0.0f ? _ior : _invIor;
+    Float cosThetaT = 0.0f;
+    Float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
 
     if (event.wi.z()*event.wo.z() >= 0.0f) {
         if (evalR && checkReflectionConstraint(event.wi, event.wo))
@@ -112,11 +112,11 @@ bool DielectricBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceS
     bool evalR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     bool evalT = event.requestedLobe.test(BsdfLobes::SpecularTransmissionLobe) && _enableT;
 
-    float eta = event.wi.z() < 0.0f ? _ior : _invIor;
-    float cosThetaT = 0.0f;
-    float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
+    Float eta = event.wi.z() < 0.0f ? _ior : _invIor;
+    Float cosThetaT = 0.0f;
+    Float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
 
-    float reflectionProbability;
+    Float reflectionProbability;
     if (evalR && evalT)
         reflectionProbability = F;
     else if (evalR)
@@ -143,14 +143,14 @@ bool DielectricBsdf::invert(WritablePathSampleGenerator &sampler, const SurfaceS
     }
 }
 
-float DielectricBsdf::pdf(const SurfaceScatterEvent &event) const
+Float DielectricBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     bool sampleT = event.requestedLobe.test(BsdfLobes::SpecularTransmissionLobe) && _enableT;
 
-    float eta = event.wi.z() < 0.0f ? _ior : _invIor;
-    float cosThetaT = 0.0f;
-    float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
+    Float eta = event.wi.z() < 0.0f ? _ior : _invIor;
+    Float cosThetaT = 0.0f;
+    Float F = Fresnel::dielectricReflectance(eta, std::abs(event.wi.z()), cosThetaT);
 
     if (event.wi.z()*event.wo.z() >= 0.0f) {
         if (sampleR && checkReflectionConstraint(event.wi, event.wo))
@@ -165,7 +165,7 @@ float DielectricBsdf::pdf(const SurfaceScatterEvent &event) const
     }
 }
 
-float DielectricBsdf::eta(const SurfaceScatterEvent &event) const
+Float DielectricBsdf::eta(const SurfaceScatterEvent &event) const
 {
     if (event.wi.z()*event.wo.z() >= 0.0f)
         return 1.0f;

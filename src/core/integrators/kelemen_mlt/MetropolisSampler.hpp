@@ -15,7 +15,7 @@ class MetropolisSampler : public PathSampleGenerator
 {
     struct SampleRecord
     {
-        float value;
+        Float value;
         int time;
     };
     struct StackEntry
@@ -40,17 +40,17 @@ class MetropolisSampler : public PathSampleGenerator
         _sampleStack[_stackIdx++] = StackEntry{_sampleVector[idx], idx};
     }
 
-    inline float mutate(float value)
+    inline Float mutate(Float value)
     {
-        const float S1 = 1.0f/1024.0f;
-        const float S2 = 1.0f/64.0f;
-        const float Factor = -std::log(S2/S1);
+        const Float S1 = 1.0f/1024.0f;
+        const Float S2 = 1.0f/64.0f;
+        const Float Factor = -std::log(S2/S1);
 
-        float random = _helperGenerator->next1D();
+        Float random = _helperGenerator->next1D();
         bool negative = random < 0.5f;
         random = negative ? random*2.0f : (random - 0.5f)*2.0f;
 
-        float delta = S2*std::exp(Factor*random);
+        Float delta = S2*std::exp(Factor*random);
         if (negative) {
             value -= delta;
             if (value < 0.0f)
@@ -121,13 +121,13 @@ public:
         _stackIdx = 0;
     }
 
-    void setRandomElement(int idx, float value)
+    void setRandomElement(int idx, Float value)
     {
         _sampleVector[idx].value = value;
         _sampleVector[idx].time = _currentTime;
     }
 
-    virtual bool nextBoolean(float pTrue) override final
+    virtual bool nextBoolean(Float pTrue) override final
     {
         return next1D() < pTrue;
     }
@@ -136,7 +136,7 @@ public:
         return int(next1D()*numChoices);
     }
 
-    inline virtual float next1D() override final
+    inline virtual Float next1D() override final
     {
         if (_vectorIdx == _maxSize)
             FAIL("Exceeded maximum size of metropolis sampler");
@@ -165,8 +165,8 @@ public:
 
     inline virtual Vec2f next2D() override final
     {
-        float a = next1D();
-        float b = next1D();
+        Float a = next1D();
+        Float b = next1D();
         return Vec2f(a, b);
     }
 

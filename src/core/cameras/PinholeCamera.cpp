@@ -18,7 +18,7 @@ PinholeCamera::PinholeCamera()
     precompute();
 }
 
-PinholeCamera::PinholeCamera(const Mat4f &transform, const Vec2u &res, float fov)
+PinholeCamera::PinholeCamera(const Mat4f &transform, const Vec2u &res, Float fov)
 : Camera(transform, res),
   _fovDeg(fov)
 {
@@ -30,7 +30,7 @@ void PinholeCamera::precompute()
     _fovRad = Angle::degToRad(_fovDeg);
     _planeDist = 1.0f/std::tan(_fovRad*0.5f);
 
-    float planeArea = (2.0f/_planeDist)*(2.0f*_ratio/_planeDist);
+    Float planeArea = (2.0f/_planeDist)*(2.0f*_ratio/_planeDist);
     _invPlaneArea = 1.0f/planeArea;
 }
 
@@ -70,11 +70,11 @@ bool PinholeCamera::sampleDirectionAndPixel(PathSampleGenerator &sampler, const 
 bool PinholeCamera::sampleDirection(PathSampleGenerator &sampler, const PositionSample &/*point*/, Vec2u pixel,
         DirectionSample &sample) const
 {
-    float pdf;
+    Float pdf;
     Vec2f uv = _filter.sample(sampler.next2D(), pdf);
     Vec3f localD = Vec3f(
-        -1.0f  + (float(pixel.x()) + 0.5f + uv.x())*2.0f*_pixelSize.x(),
-        _ratio - (float(pixel.y()) + 0.5f + uv.y())*2.0f*_pixelSize.x(),
+        -1.0f  + (Float(pixel.x()) + 0.5f + uv.x())*2.0f*_pixelSize.x(),
+        _ratio - (Float(pixel.y()) + 0.5f + uv.y())*2.0f*_pixelSize.x(),
         _planeDist
     ).normalized();
 
@@ -116,7 +116,7 @@ bool PinholeCamera::sampleDirect(const Vec3f &p, PathSampleGenerator &sampler, L
     if (!evalDirection(sampler, PositionSample(), DirectionSample(-sample.d), sample.weight, sample.pixel))
         return false;
 
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
     sample.weight /= rSq;
@@ -146,15 +146,15 @@ bool PinholeCamera::evalDirection(PathSampleGenerator &/*sampler*/, const Positi
     return true;
 }
 
-float PinholeCamera::directionPdf(const PositionSample &/*point*/, const DirectionSample &direction) const
+Float PinholeCamera::directionPdf(const PositionSample &/*point*/, const DirectionSample &direction) const
 {
     Vec3f localD = _invTransform.transformVector(direction.d);
     if (localD.z() <= 0.0f)
         return 0.0f;
     localD *= _planeDist/localD.z();
 
-    float u = (localD.x() + 1.0f)*0.5f;
-    float v = (1.0f - localD.y()/_ratio)*0.5f;
+    Float u = (localD.x() + 1.0f)*0.5f;
+    Float v = (1.0f - localD.y()/_ratio)*0.5f;
     if (u < 0.0f || v < 0.0f || u > 1.0f || v > 1.0f)
         return 0.0f;
 

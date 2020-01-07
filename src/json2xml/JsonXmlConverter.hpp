@@ -148,6 +148,11 @@ class SceneXmlWriter
         convert("float", name, v);
     }
 
+    void convert(const std::string &name, double v)
+    {
+        convert("float", name, v);
+    }
+
     void convert(const std::string &name, const char *v)
     {
         convert("string", name, v);
@@ -204,8 +209,8 @@ class SceneXmlWriter
         convertSpectrum("color0", c->onColor());
         convert("uoffset", 0.0f);
         convert("voffset", 0.0f);
-        convert("uscale", float(c->resU())*0.5f);
-        convert("vscale", float(c->resV())*0.5f);
+        convert("uscale", Float(c->resU())*0.5f);
+        convert("vscale", Float(c->resV())*0.5f);
         end();
     }
 
@@ -474,7 +479,7 @@ class SceneXmlWriter
     void convert(Bsdf *bsdf)
     {
         bsdf->prepareForRender();
-        
+
         bool hasBump = bsdf->bump() && !bsdf->bump()->isConstant();
         if (hasBump) {
             begin("bsdf");
@@ -482,7 +487,7 @@ class SceneXmlWriter
             beginPost();
             convert("map", bsdf->bump().get());
         }
-        
+
         bool isTransmissive = bsdf->lobes().isTransmissive() || bsdf->lobes().hasForward();
         if (!isTransmissive) {
             begin("bsdf");
@@ -527,7 +532,7 @@ class SceneXmlWriter
         else if (dynamic_cast<ForwardBsdf *>(bsdf)) {
         } else
             DBG("Unknown bsdf type with name '%s'!", bsdf->name());
-        
+
         if (!isTransmissive)
             end();
 
@@ -684,8 +689,8 @@ class SceneXmlWriter
         convertVector("sunDirection", sun->lightDirection());
         convert("skyScale", sky->intensity());
         convert("sunScale", sun->emission()->average().luminance()/150.0f*(1.0f - std::cos(sun->capAngleDeg()))*TWO_PI);
-        const float SunDist = 149.6e9f;
-        const float SunR = 695.7e6f;
+        const Float SunDist = 149.6e9f;
+        const Float SunR = 695.7e6f;
         convert("sunRadiusScale", (SunDist*std::tan(Angle::degToRad(sun->capAngleDeg())))/SunR);
         end();
     }
@@ -702,7 +707,7 @@ class SceneXmlWriter
             Path dstFile = Path("textures")/tex->path()->fileName();
             dstFile.setWorkingDirectory(_folder);
             FileUtils::copyFile(*tex->path(), dstFile, true);
-            
+
             begin("emitter");
             assign("type", "envmap");
             beginPost();
@@ -776,7 +781,7 @@ class SceneXmlWriter
         }
         end();
     }
-    
+
     void convertInfinites(const std::vector<Primitive *> &prims)
     {
         if (prims.size() > 1) {
@@ -810,7 +815,7 @@ class SceneXmlWriter
             assign("type", "path");
         else
             assign("type", "volpath");
-            
+
         beginPost();
         convert("strictNormals", true);
         if (PathTraceIntegrator *intr = dynamic_cast<PathTraceIntegrator *>(scene->integrator()))
@@ -824,7 +829,7 @@ class SceneXmlWriter
         for (const std::shared_ptr<Bsdf> &bsdf : scene->bsdfs())
             if (!bsdf->unnamed())
                 convert(bsdf.get());
-        
+
         std::vector<Primitive *> infinites;
         for (const std::shared_ptr<Primitive> &prim : scene->primitives()) {
             if (prim->isInfinite())

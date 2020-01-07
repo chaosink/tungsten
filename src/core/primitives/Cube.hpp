@@ -12,19 +12,19 @@ class Cube : public Primitive
     Vec3f _pos;
     Vec3f _scale;
     Vec3f _faceCdf;
-    float _area;
-    float _invArea;
+    Float _area;
+    Float _invArea;
 
     std::shared_ptr<Bsdf> _bsdf;
     std::shared_ptr<TriangleMesh> _proxy;
 
     void buildProxy();
 
-    inline int sampleFace(float &u) const;
-    inline float invertFace(int dim, float u) const;
+    inline int sampleFace(Float &u) const;
+    inline Float invertFace(int dim, Float u) const;
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     Cube();
@@ -48,9 +48,9 @@ public:
     virtual bool sampleDirect(uint32 threadIndex, const Vec3f &p, PathSampleGenerator &sampler, LightSample &sample) const override;
     bool invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const;
     bool invertDirection(WritablePathSampleGenerator &sampler, const PositionSample &/*point*/, const DirectionSample &direction) const;
-    virtual float positionalPdf(const PositionSample &point) const override;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const override;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const override;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const override;
@@ -60,7 +60,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;

@@ -120,7 +120,7 @@ void TraceableMinecraftMap::loadTexture(ResourcePackLoader &pack, const std::str
                     tile[i + 4*(x + y*tileW)] = 0;
         }
     }
-    opaqueBounds = Box2f(Vec2f(bounds.min())/float(tileW), Vec2f(bounds.max())/float(tileH));
+    opaqueBounds = Box2f(Vec2f(bounds.min())/Float(tileW), Vec2f(bounds.max())/Float(tileH));
 
     if (!opaque) {
         alpha.reset(new uint8[tileH*tileW]);
@@ -247,7 +247,7 @@ void TraceableMinecraftMap::buildBiomeColors(ResourcePackLoader &pack, int rx, i
     std::unique_ptr<uint8[]> grassTop(new uint8[256*256*4]), grassBottom(new uint8[256*256*4]);
     std::unique_ptr<uint8[]> foliageTop(new uint8[256*256*4]), foliageBottom(new uint8[256*256*4]);
     std::unique_ptr<uint8[]> tmp(new uint8[256*256*4]);
-    std::unique_ptr<float[]> heights(new float[256*256*4]);
+    std::unique_ptr<Float[]> heights(new Float[256*256*4]);
 
     auto get = [](std::unique_ptr<uint8[]> &dst, int x, int z) -> Vec4c& {
         return *(reinterpret_cast<Vec4c *>(dst.get()) + x + z*256);
@@ -333,9 +333,9 @@ void TraceableMinecraftMap::buildModel(ResourcePackLoader &pack, const ModelRef 
 
     Mat4f tform =
          Mat4f::translate(Vec3f(0.5f))
-        *Mat4f::rotXYZ(Vec3f(0.0f, float(-model.yRot()), 0.0f))
-        *Mat4f::rotXYZ(Vec3f(float(model.xRot()), 0.0f, 0.0f))
-        *Mat4f::rotXYZ(Vec3f(0.0f, 0.0f, float(model.zRot())))
+        *Mat4f::rotXYZ(Vec3f(0.0f, Float(-model.yRot()), 0.0f))
+        *Mat4f::rotXYZ(Vec3f(Float(model.xRot()), 0.0f, 0.0f))
+        *Mat4f::rotXYZ(Vec3f(0.0f, 0.0f, Float(model.zRot())))
         *Mat4f::scale(Vec3f(1.0f/16.0f))
         *Mat4f::translate(Vec3f(-8.0f));
     _modelToPrimitive.insert(std::make_pair(&model, _geometry.size()));
@@ -420,8 +420,8 @@ int TraceableMinecraftMap::resolveLiquidBlock(ResourcePackLoader &pack, int x, i
         {0, 1, 3, 2}, {1, 0, 0, 1}, {2, 3, 3, 2}
     };
     static const int indexToUv[4][4] = {{4, 5, 7, 8}, {3, 4, 6, 7}, {1, 2, 4, 5}, {0, 1, 3, 4}};
-    CONSTEXPR float neg = 0.5f - 0.70711f;
-    CONSTEXPR float pos = 0.5f + 0.70711f;
+    CONSTEXPR Float neg = 0.5f - 0.70711f;
+    CONSTEXPR Float pos = 0.5f + 0.70711f;
     static const Vec2f uvs[10][4] = {
         {{0.5f,  pos}, { neg, 0.5f}, {0.5f,  neg}, { pos, 0.5f}},
         {{1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 1.0f}},
@@ -447,8 +447,8 @@ int TraceableMinecraftMap::resolveLiquidBlock(ResourcePackLoader &pack, int x, i
 
         Vec3f x = faceVerts[i][1] - faceVerts[i][0];
         Vec3f y = faceVerts[i][3] - faceVerts[i][0];
-        float u = x.dot(posDst - faceVerts[i][0])/x.lengthSq();
-        float v = y.dot(posDst - faceVerts[i][0])/y.lengthSq();
+        Float u = x.dot(posDst - faceVerts[i][0])/x.lengthSq();
+        Float v = y.dot(posDst - faceVerts[i][0])/y.lengthSq();
         uvDst = uvs[uvIndex][0]*(1.0f - u - v) + uvs[uvIndex][1]*u + uvs[uvIndex][3]*v;
         uvDst = uvDst*0.5f + 0.5f;
     };
@@ -599,7 +599,7 @@ void TraceableMinecraftMap::loadResources()
 
             MapLoader<ElementType> loader(*_mapPath);
             loader.loadRegions([&](int x, int z, int height, ElementType *data, uint8 *biomes) {
-                Box3f bounds(Vec3f(x*256.0f, 0.0f, z*256.0f), Vec3f((x + 1)*256.0f, float(height), (z + 1)*256.0f));
+                Box3f bounds(Vec3f(x*256.0f, 0.0f, z*256.0f), Vec3f((x + 1)*256.0f, Float(height), (z + 1)*256.0f));
                 Vec3f centroid((x + 0.5f)*256.0f, height*0.5f, (z + 0.5f)*256.0f);
 
                 _bounds.grow(bounds);
@@ -629,11 +629,11 @@ bool TraceableMinecraftMap::intersect(Ray &ray, IntersectionTemporary &data) con
     MapIntersection *isect = data.as<MapIntersection>();
     isect->wasPrimary = ray.isPrimaryRay();
 
-    float farT = ray.farT();
-    Vec3f dT = std::abs(1.0f/ray.dir());
+    Float farT = ray.farT();
+    Vec3f dT = std::abs(Float(1.0f)/ray.dir());
 
-    _chunkBvh->trace(ray, [&](Ray &ray, uint32 id, float tMin, const Vec3pf &/*bounds*/) {
-        _grids[id]->trace(ray, dT, tMin, [&](uint32 idx, const Vec3f &offset, float /*t*/) {
+    _chunkBvh->trace(ray, [&](Ray &ray, uint32 id, Float tMin, const Vec3pf &/*bounds*/) {
+        _grids[id]->trace(ray, dT, tMin, [&](uint32 idx, const Vec3f &offset, Float /*t*/) {
             Vec3f oldPos = ray.pos();
             ray.setPos(oldPos - offset);
 
@@ -705,7 +705,7 @@ bool TraceableMinecraftMap::isInfinite() const
     return false;
 }
 
-float TraceableMinecraftMap::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float TraceableMinecraftMap::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     return -1.0f;
 }

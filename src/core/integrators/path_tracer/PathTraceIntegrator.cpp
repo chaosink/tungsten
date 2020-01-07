@@ -41,9 +41,9 @@ void PathTraceIntegrator::diceTiles()
     }
 }
 
-float PathTraceIntegrator::errorPercentile95()
+Float PathTraceIntegrator::errorPercentile95()
 {
-    std::vector<float> errors;
+    std::vector<Float> errors;
     errors.reserve(_samples.size());
 
     for (size_t i = 0; i < _samples.size(); ++i) {
@@ -92,13 +92,13 @@ void PathTraceIntegrator::distributeAdaptiveSamples(int spp)
 
     int adaptiveBudget = (spp - 1)*_w*_h;
     int budgetPerTile = adaptiveBudget/(VarianceTileSize*VarianceTileSize);
-    float weightToSampleFactor = double(budgetPerTile)/totalWeight;
+    Float weightToSampleFactor = double(budgetPerTile)/totalWeight;
 
-    float pixelPdf = 0.0f;
+    Float pixelPdf = 0.0f;
     for (SampleRecord &record : _samples) {
-        float fractionalSamples = record.adaptiveWeight*weightToSampleFactor;
+        Float fractionalSamples = record.adaptiveWeight*weightToSampleFactor;
         int adaptiveSamples = int(fractionalSamples);
-        pixelPdf += fractionalSamples - float(adaptiveSamples);
+        pixelPdf += fractionalSamples - Float(adaptiveSamples);
         if (_sampler.next1D() < pixelPdf) {
             adaptiveSamples++;
             pixelPdf -= 1.0f;
@@ -116,7 +116,7 @@ bool PathTraceIntegrator::generateWork()
     bool enableAdaptive = _scene->rendererSettings().useAdaptiveSampling();
 
     if (enableAdaptive && _currentSpp >= AdaptiveThreshold) {
-        float maxError = errorPercentile95();
+        Float maxError = errorPercentile95();
         if (maxError == 0.0f)
             return false;
 

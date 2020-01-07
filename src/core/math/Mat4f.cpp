@@ -9,13 +9,13 @@ namespace Tungsten {
 
 Mat4f Mat4f::toNormalMatrix() const
 {
-    return scale(1.0f/Vec3f(right().lengthSq(), up().lengthSq(), fwd().lengthSq()))**this;
+    return scale(Float(1.0f)/Vec3f(right().lengthSq(), up().lengthSq(), fwd().lengthSq()))**this;
 }
 
 Vec3f Mat4f::extractRotationVec() const
 {
     Mat4f m = extractRotation();
-    float theta, phi, psi;
+    Float theta, phi, psi;
     if (m.a23 <= -1.0f) {
         theta = PI_HALF;
         phi = std::atan2(m.a31, m.a32);
@@ -104,8 +104,8 @@ Mat4f Mat4f::scale(const Vec3f &s)
 Mat4f Mat4f::rotXYZ(const Vec3f &rot)
 {
     Vec3f r = rot*PI/180.0f;
-    float c[] = {std::cos(r.x()), std::cos(r.y()), std::cos(r.z())};
-    float s[] = {std::sin(r.x()), std::sin(r.y()), std::sin(r.z())};
+    Float c[] = {std::cos(r.x()), std::cos(r.y()), std::cos(r.z())};
+    Float s[] = {std::sin(r.x()), std::sin(r.y()), std::sin(r.z())};
 
     return Mat4f(
         c[1]*c[2], -c[0]*s[2] + s[0]*s[1]*c[2],  s[0]*s[2] + c[0]*s[1]*c[2], 0.0f,
@@ -118,8 +118,8 @@ Mat4f Mat4f::rotXYZ(const Vec3f &rot)
 Mat4f Mat4f::rotYXZ(const Vec3f &rot)
 {
     Vec3f r = rot*PI/180.0f;
-    float c[] = {std::cos(r.x()), std::cos(r.y()), std::cos(r.z())};
-    float s[] = {std::sin(r.x()), std::sin(r.y()), std::sin(r.z())};
+    Float c[] = {std::cos(r.x()), std::cos(r.y()), std::cos(r.z())};
+    Float s[] = {std::sin(r.x()), std::sin(r.y()), std::sin(r.z())};
 
     return Mat4f(
         c[1]*c[2] - s[1]*s[0]*s[2],   -c[1]*s[2] - s[1]*s[0]*c[2], -s[1]*c[0], 0.0f,
@@ -129,15 +129,15 @@ Mat4f Mat4f::rotYXZ(const Vec3f &rot)
     );
 }
 
-Mat4f Mat4f::rotAxis(const Vec3f &axis, float angle)
+Mat4f Mat4f::rotAxis(const Vec3f &axis, Float angle)
 {
     angle = Angle::degToRad(angle);
-    float s = std::sin(angle);
-    float c = std::cos(angle);
-    float c1 = 1.0f - c;
-    float x = axis.x();
-    float y = axis.y();
-    float z = axis.z();
+    Float s = std::sin(angle);
+    Float c = std::cos(angle);
+    Float c1 = 1.0f - c;
+    Float x = axis.x();
+    Float y = axis.y();
+    Float z = axis.z();
 
     return Mat4f(
            c + x*x*c1,  x*y*c1 - z*s,  x*z*c1 + y*s, 0.0f,
@@ -147,7 +147,7 @@ Mat4f Mat4f::rotAxis(const Vec3f &axis, float angle)
     );
 }
 
-Mat4f Mat4f::ortho(float l, float r, float b, float t, float n, float f)
+Mat4f Mat4f::ortho(Float l, Float r, Float b, Float t, Float n, Float f)
 {
     return Mat4f(
         2.0f/(r-l),       0.0f,        0.0f, -(r+l)/(r-l),
@@ -157,12 +157,12 @@ Mat4f Mat4f::ortho(float l, float r, float b, float t, float n, float f)
     );
 }
 
-Mat4f Mat4f::perspective(float fov, float ratio, float near, float far)
+Mat4f Mat4f::perspective(Float fov, Float ratio, Float near, Float far)
 {
-    float t = 1.0f/std::tan(Angle::degToRad(fov)*0.5f);
-    float a = (far + near)/(far - near);
-    float b = 2.0f*far*near/(far - near);
-    float c = t/ratio;
+    Float t = 1.0f/std::tan(Angle::degToRad(fov)*0.5f);
+    Float a = (far + near)/(far - near);
+    Float b = 2.0f*far*near/(far - near);
+    Float c = t/ratio;
 
     return Mat4f(
            c, 0.0f,  0.0f, 0.0f,

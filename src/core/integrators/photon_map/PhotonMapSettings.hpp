@@ -27,8 +27,8 @@ struct PhotonMapSettings : public TraceSettings
     uint32 photonCount;
     uint32 volumePhotonCount;
     uint32 gatherCount;
-    float gatherRadius;
-    float volumeGatherRadius;
+    Float gatherRadius;
+    Float volumeGatherRadius;
     VolumePhotonType volumePhotonType;
     bool includeSurfaces;
     bool lowOrderScattering;

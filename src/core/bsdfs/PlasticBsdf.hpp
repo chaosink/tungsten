@@ -9,12 +9,12 @@ class Scene;
 
 class PlasticBsdf : public Bsdf
 {
-    float _ior;
-    float _thickness;
+    Float _ior;
+    Float _thickness;
     Vec3f _sigmaA;
 
-    float _diffuseFresnel;
-    float _avgTransmittance;
+    Float _diffuseFresnel;
+    Float _avgTransmittance;
     Vec3f _scaledSigmaA;
 
 public:
@@ -26,16 +26,16 @@ public:
     virtual bool sample(SurfaceScatterEvent &event) const override;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const override;
     virtual Vec3f eval(const SurfaceScatterEvent &event) const override;
-    virtual float pdf(const SurfaceScatterEvent &event) const override;
+    virtual Float pdf(const SurfaceScatterEvent &event) const override;
 
     virtual void prepareForRender() override;
 
-    float ior() const
+    Float ior() const
     {
         return _ior;
     }
 
-    float thickness() const
+    Float thickness() const
     {
         return _thickness;
     }
@@ -45,7 +45,7 @@ public:
         return _sigmaA;
     }
 
-    void setIor(float ior)
+    void setIor(Float ior)
     {
         _ior = ior;
     }
@@ -55,7 +55,7 @@ public:
         _sigmaA = sigmaA;
     }
 
-    void setThickness(float thickness)
+    void setThickness(Float thickness)
     {
         _thickness = thickness;
     }

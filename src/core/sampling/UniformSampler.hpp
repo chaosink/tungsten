@@ -46,15 +46,15 @@ public:
         return (xorShifted >> rot) | (xorShifted << (uint32(-int32(rot)) & 31));
     }
 
-    inline float next1D()
+    inline Float next1D()
     {
         return BitManip::normalizedUint(nextI());
     }
 
     inline Vec2f next2D()
     {
-        float a = next1D();
-        float b = next1D();
+        Float a = next1D();
+        Float b = next1D();
         return Vec2f(a, b);
     }
 

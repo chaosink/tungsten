@@ -22,8 +22,8 @@ BladeTexture::BladeTexture()
 void BladeTexture::init()
 {
     _bladeAngle = TWO_PI/_numBlades;
-    float sinAngle = std::sin(_bladeAngle*0.5f);
-    float cosAngle = std::cos(_bladeAngle*0.5f);
+    Float sinAngle = std::sin(_bladeAngle*0.5f);
+    Float cosAngle = std::cos(_bladeAngle*0.5f);
 
     _area = 0.25f*0.5f*_numBlades*std::sin(_bladeAngle);
     _baseEdge = Vec2f(-sinAngle, cosAngle)*2.0f*std::sin(PI/_numBlades);
@@ -76,10 +76,10 @@ Vec3f BladeTexture::operator[](const Vec2f &uv) const
         return _value;
 
     Vec2f globalUv = uv*2.0f - 1.0f;
-    float phi = std::atan2(globalUv.y(), globalUv.x()) - _angle;
+    Float phi = std::atan2(globalUv.y(), globalUv.x()) - _angle;
     phi = -(std::floor(phi/_bladeAngle)*_bladeAngle + _angle);
-    float sinPhi = std::sin(phi);
-    float cosPhi = std::cos(phi);
+    Float sinPhi = std::sin(phi);
+    Float cosPhi = std::cos(phi);
     Vec2f localUv(globalUv.x()*cosPhi - globalUv.y()*sinPhi, globalUv.y()*cosPhi + globalUv.x()*sinPhi);
     if (_baseNormal.dot(localUv - Vec2f(1.0f, 0.0f)) > 0.0f)
         return Vec3f(0.0f);
@@ -102,17 +102,17 @@ void BladeTexture::makeSamplable(TextureMapJacobian /*jacobian*/)
 
 Vec2f BladeTexture::sample(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
 {
-    float u = uv.x()*_numBlades;
+    Float u = uv.x()*_numBlades;
     int blade = int(u);
     u -= blade;
 
-    float phi = _angle + blade*_bladeAngle;
-    float sinPhi = std::sin(phi);
-    float cosPhi = std::cos(phi);
+    Float phi = _angle + blade*_bladeAngle;
+    Float sinPhi = std::sin(phi);
+    Float cosPhi = std::cos(phi);
 
-    float uSqrt = std::sqrt(u);
-    float alpha = 1.0f - uSqrt;
-    float beta = (1.0f - uv.y())*uSqrt;
+    Float uSqrt = std::sqrt(u);
+    Float alpha = 1.0f - uSqrt;
+    Float beta = (1.0f - uv.y())*uSqrt;
 
     Vec2f localUv((1.0f + _baseEdge.x())*beta + (1.0f - alpha - beta), _baseEdge.y()*beta);
 
@@ -122,22 +122,22 @@ Vec2f BladeTexture::sample(TextureMapJacobian /*jacobian*/, const Vec2f &uv) con
     )*0.5f + 0.5f;
 }
 
-float BladeTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
+Float BladeTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
 {
     if (uv.sum() == 0.0f)
         return 1.0f/_area;
     Vec2f globalUv = uv*2.0f - 1.0f;
-    float phi = std::atan2(globalUv.y(), globalUv.x()) - _angle;
+    Float phi = std::atan2(globalUv.y(), globalUv.x()) - _angle;
     phi = -(std::floor(phi/_bladeAngle)*_bladeAngle + _angle);
-    float sinPhi = std::sin(phi);
-    float cosPhi = std::cos(phi);
+    Float sinPhi = std::sin(phi);
+    Float cosPhi = std::cos(phi);
     Vec2f localUv(globalUv.x()*cosPhi - globalUv.y()*sinPhi, globalUv.y()*cosPhi + globalUv.x()*sinPhi);
     if (_baseNormal.dot(localUv - Vec2f(1.0f, 0.0f)) > 0.0f)
         return 0.0f;
     return 1.0f/_area;
 }
 
-void BladeTexture::scaleValues(float factor)
+void BladeTexture::scaleValues(Float factor)
 {
     _value *= factor;
 }
@@ -147,7 +147,7 @@ Texture *BladeTexture::clone() const
     return new BladeTexture(*this);
 }
 
-void BladeTexture::setAngle(float angle)
+void BladeTexture::setAngle(Float angle)
 {
     _angle = angle;
     init();

@@ -15,20 +15,20 @@ class AtmosphericMedium : public Medium
     std::string _primName;
 
     Vec3f _materialSigmaA, _materialSigmaS;
-    float _density;
-    float _falloffScale;
-    float _radius;
+    Float _density;
+    Float _falloffScale;
+    Float _radius;
     Vec3f _center;
 
-    float _effectiveFalloffScale;
+    Float _effectiveFalloffScale;
     Vec3f _sigmaA, _sigmaS;
     Vec3f _sigmaT;
     bool _absorptionOnly;
 
-    inline float density(Vec3f p) const;
-    inline float density(float h, float t0) const;
-    inline float densityIntegral(float h, float t0, float t1) const;
-    inline float inverseOpticalDepth(double h, double t0, double tau) const;
+    inline Float density(Vec3f p) const;
+    inline Float density(Float h, Float t0) const;
+    inline Float densityIntegral(Float h, Float t0, Float t1) const;
+    inline Float inverseOpticalDepth(double h, double t0, double tau) const;
 
 public:
     AtmosphericMedium();
@@ -48,7 +48,7 @@ public:
             MediumState &state, MediumSample &sample) const override;
     virtual Vec3f transmittance(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface,
             bool endOnSurface) const override;
-    virtual float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
+    virtual Float pdf(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface, bool endOnSurface) const override;
 };
 
 }

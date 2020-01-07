@@ -10,8 +10,8 @@ class Medium;
 struct LightSample
 {
     Vec3f d;
-    float dist;
-    float pdf;
+    Float dist;
+    Float pdf;
     const Medium *medium;
 };
 

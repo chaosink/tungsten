@@ -11,12 +11,12 @@ struct MediumSample
 {
     PhaseFunction *phase;
     Vec3f p;
-    float continuedT;
+    Float continuedT;
     Vec3f continuedWeight;
-    float t;
+    Float t;
     Vec3f weight;
     Vec3f emission;
-    float pdf;
+    Float pdf;
     bool exited;
 };
 

@@ -14,10 +14,10 @@ class Skydome : public Primitive
     const Scene *_scene;
 
     std::shared_ptr<BitmapTexture> _sky;
-    float _temperature;
-    float _gammaScale;
-    float _turbidity;
-    float _intensity;
+    Float _temperature;
+    Float _gammaScale;
+    Float _turbidity;
+    Float _intensity;
     bool _doSample;
 
     std::shared_ptr<TriangleMesh> _proxy;
@@ -25,12 +25,12 @@ class Skydome : public Primitive
     Box3f _sceneBounds;
 
     Vec2f directionToUV(const Vec3f &wi) const;
-    Vec2f directionToUV(const Vec3f &wi, float &sinTheta) const;
-    Vec3f uvToDirection(Vec2f uv, float &sinTheta) const;
+    Vec2f directionToUV(const Vec3f &wi, Float &sinTheta) const;
+    Vec3f uvToDirection(Vec2f uv, Float &sinTheta) const;
     void buildProxy();
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     Skydome();
@@ -59,9 +59,9 @@ public:
     virtual bool invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const;
     virtual bool invertDirection(WritablePathSampleGenerator &sampler, const PositionSample &point,
             const DirectionSample &direction) const;
-    virtual float positionalPdf(const PositionSample &point) const override;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const override;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const override;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const override;
@@ -72,7 +72,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;
@@ -83,17 +83,17 @@ public:
     virtual int numBsdfs() const override;
     virtual std::shared_ptr<Bsdf> &bsdf(int index) override;
     virtual void setBsdf(int index, std::shared_ptr<Bsdf> &bsdf) override;
-    
-    float turbidity() const
+
+    Float turbidity() const
     {
         return _turbidity;
     }
-    
-    float intensity() const
+
+    Float intensity() const
     {
         return _intensity;
     }
-    
+
     Vec3f sunDirection() const
     {
         return _transform.transformVector(Vec3f(0.0f, 1.0f, 0.0f)).normalized();

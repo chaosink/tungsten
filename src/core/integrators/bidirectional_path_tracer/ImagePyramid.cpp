@@ -19,8 +19,8 @@ ImagePyramid::ImagePyramid(int maxPathLength, const Camera &camera)
 
 void ImagePyramid::saveBuffers(const Path &prefix, int spp, bool uniformWeights)
 {
-    float splatWeight = 1.0f/(_w*_h*spp);
-    float directWeight = 1.0f/spp;
+    Float splatWeight = 1.0f/(_w*_h*spp);
+    Float directWeight = 1.0f/spp;
     if (uniformWeights)
         splatWeight = directWeight;
 
@@ -29,7 +29,7 @@ void ImagePyramid::saveBuffers(const Path &prefix, int spp, bool uniformWeights)
             int s = length + 1 - t;
             int idx = pyramidIndex(s, t);
 
-            float weight = (length + 1.0f)*(t == 1 ? splatWeight : directWeight);
+            Float weight = (length + 1.0f)*(t == 1 ? splatWeight : directWeight);
 
             for (uint32 i = 0; i < _w*_h; ++i)
                 _outBuffer[i] = Vec3c(clamp(Vec3i(_camera.tonemap(_frames[idx].get(i, 0)*weight)*255.0f), Vec3i(0), Vec3i(255)));

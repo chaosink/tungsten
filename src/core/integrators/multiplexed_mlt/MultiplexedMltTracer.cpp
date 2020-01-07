@@ -36,7 +36,7 @@ void MultiplexedMltTracer::tracePaths(LightPath & cameraPath, PathSampleGenerato
         cameraPath.tracePath(*_scene, *this,  cameraSampler, t);
     }
     if (s > 0) {
-        float lightPdf;
+        Float lightPdf;
         const Primitive *light = chooseLightAdjoint(emitterSampler, lightPdf);
         emitterPath.startEmitterPath(light, lightPdf);
         emitterPath.tracePath(*_scene, *this, emitterSampler, s);
@@ -114,7 +114,7 @@ void MultiplexedMltTracer::traceCandidatePath(LightPath &cameraPath, LightPath &
     }
 }
 
-void MultiplexedMltTracer::startSampleChain(int s, int t, float luminance, UniformSampler &cameraReplaySampler,
+void MultiplexedMltTracer::startSampleChain(int s, int t, Float luminance, UniformSampler &cameraReplaySampler,
         UniformSampler &emitterReplaySampler)
 {
     int length = s + t - 1;
@@ -142,7 +142,7 @@ void MultiplexedMltTracer::startSampleChain(int s, int t, float luminance, Unifo
 }
 
 LargeStepTracker MultiplexedMltTracer::runSampleChain(int pathLength, int chainLength,
-        MultiplexedStats &stats, float luminanceScale)
+        MultiplexedStats &stats, Float luminanceScale)
 {
     MarkovChain &chain = _chains[pathLength];
     MetropolisSampler & cameraSampler = *chain. cameraSampler;
@@ -155,7 +155,7 @@ LargeStepTracker MultiplexedMltTracer::runSampleChain(int pathLength, int chainL
 
     LargeStepTracker largeSteps;
 
-    float accumulatedWeight = 0.0f;
+    Float accumulatedWeight = 0.0f;
     for (int i = 0; i < chainLength; ++i) {
         bool largeStep = _sampler.next1D() < _settings.largeStepProbability;
         cameraSampler.setLargeStep(largeStep);
@@ -163,18 +163,18 @@ LargeStepTracker MultiplexedMltTracer::runSampleChain(int pathLength, int chainL
 
         int proposedS = evalSample(cameraPath, cameraSampler, emitterPath, emitterSampler, pathLength, *proposedSplats);
 
-        float currentI = currentSplats->totalLuminance();
-        float proposedI = proposedSplats->totalLuminance();
+        Float currentI = currentSplats->totalLuminance();
+        Float proposedI = proposedSplats->totalLuminance();
         if (std::isnan(proposedI))
             proposedI = 0.0f;
 
         if (largeStep)
             largeSteps.add(proposedI*(pathLength + 1));
 
-        float a = currentI == 0.0f ? 1.0f : min(proposedI/currentI, 1.0f);
+        Float a = currentI == 0.0f ? 1.0f : min(proposedI/currentI, Float(1.0f));
 
-        float currentWeight = (1.0f - a);
-        float proposedWeight = a;
+        Float currentWeight = (1.0f - a);
+        Float proposedWeight = a;
 
         accumulatedWeight += currentWeight;
 

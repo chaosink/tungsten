@@ -15,12 +15,12 @@ class Mat4f
 {
     union {
         struct {
-            float a11, a12, a13, a14;
-            float a21, a22, a23, a24;
-            float a31, a32, a33, a34;
-            float a41, a42, a43, a44;
+            Float a11, a12, a13, a14;
+            Float a21, a22, a23, a24;
+            Float a31, a32, a33, a34;
+            Float a41, a42, a43, a44;
         };
-        float a[16];
+        Float a[16];
     };
 
 public:
@@ -42,10 +42,10 @@ public:
     }
 
     Mat4f(
-        float _a11, float _a12, float _a13, float _a14,
-        float _a21, float _a22, float _a23, float _a24,
-        float _a31, float _a32, float _a33, float _a34,
-        float _a41, float _a42, float _a43, float _a44)
+        Float _a11, Float _a12, Float _a13, Float _a14,
+        Float _a21, Float _a22, Float _a23, Float _a24,
+        Float _a31, Float _a32, Float _a33, Float _a34,
+        Float _a41, Float _a42, Float _a43, Float _a44)
     : a11(_a11), a12(_a12), a13(_a13), a14(_a14),
       a21(_a21), a22(_a22), a23(_a23), a24(_a24),
       a31(_a31), a32(_a32), a33(_a33), a34(_a34),
@@ -92,11 +92,11 @@ public:
         inv[14] = -a[0]*a[ 5]*a[14] + a[0]*a[ 6]*a[13] + a[4]*a[1]*a[14] - a[4]*a[2]*a[13] - a[12]*a[1]*a[ 6] + a[12]*a[2]*a[ 5];
         inv[15] =  a[0]*a[ 5]*a[10] - a[0]*a[ 6]*a[ 9] - a[4]*a[1]*a[10] + a[4]*a[2]*a[ 9] + a[ 8]*a[1]*a[ 6] - a[ 8]*a[2]*a[ 5];
 
-        float det = a[0]*inv[0] + a[1]*inv[4] + a[2]*inv[8] + a[3]*inv[12];
+        Float det = a[0]*inv[0] + a[1]*inv[4] + a[2]*inv[8] + a[3]*inv[12];
         if (det == 0.0f)
             return Mat4f();
 
-        float invDet = 1.0f/det;
+        Float invDet = 1.0f/det;
         return inv*invDet;
     }
 
@@ -136,22 +136,22 @@ public:
         a33 = z.z();
     }
 
-    float operator()(int i, int j) const
+    Float operator()(int i, int j) const
     {
         return a[i*4 + j];
     }
 
-    float operator[](int i) const
+    Float operator[](int i) const
     {
         return a[i];
     }
 
-    float &operator[](int i)
+    Float &operator[](int i)
     {
         return a[i];
     }
 
-    const float *data() const
+    const Float *data() const
     {
         return a;
     }
@@ -181,7 +181,7 @@ public:
         return tmp;
     }
 
-    Mat4f operator-(float o) const
+    Mat4f operator-(Float o) const
     {
         Mat4f tmp(*this);
         for (int i = 0; i < 16; ++i)
@@ -189,7 +189,7 @@ public:
         return tmp;
     }
 
-    Mat4f operator+(float o) const
+    Mat4f operator+(Float o) const
     {
         Mat4f tmp(*this);
         for (int i = 0; i < 16; ++i)
@@ -211,21 +211,21 @@ public:
         return *this;
     }
 
-    Mat4f &operator-=(float o)
+    Mat4f &operator-=(Float o)
     {
         for (int i = 0; i < 16; ++i)
             a[i] -= o;
         return *this;
     }
 
-    Mat4f &operator+=(float o)
+    Mat4f &operator+=(Float o)
     {
         for (int i = 0; i < 16; ++i)
             a[i] += o;
         return *this;
     }
 
-    Mat4f operator*(float o) const
+    Mat4f operator*(Float o) const
     {
         Mat4f tmp(*this);
         for (int i = 0; i < 16; ++i)
@@ -233,7 +233,7 @@ public:
         return tmp;
     }
 
-    Mat4f operator/(float o) const
+    Mat4f operator/(Float o) const
     {
         Mat4f tmp(*this);
         for (int i = 0; i < 16; ++i)
@@ -241,14 +241,14 @@ public:
         return tmp;
     }
 
-    Mat4f &operator*=(float o)
+    Mat4f &operator*=(Float o)
     {
         for (int i = 0; i < 16; ++i)
             a[i] *= o;
         return *this;
     }
 
-    Mat4f &operator/=(float o)
+    Mat4f &operator/=(Float o)
     {
         for (int i = 0; i < 16; ++i)
             a[i] /= o;
@@ -271,12 +271,12 @@ public:
     static Mat4f scale(const Vec3f &s);
     static Mat4f rotXYZ(const Vec3f &rot);
     static Mat4f rotYXZ(const Vec3f &rot);
-    static Mat4f rotAxis(const Vec3f &axis, float angle);
+    static Mat4f rotAxis(const Vec3f &axis, Float angle);
 
-    static Mat4f ortho(float l, float r, float b, float t, float near, float far);
-    static Mat4f perspective(float aov, float ratio, float near, float far);
+    static Mat4f ortho(Float l, Float r, Float b, Float t, Float near, Float far);
+    static Mat4f perspective(Float aov, Float ratio, Float near, Float far);
     static Mat4f lookAt(const Vec3f &pos, const Vec3f &fwd, const Vec3f &up);
-    
+
     friend Mat4f operator*(const Mat4f &a, const Mat4f &b);
     friend Vec4f operator*(const Mat4f &a, const Vec4f &b);
     friend Vec3f operator*(const Mat4f &a, const Vec3f &b);

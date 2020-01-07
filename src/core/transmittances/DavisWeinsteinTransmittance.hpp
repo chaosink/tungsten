@@ -7,10 +7,10 @@ namespace Tungsten {
 
 class DavisWeinsteinTransmittance : public Transmittance
 {
-    float _h;
-    float _c;
+    Float _h;
+    Float _c;
 
-    float computeAlpha(float tau) const;
+    Float computeAlpha(Float tau) const;
 
 public:
     DavisWeinsteinTransmittance();
@@ -23,10 +23,10 @@ public:
     virtual Vec3f mediumSurface(const Vec3f &tau) const override final;
     virtual Vec3f mediumMedium(const Vec3f &tau) const override final;
 
-    virtual float sigmaBar() const override final;
+    virtual Float sigmaBar() const override final;
 
-    virtual float sampleSurface(PathSampleGenerator &sampler) const override final;
-    virtual float sampleMedium(PathSampleGenerator &sampler) const override final;
+    virtual Float sampleSurface(PathSampleGenerator &sampler) const override final;
+    virtual Float sampleMedium(PathSampleGenerator &sampler) const override final;
 };
 
 }

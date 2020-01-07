@@ -36,7 +36,7 @@ public:
     };
 
 private:
-    const float DefaultEpsilon = 5e-4f;
+    const Float DefaultEpsilon = 5e-4f;
 
     Camera &_cam;
     Integrator &_integrator;
@@ -159,7 +159,7 @@ public:
         _scene = nullptr;
     }
 
-    float hitDistance(Ray &ray) const
+    Float hitDistance(Ray &ray) const
     {
         IntersectionTemporary data;
         IntersectionRay eRay(EmbreeUtil::convert(ray), data, ray, _userGeomId);

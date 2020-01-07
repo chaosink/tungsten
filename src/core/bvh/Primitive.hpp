@@ -18,7 +18,7 @@ class Primitive
     Vec3fp _centroid;
     uint32 _id;
 
-    float _area;
+    Float _area;
 public:
     Primitive(const Box3f &box, const Vec3f &centroid, uint32 id)
     : _box(expand(box)), _centroid(expand(centroid)), _id(id), _area(box.area())
@@ -35,12 +35,12 @@ public:
         _area = _box.area();
     }
 
-    float area() const
+    Float area() const
     {
         return _area;
     }
 
-    void setArea(float area)
+    void setArea(Float area)
     {
         _area = area;
     }

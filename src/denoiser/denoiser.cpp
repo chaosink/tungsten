@@ -68,8 +68,8 @@ Pixmap3f nforDenoiser(RenderBuffer3f image, std::vector<RenderBufferF> features)
         printTimestampedLog("Estimating MSE...");
         Pixmap3f noisyMse(w, h);
         for (int i = 0; i < w*h; ++i) {
-            Vec3f mseA = sqr((*image.bufferB)[i] - filteredColorA[i]) - 2.0f*(*image.bufferVariance)[i];
-            Vec3f mseB = sqr((*image.bufferA)[i] - filteredColorB[i]) - 2.0f*(*image.bufferVariance)[i];
+            Vec3f mseA = sqr((*image.bufferB)[i] - filteredColorA[i]) - (*image.bufferVariance)[i]*2.0f;
+            Vec3f mseB = sqr((*image.bufferA)[i] - filteredColorB[i]) - (*image.bufferVariance)[i]*2.0f;
             Vec3f residualColorVariance = sqr(filteredColorB[i] - filteredColorA[i])*0.25f;
 
             noisyMse[i] = (mseA + mseB)*0.5f - residualColorVariance;

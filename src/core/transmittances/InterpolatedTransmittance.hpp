@@ -12,7 +12,7 @@ class InterpolatedTransmittance : public Transmittance
 {
     std::shared_ptr<Transmittance> _trA;
     std::shared_ptr<Transmittance> _trB;
-    float _u;
+    Float _u;
 
 public:
     InterpolatedTransmittance();
@@ -25,10 +25,10 @@ public:
     virtual Vec3f mediumSurface(const Vec3f &tau) const override final;
     virtual Vec3f mediumMedium(const Vec3f &tau) const override final;
 
-    virtual float sigmaBar() const override final;
+    virtual Float sigmaBar() const override final;
 
-    virtual float sampleSurface(PathSampleGenerator &sampler) const override final;
-    virtual float sampleMedium(PathSampleGenerator &sampler) const override final;
+    virtual Float sampleSurface(PathSampleGenerator &sampler) const override final;
+    virtual Float sampleMedium(PathSampleGenerator &sampler) const override final;
 };
 
 

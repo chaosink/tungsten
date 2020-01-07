@@ -17,11 +17,11 @@ namespace Tungsten {
 class WritableMetropolisSampler : public WritablePathSampleGenerator
 {
     static CONSTEXPR int FullBlockSize = 11;
-    typedef Vec<float, 11> FullBlock;
+    typedef Vec<Float, 11> FullBlock;
 
     struct SampleRecord
     {
-        float value;
+        Float value;
         int time;
     };
     struct StackEntry
@@ -51,21 +51,21 @@ class WritableMetropolisSampler : public WritablePathSampleGenerator
         _sampleStack[_stackIdx++] = StackEntry{_sampleVector[idx], idx};
     }
 
-    inline float mutate(float value)
+    inline Float mutate(Float value)
     {
         if (_gaussianMutation) {
-            float xi = _helperGenerator->next1D();
-            float s = _stepSize.z()*8.0f;
+            Float xi = _helperGenerator->next1D();
+            Float s = _stepSize.z()*8.0f;
             value += s*std::atanh((xi*2.0f - 1.0f)*std::tanh(1.0f/(2.0f*s)));
             if (value  < 0.0f) value += 1.0f;
             if (value >= 1.0f) value -= 1.0f;
             return value;
         } else {
-            float random = _helperGenerator->next1D();
+            Float random = _helperGenerator->next1D();
             bool negative = random < 0.5f;
             random = negative ? random*2.0f : (random - 0.5f)*2.0f;
 
-            float delta = _stepSize.y()*std::exp(_stepSize.x()*random);
+            Float delta = _stepSize.y()*std::exp(_stepSize.x()*random);
             if (negative) {
                 value -= delta;
                 if (value < 0.0f)
@@ -81,12 +81,12 @@ class WritableMetropolisSampler : public WritablePathSampleGenerator
         }
     }
 
-    void setStepSize(float r1, float r2)
+    void setStepSize(Float r1, Float r2)
     {
         _stepSize = Vec3f(-std::log(r2/r1), r2, r1);
     }
 
-    void setStepSize(float r1)
+    void setStepSize(Float r1)
     {
         setStepSize(r1, 16.0f*r1);
     }
@@ -129,19 +129,19 @@ public:
         startPath(0, 0);
     }
 
-    inline float sech(float x) const
+    inline Float sech(Float x) const
     {
         return 2.0f/(std::exp(x) + std::exp(-x));
     }
 
-    inline float mutationWeight(float a, float b) const
+    inline Float mutationWeight(Float a, Float b) const
     {
-        float delta = min(std::abs(a - b), 1.0f - std::abs(a - b));
+        Float delta = min(std::abs(a - b), 1.0f - std::abs(a - b));
         if (_gaussianMutation) {
-            float s = _stepSize.z()*8.0f;
-            float norm = 2.0f*s*std::tanh(1.0f/(2.0f*s));
+            Float s = _stepSize.z()*8.0f;
+            Float norm = 2.0f*s*std::tanh(1.0f/(2.0f*s));
 
-            float gamma = sech(delta/s);
+            Float gamma = sech(delta/s);
             return (gamma*gamma)/norm;
         } else {
             if (delta < _stepSize.z() || delta > _stepSize.y())
@@ -151,9 +151,9 @@ public:
         }
     }
 
-    inline float mutationWeight(const FullBlock &a, const FullBlock &b) const
+    inline Float mutationWeight(const FullBlock &a, const FullBlock &b) const
     {
-        float result = 1.0f;
+        Float result = 1.0f;
         for (int i = 0; i < FullBlockSize; ++i)
             if (a[i] != b[i])
                 result *= mutationWeight(a[i], b[i]);
@@ -230,7 +230,7 @@ public:
         startPath(0, 0);
     }
 
-    virtual bool nextBoolean(float pTrue) override final
+    virtual bool nextBoolean(Float pTrue) override final
     {
         return next1D() < pTrue;
     }
@@ -239,7 +239,7 @@ public:
         return min(int(next1D()*numChoices), numChoices - 1);
     }
 
-    inline virtual float next1D() override final
+    inline virtual Float next1D() override final
     {
         int dimension = _vertexIdx*FullBlockSize + (_blockOffset++);
         SampleRecord &sample = _sampleVector[dimension];
@@ -268,8 +268,8 @@ public:
 
     inline virtual Vec2f next2D() override final
     {
-        float a = next1D();
-        float b = next1D();
+        Float a = next1D();
+        Float b = next1D();
         return Vec2f(a, b);
     }
 
@@ -279,7 +279,7 @@ public:
         _blockOffset = 0;
     }
 
-    virtual void putBoolean(float pTrue, bool choice) override final
+    virtual void putBoolean(Float pTrue, bool choice) override final
     {
         put1D(choice ? untracked1D()*pTrue : pTrue + (1.0f - pTrue)*untracked1D());
     }
@@ -289,7 +289,7 @@ public:
         put1D((choice + untracked1D())/numChoices);
     }
 
-    virtual void put1D(float value) override final
+    virtual void put1D(Float value) override final
     {
         if (std::isnan(value) || value > 1.0f) {
             value = 0.0f;
@@ -312,7 +312,7 @@ public:
         put1D(value.y());
     }
 
-    virtual float untracked1D() override final
+    virtual Float untracked1D() override final
     {
         return _helperGenerator->next1D();
     }

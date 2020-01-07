@@ -21,7 +21,7 @@ class QuadGeometry
 public:
     struct Intersection
     {
-        float u, v;
+        Float u, v;
         uint32 id;
     };
 
@@ -45,7 +45,7 @@ private:
     void clipPointToRect(Vec3f &p, Vec2f &uv, const Box2f &bounds, const TexturedQuad &quad) const
     {
         for (int i = 0; i < 2; ++i) {
-            float offset;
+            Float offset;
             if (uv[i] < bounds.min()[i])
                 offset = bounds.min()[i] - uv[i];
             else if (uv[i] > bounds.max()[i])

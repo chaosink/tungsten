@@ -43,7 +43,7 @@ bool Medium::invertDistance(WritablePathSampleGenerator &/*sampler*/, const Ray 
 }
 
 Vec3f Medium::transmittanceAndPdfs(PathSampleGenerator &sampler, const Ray &ray, bool startOnSurface,
-        bool endOnSurface, float &pdfForward, float &pdfBackward) const
+        bool endOnSurface, Float &pdfForward, Float &pdfBackward) const
 {
     pdfForward  = pdf(sampler, ray, startOnSurface, endOnSurface);
     pdfBackward = pdf(sampler, ray.scatter(ray.hitpoint(), -ray.dir(), 0.0f, ray.farT()), endOnSurface, startOnSurface);

@@ -24,7 +24,7 @@ namespace Tungsten {
 
 class Medium;
 
-static CONSTEXPR float DiracAcceptanceThreshold = 1e-3f;
+static CONSTEXPR Float DiracAcceptanceThreshold = 1e-3f;
 
 class Bsdf : public JsonSerializable
 {
@@ -47,9 +47,9 @@ protected:
         return std::abs(wi.z()*wo.z() - wi.x()*wo.x() - wi.y()*wo.y() - 1.0f) < DiracAcceptanceThreshold;
     }
 
-    static inline bool checkRefractionConstraint(const Vec3f &wi, const Vec3f &wo, float eta, float cosThetaT)
+    static inline bool checkRefractionConstraint(const Vec3f &wi, const Vec3f &wo, Float eta, Float cosThetaT)
     {
-        float dotP = -wi.x()*wo.x()*eta - wi.y()*wo.y()*eta - std::copysign(cosThetaT, wi.z())*wo.z();
+        Float dotP = -wi.x()*wo.x()*eta - wi.y()*wo.y()*eta - std::copysign(cosThetaT, wi.z())*wo.z();
         return std::abs(dotP - 1.0f) < DiracAcceptanceThreshold;
     }
 
@@ -66,7 +66,7 @@ public:
     virtual Vec3f eval(const SurfaceScatterEvent &event) const = 0;
     virtual bool sample(SurfaceScatterEvent &event) const = 0;
     virtual bool invert(WritablePathSampleGenerator &sampler, const SurfaceScatterEvent &event) const;
-    virtual float pdf(const SurfaceScatterEvent &event) const = 0;
+    virtual Float pdf(const SurfaceScatterEvent &event) const = 0;
 
     inline bool sample(SurfaceScatterEvent &event, bool adjoint) const
     {
@@ -97,7 +97,7 @@ public:
     }
 
     // Returns etaI/etaO
-    virtual float eta(const SurfaceScatterEvent &/*event*/) const
+    virtual Float eta(const SurfaceScatterEvent &/*event*/) const
     {
         return 1.0f;
     }

@@ -42,7 +42,7 @@ protected:
 
     bool _needsRayTransform = false;
 
-    virtual float powerToRadianceFactor() const
+    virtual Float powerToRadianceFactor() const
     {
         return 0.0f;
     }
@@ -72,9 +72,9 @@ public:
     virtual bool invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const;
     virtual bool invertDirection(WritablePathSampleGenerator &sampler, const PositionSample &point,
             const DirectionSample &direction) const;
-    virtual float positionalPdf(const PositionSample &point) const;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const;
@@ -85,7 +85,7 @@ public:
     virtual bool isDirac() const = 0;
     virtual bool isInfinite() const = 0;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const = 0;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const = 0;
 
     virtual Box3f bounds() const = 0;
 

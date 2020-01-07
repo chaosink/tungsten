@@ -58,7 +58,7 @@ bool TransparencyBsdf::invert(WritablePathSampleGenerator &sampler, const Surfac
     return _base->invert(sampler, event);
 }
 
-float TransparencyBsdf::pdf(const SurfaceScatterEvent &event) const
+Float TransparencyBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     return _base->pdf(event);
 }

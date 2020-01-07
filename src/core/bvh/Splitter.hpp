@@ -13,12 +13,12 @@ struct SplitInfo
     Box3fp lCentroidBox, rCentroidBox;
     int dim;
     uint32 idx;
-    float cost;
+    Float cost;
 };
 
 namespace Splitter {
-    static CONSTEXPR float IntersectionCost = 1.0f;
-    static CONSTEXPR float TraversalCost = 1.0f;
+    static CONSTEXPR Float IntersectionCost = 1.0f;
+    static CONSTEXPR Float TraversalCost = 1.0f;
 };
 
 }

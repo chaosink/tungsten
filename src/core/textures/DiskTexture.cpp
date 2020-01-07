@@ -48,7 +48,7 @@ Vec3f DiskTexture::maximum() const
     return _value;
 }
 
-Vec3f DiskTexture::operator[](const Vec<float, 2> &uv) const
+Vec3f DiskTexture::operator[](const Vec<Float, 2> &uv) const
 {
     return (uv - Vec2f(0.5f)).lengthSq() < 0.25f ? _value : Vec3f(0.0f);
 }
@@ -72,12 +72,12 @@ Vec2f DiskTexture::sample(TextureMapJacobian /*jacobian*/, const Vec2f &uv) cons
     return SampleWarp::uniformDisk(uv).xy()*0.5f + 0.5f;
 }
 
-float DiskTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
+Float DiskTexture::pdf(TextureMapJacobian /*jacobian*/, const Vec2f &uv) const
 {
     return (uv - Vec2f(0.5f)).lengthSq() < 0.25f ? SampleWarp::uniformDiskPdf()*4.0f : 0.0f;
 }
 
-void DiskTexture::scaleValues(float factor)
+void DiskTexture::scaleValues(Float factor)
 {
     _value *= factor;
 }

@@ -18,7 +18,7 @@ struct Rgba
 
     Vec3f normalize() const
     {
-        return Vec3f(float(c[0]), float(c[1]), float(c[2]))*(1.0f/255.0f);
+        return Vec3f(Float(c[0]), Float(c[1]), Float(c[2]))*(1.0f/255.0f);
     }
 };
 
@@ -82,8 +82,8 @@ BitmapTexture::BitmapTexture(const BitmapTexture &o)
             size = _w*_h*sizeof(uint8);
             break;
         case TexelType::SCALAR_HDR:
-            _texels = new float[_w*_h];
-            size = _w*_h*sizeof(float);
+            _texels = new Float[_w*_h];
+            size = _w*_h*sizeof(Float);
             break;
         case TexelType::RGB_LDR:
             _texels = new uint8[_w*_h*4];
@@ -103,7 +103,7 @@ BitmapTexture::~BitmapTexture()
 {
     switch (_texelType) {
     case TexelType::SCALAR_LDR: delete[] as<uint8>(); break;
-    case TexelType::SCALAR_HDR: delete[] as<float>(); break;
+    case TexelType::SCALAR_HDR: delete[] as<Float>(); break;
     case TexelType::RGB_LDR: delete[] as<uint8>(); break;
     case TexelType::RGB_HDR: delete[] as<Vec3f>(); break;
     }
@@ -119,13 +119,13 @@ inline bool BitmapTexture::isHdr() const
     return (uint32(_texelType) & 1) != 0;
 }
 
-inline float BitmapTexture::lerp(float x00, float x01, float x10, float x11, float u, float v) const
+inline Float BitmapTexture::lerp(Float x00, Float x01, Float x10, Float x11, Float u, Float v) const
 {
     return (x00*(1.0f - u) + x01*u)*(1.0f - v) +
            (x10*(1.0f - u) + x11*u)*v;
 }
 
-inline Vec3f BitmapTexture::lerp(Vec3f x00, Vec3f x01, Vec3f x10, Vec3f x11, float u, float v) const
+inline Vec3f BitmapTexture::lerp(Vec3f x00, Vec3f x01, Vec3f x10, Vec3f x11, Float u, Float v) const
 {
     return (x00*(1.0f - u) + x01*u)*(1.0f - v) +
            (x10*(1.0f - u) + x11*u)*v;
@@ -137,12 +137,12 @@ inline const T *BitmapTexture::as() const
     return reinterpret_cast<const T *>(_texels);
 }
 
-inline float BitmapTexture::getScalar(int x, int y) const
+inline Float BitmapTexture::getScalar(int x, int y) const
 {
     if (isHdr())
-        return as<float>()[x + y*_w];
+        return as<Float>()[x + y*_w];
     else
-        return float(as<uint8>()[x + y*_w])*(1.0f/255.0f);
+        return Float(as<uint8>()[x + y*_w])*(1.0f/255.0f);
 }
 
 inline Vec3f BitmapTexture::getRgb(int x, int y) const
@@ -153,7 +153,7 @@ inline Vec3f BitmapTexture::getRgb(int x, int y) const
         return as<Rgba>()[x + y*_w].normalize();
 }
 
-inline float BitmapTexture::weight(int x, int y) const
+inline Float BitmapTexture::weight(int x, int y) const
 {
     if (isRgb())
         return getRgb(x, y).max();
@@ -188,18 +188,18 @@ void BitmapTexture::init(void *texels, int w, int h, TexelType texelType)
             for (int x = 0; x < _w; ++x) {
                 _min = min(_min, getRgb(x, y));
                 _max = max(_max, getRgb(x, y));
-                _avg += getRgb(x, y)/float(_w*_h);
+                _avg += getRgb(x, y)/Float(_w*_h);
             }
         }
     } else {
-        float minT, maxT, avgT = 0.0f;
+        Float minT, maxT, avgT = 0.0f;
         minT = maxT = getScalar(0, 0);
 
         for (int y = 0; y < _h; ++y) {
             for (int x = 0; x < _w; ++x) {
                 minT = min(minT, getScalar(x, y));
                 maxT = max(maxT, getScalar(x, y));
-                avgT += getScalar(x, y)/float(_w*_h);
+                avgT += getScalar(x, y)/Float(_w*_h);
             }
         }
         _min = Vec3f(minT);
@@ -297,8 +297,8 @@ Vec3f BitmapTexture::maximum() const
 
 Vec3f BitmapTexture::operator[](const Vec2f &uv) const
 {
-    float u = uv.x()*_w;
-    float v = (1.0f - uv.y())*_h;
+    Float u = uv.x()*_w;
+    Float v = (1.0f - uv.y())*_h;
     bool linear = _linear && _valid;
     if (linear) {
         u -= 0.5f;
@@ -359,8 +359,8 @@ Vec3f BitmapTexture::operator[](const IntersectionInfo &info) const
 void BitmapTexture::derivatives(const Vec2f &uv, Vec2f &derivs) const
 {
     derivs = Vec2f(0.0f);
-    float u = uv.x()*_w - 0.5f;
-    float v = (1.0f - uv.y())*_h - 0.5f;
+    Float u = uv.x()*_w - 0.5f;
+    Float v = (1.0f - uv.y())*_h - 0.5f;
     int iu = int(u);
     int iv = int(v);
     u -= iu;
@@ -373,10 +373,10 @@ void BitmapTexture::derivatives(const Vec2f &uv, Vec2f &derivs) const
     if (y0 < 0) y0 = _h - 1;
 
     // Filter footprint
-    float      a01, a02;
-    float a10, a11, a12, a13;
-    float a20, a21, a22, a23;
-    float      a31, a32;
+    Float      a01, a02;
+    Float a10, a11, a12, a13;
+    Float a20, a21, a22, a23;
+    Float      a31, a32;
 
     if (isRgb()) {
                                     a01 = getRgb(x1, y0).avg(), a02 = getRgb(x2, y0).avg();
@@ -390,8 +390,8 @@ void BitmapTexture::derivatives(const Vec2f &uv, Vec2f &derivs) const
                                  a31 = getScalar(x1, y3), a32 = getScalar(x2, y3);
     }
 
-    float du11 = a12 - a10, du12 = a13 - a11, du21 = a22 - a20, du22 = a23 - a21;
-    float dv11 = a21 - a01, dv21 = a31 - a11, dv12 = a22 - a02, dv22 = a32 - a12;
+    Float du11 = a12 - a10, du12 = a13 - a11, du21 = a22 - a20, du22 = a23 - a21;
+    Float dv11 = a21 - a01, dv21 = a31 - a11, dv12 = a22 - a02, dv22 = a32 - a12;
 
     derivs.x() = lerp(du11, du12, du21, du22, u, v)*_scale;
     derivs.y() = lerp(dv11, dv12, dv21, dv22, u, v)*_scale;
@@ -402,9 +402,9 @@ void BitmapTexture::makeSamplable(TextureMapJacobian jacobian)
     if (_distribution[jacobian])
         return;
 
-    std::vector<float> weights(_w*_h);
+    std::vector<Float> weights(_w*_h);
     for (int y = 0, idx = 0; y < _h; ++y) {
-        float rowWeight = 1.0f;
+        Float rowWeight = 1.0f;
         if (jacobian == MAP_SPHERICAL)
             rowWeight *= std::sin((y*PI)/_h);
         for (int x = 0; x < _w; ++x, ++idx)
@@ -449,12 +449,12 @@ Vec2f BitmapTexture::invert(TextureMapJacobian jacobian, const Vec2f &uv) const
     return _distribution[jacobian]->unwarp(newUv, row, column);
 }
 
-float BitmapTexture::pdf(TextureMapJacobian jacobian, const Vec2f &uv) const
+Float BitmapTexture::pdf(TextureMapJacobian jacobian, const Vec2f &uv) const
 {
     return _distribution[jacobian]->pdf(int((1.0f - uv.y())*_h), int(uv.x()*_w))*_w*_h;
 }
 
-void BitmapTexture::scaleValues(float factor)
+void BitmapTexture::scaleValues(Float factor)
 {
     _scale *= factor;
 }

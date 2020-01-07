@@ -12,8 +12,8 @@ class EquirectangularCamera : public Camera
     Mat4f _rot;
     Mat4f _invRot;
 
-    Vec2f directionToUV(const Vec3f &wi, float &sinTheta) const;
-    Vec3f uvToDirection(Vec2f uv, float &sinTheta) const;
+    Vec2f directionToUV(const Vec3f &wi, Float &sinTheta) const;
+    Vec3f uvToDirection(Vec2f uv, Float &sinTheta) const;
 
 public:
     EquirectangularCamera();
@@ -29,11 +29,11 @@ public:
     virtual bool sampleDirect(const Vec3f &p, PathSampleGenerator &sampler, LensSample &sample) const override final;
     virtual bool evalDirection(PathSampleGenerator &sampler, const PositionSample &point,
                 const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const override final;
-    virtual float directionPdf(const PositionSample &point, const DirectionSample &direction) const override final;
+    virtual Float directionPdf(const PositionSample &point, const DirectionSample &direction) const override final;
 
     virtual bool isDirac() const override;
 
-    virtual float approximateFov() const override;
+    virtual Float approximateFov() const override;
 
     virtual void prepareForRender() override;
 };

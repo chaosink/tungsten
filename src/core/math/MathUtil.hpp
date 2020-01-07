@@ -97,19 +97,19 @@ template <typename T> int sgn(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-static inline float trigInverse(float x)
+static inline Float trigInverse(Float x)
 {
-    return min(std::sqrt(max(1.0f - x*x, 0.0f)), 1.0f);
+    return min(std::sqrt(max(1.0f - x*x, Float(0.0f))), Float(1.0f));
 }
 
-static inline float trigDoubleAngle(float x)
+static inline Float trigDoubleAngle(Float x)
 {
-    return clamp(2.0f*x*x - 1.0f, -1.0f, 1.0f);
+    return clamp(2.0f*x*x - 1.0f, Float(-1.0f), Float(1.0f));
 }
 
-static inline float trigHalfAngle(float x)
+static inline Float trigHalfAngle(Float x)
 {
-    return min(std::sqrt(max(x*0.5f + 0.5f, 0.0f)), 1.0f);
+    return min(std::sqrt(max(x*0.5f + 0.5f, Float(0.0f))), Float(1.0f));
 }
 
 // TODO: Review which of these are still in use
@@ -127,10 +127,10 @@ public:
         return x;
     }
 
-    static float sphericalDistance(float lat0, float long0, float lat1, float long1, float r)
+    static Float sphericalDistance(Float lat0, Float long0, Float lat1, Float long1, Float r)
     {
-        float  latSin = std::sin(( lat1 -  lat0)*0.5f);
-        float longSin = std::sin((long1 - long0)*0.5f);
+        Float  latSin = std::sin(( lat1 -  lat0)*0.5f);
+        Float longSin = std::sin((long1 - long0)*0.5f);
         return 2.0f*r*std::asin(std::sqrt(latSin*latSin + std::cos(lat0)*std::cos(lat1)*longSin*longSin));
     }
 
@@ -138,19 +138,19 @@ public:
     static Vec2f closestPointBetweenLines(const Vec3f& P0, const Vec3f& u, const Vec3f& Q0, const Vec3f& v)
     {
         const Vec3f w0 = P0 - Q0;
-        const float a = u.dot(u);
-        const float b = u.dot(v);
-        const float c = v.dot(v);
-        const float d = u.dot(w0);
-        const float e = v.dot(w0);
-        float denom = a*c - b*b;
+        const Float a = u.dot(u);
+        const Float b = u.dot(v);
+        const Float c = v.dot(v);
+        const Float d = u.dot(w0);
+        const Float e = v.dot(w0);
+        Float denom = a*c - b*b;
         if (denom == 0.0f)
             return Vec2f(0.0f);
         else
             return Vec2f(b*e - c*d, a*e - b*d)/denom;
     }
 
-    static float triangleArea(const Vec3f &a, const Vec3f &b, const Vec3f &c)
+    static Float triangleArea(const Vec3f &a, const Vec3f &b, const Vec3f &c)
     {
         return (b - a).cross(c - a).length()*0.5f;
     }

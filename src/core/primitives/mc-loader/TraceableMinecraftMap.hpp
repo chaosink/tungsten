@@ -33,7 +33,7 @@ struct BiomeTileTexture
 {
     std::unique_ptr<BitmapTexture> foliageTop, foliageBottom;
     std::unique_ptr<BitmapTexture> grassTop, grassBottom;
-    std::unique_ptr<float[]> heights;
+    std::unique_ptr<Float[]> heights;
 };
 
 class TraceableMinecraftMap : public Primitive
@@ -110,7 +110,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
 
     virtual Box3f bounds() const override;
 

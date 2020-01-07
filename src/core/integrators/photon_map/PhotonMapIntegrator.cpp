@@ -88,7 +88,7 @@ void PhotonMapIntegrator::tracePhotons(uint32 taskId, uint32 numSubTasks, uint32
     _totalTracedPaths += totalPathsCast;
 }
 
-void PhotonMapIntegrator::tracePixels(uint32 tileId, uint32 threadId, float surfaceRadius, float volumeRadius)
+void PhotonMapIntegrator::tracePixels(uint32 tileId, uint32 threadId, Float surfaceRadius, Float volumeRadius)
 {
     int spp = _nextSpp - _currentSpp;
 
@@ -131,7 +131,7 @@ std::unique_ptr<KdTree<PhotonType>> streamCompactAndBuild(std::vector<PhotonRang
 {
     uint32 tail = streamCompact(ranges);
 
-    float scale = 1.0f/totalTraced;
+    Float scale = 1.0f/totalTraced;
     for (uint32 i = 0; i < tail; ++i)
         photons[i].power *= scale;
 
@@ -160,17 +160,17 @@ static void precomputePlane0D(PhotonPlane0D &plane, const PathPhoton &p0, const 
         true
     };
 }
-static void precomputePlane1D(PhotonPlane1D &plane, const PathPhoton &p0, const PathPhoton &p1, const PathPhoton &p2, float radius)
+static void precomputePlane1D(PhotonPlane1D &plane, const PathPhoton &p0, const PathPhoton &p1, const PathPhoton &p2, Float radius)
 {
     Vec3f a = p1.pos - p0.pos;
     Vec3f b = p1.dir*p1.sampledLength;
-    Vec3f c = 2.0f*a.cross(p1.dir).normalized()*radius;
-    float det = std::abs(a.dot(b.cross(c)));
+    Vec3f c = Float(2.0f)*a.cross(p1.dir).normalized()*radius;
+    Float det = std::abs(a.dot(b.cross(c)));
 
     if (std::isnan(c.sum()) || det < 1e-8f)
         return;
 
-    float invDet = 1.0f/det;
+    Float invDet = 1.0f/det;
     Vec3f u = invDet*b.cross(c);
     Vec3f v = invDet*c.cross(a);
     Vec3f w = invDet*a.cross(b);
@@ -194,7 +194,7 @@ static void precomputePlane1D(PhotonPlane1D &plane, const PathPhoton &p0, const 
     plane.bounce = p1.bounce();
 }
 
-static void insertDicedBeam(Bvh::PrimVector &beams, PhotonBeam &beam, uint32 i, const PathPhoton &p0, const PathPhoton &p1, float radius)
+static void insertDicedBeam(Bvh::PrimVector &beams, PhotonBeam &beam, uint32 i, const PathPhoton &p0, const PathPhoton &p1, Float radius)
 {
     precomputeBeam(beam, p0, p1);
 
@@ -206,7 +206,7 @@ static void insertDicedBeam(Bvh::PrimVector &beams, PhotonBeam &beam, uint32 i, 
     for (int j = 0; j < 3; ++j) {
         minExtend[j] = std::copysign(minExtend[j], p0.dir[j]);
         if (j != majorAxis)
-            minExtend[j] /= std::sqrt(max(0.0f, 1.0f - sqr(p0.dir[j])));
+            minExtend[j] /= std::sqrt(max(Float(0.0f), 1.0f - sqr(p0.dir[j])));
     }
     for (int j = 0; j < numSteps; ++j) {
         Vec3f v0 = p0.pos + p0.dir*p0.length*(j + 0)/numSteps;
@@ -223,9 +223,9 @@ static void insertDicedBeam(Bvh::PrimVector &beams, PhotonBeam &beam, uint32 i, 
     }
 }
 
-void PhotonMapIntegrator::buildPointBvh(uint32 tail, float volumeRadiusScale)
+void PhotonMapIntegrator::buildPointBvh(uint32 tail, Float volumeRadiusScale)
 {
-    float radius = _settings.volumeGatherRadius*volumeRadiusScale;
+    Float radius = _settings.volumeGatherRadius*volumeRadiusScale;
 
     Bvh::PrimVector points;
     for (uint32 i = 0; i < tail; ++i) {
@@ -236,9 +236,9 @@ void PhotonMapIntegrator::buildPointBvh(uint32 tail, float volumeRadiusScale)
 
     _volumeBvh.reset(new Bvh::BinaryBvh(std::move(points), 1));
 }
-void PhotonMapIntegrator::buildBeamBvh(uint32 tail, float volumeRadiusScale)
+void PhotonMapIntegrator::buildBeamBvh(uint32 tail, Float volumeRadiusScale)
 {
-    float radius = _settings.volumeGatherRadius*volumeRadiusScale;
+    Float radius = _settings.volumeGatherRadius*volumeRadiusScale;
 
     Bvh::PrimVector beams;
     for (uint32 i = 0; i < tail; ++i) {
@@ -251,9 +251,9 @@ void PhotonMapIntegrator::buildBeamBvh(uint32 tail, float volumeRadiusScale)
 
     _volumeBvh.reset(new Bvh::BinaryBvh(std::move(beams), 1));
 }
-void PhotonMapIntegrator::buildPlaneBvh(uint32 tail, float volumeRadiusScale)
+void PhotonMapIntegrator::buildPlaneBvh(uint32 tail, Float volumeRadiusScale)
 {
-    float radius = _settings.volumeGatherRadius*volumeRadiusScale;
+    Float radius = _settings.volumeGatherRadius*volumeRadiusScale;
 
     Bvh::PrimVector planes;
     for (uint32 i = 0; i < tail; ++i) {
@@ -281,9 +281,9 @@ void PhotonMapIntegrator::buildPlaneBvh(uint32 tail, float volumeRadiusScale)
     _volumeBvh.reset(new Bvh::BinaryBvh(std::move(planes), 1));
 }
 
-void PhotonMapIntegrator::buildBeamGrid(uint32 tail, float volumeRadiusScale)
+void PhotonMapIntegrator::buildBeamGrid(uint32 tail, Float volumeRadiusScale)
 {
-    float radius = _settings.volumeGatherRadius*volumeRadiusScale;
+    Float radius = _settings.volumeGatherRadius*volumeRadiusScale;
 
     std::vector<GridAccel::Primitive> beams;
     for (uint32 i = 0; i < tail; ++i) {
@@ -300,9 +300,9 @@ void PhotonMapIntegrator::buildBeamGrid(uint32 tail, float volumeRadiusScale)
 
     _volumeGrid.reset(new GridAccel(_scene->bounds(), _settings.gridMemBudgetKb, std::move(beams)));
 }
-void PhotonMapIntegrator::buildPlaneGrid(uint32 tail, float volumeRadiusScale)
+void PhotonMapIntegrator::buildPlaneGrid(uint32 tail, Float volumeRadiusScale)
 {
-    float radius = _settings.volumeGatherRadius*volumeRadiusScale;
+    Float radius = _settings.volumeGatherRadius*volumeRadiusScale;
 
     std::vector<GridAccel::Primitive> prims;
     for (uint32 i = 0; i < tail; ++i) {
@@ -331,7 +331,7 @@ void PhotonMapIntegrator::buildPlaneGrid(uint32 tail, float volumeRadiusScale)
     _volumeGrid.reset(new GridAccel(_scene->bounds(), _settings.gridMemBudgetKb, std::move(prims)));
 }
 
-void PhotonMapIntegrator::buildPhotonDataStructures(float volumeRadiusScale)
+void PhotonMapIntegrator::buildPhotonDataStructures(Float volumeRadiusScale)
 {
     std::vector<SurfacePhotonRange> surfaceRanges;
     std::vector<VolumePhotonRange> volumeRanges;
@@ -346,7 +346,7 @@ void PhotonMapIntegrator::buildPhotonDataStructures(float volumeRadiusScale)
 
     if (!_volumePhotons.empty()) {
         _volumeTree = streamCompactAndBuild(volumeRanges, _volumePhotons, _totalTracedVolumePaths);
-        float volumeRadius = _settings.fixedVolumeRadius ? _settings.volumeGatherRadius : 1.0f;
+        Float volumeRadius = _settings.fixedVolumeRadius ? _settings.volumeGatherRadius : 1.0f;
         _volumeTree->buildVolumeHierarchy(_settings.fixedVolumeRadius, volumeRadius*volumeRadiusScale);
     } else if (!_pathPhotons.empty()) {
         uint32 tail = streamCompact(pathRanges);

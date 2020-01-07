@@ -28,7 +28,7 @@ public:
 
     void save(const Path &path, bool rgb = true) const
     {
-        ImageIO::saveHdr(path, reinterpret_cast<const float *>(_pixels.get()), _w, _h, rgb ? 3 : 1);
+        ImageIO::saveHdr(path, reinterpret_cast<const Float *>(_pixels.get()), _w, _h, rgb ? 3 : 1);
     }
 
     void clear()
@@ -64,7 +64,7 @@ std::unique_ptr<Pixmap<Texel>> loadPixmap(const Path &path, bool rgb = true)
 {
     auto texelType = rgb ? TexelConversion::REQUEST_RGB : TexelConversion::REQUEST_AVERAGE;
     int w, h;
-    std::unique_ptr<float[]> pixels = ImageIO::loadHdr(path, texelType, w, h);
+    std::unique_ptr<Float[]> pixels = ImageIO::loadHdr(path, texelType, w, h);
 
     if (!pixels)
         return nullptr;

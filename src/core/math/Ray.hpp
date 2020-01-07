@@ -13,20 +13,20 @@ class Ray
 {
     Vec3f _pos;
     Vec3f _dir;
-    float _nearT;
-    float _farT;
-    float _time;
+    Float _nearT;
+    Float _farT;
+    Float _time;
     bool _primaryRay;
 
 public:
     Ray() = default;
 
-    Ray(const Vec3f &pos, const Vec3f &dir, float nearT = 1e-4f, float farT = infinity(), float time = 0.0f)
+    Ray(const Vec3f &pos, const Vec3f &dir, Float nearT = 1e-4f, Float farT = infinity(), Float time = 0.0f)
     : _pos(pos), _dir(dir), _nearT(nearT), _farT(farT), _time(time), _primaryRay(false)
     {
     }
 
-    Ray scatter(const Vec3f &newPos, const Vec3f &newDir, float newNearT, float newFarT = infinity()) const
+    Ray scatter(const Vec3f &newPos, const Vec3f &newDir, Float newNearT, Float newFarT = infinity()) const
     {
         Ray ray(*this);
         ray._pos = newPos;
@@ -61,32 +61,32 @@ public:
         _pos = pos;
     }
 
-    float farT() const
+    Float farT() const
     {
         return _farT;
     }
 
-    void setFarT(float farT)
+    void setFarT(Float farT)
     {
         _farT = farT;
     }
 
-    float nearT() const
+    Float nearT() const
     {
         return _nearT;
     }
 
-    void setNearT(float nearT)
+    void setNearT(Float nearT)
     {
         _nearT = nearT;
     }
 
-    float time() const
+    Float time() const
     {
         return _time;
     }
 
-    void setTime(float time)
+    void setTime(Float time)
     {
         _time = time;
     }
@@ -101,9 +101,9 @@ public:
         _primaryRay = value;
     }
 
-    static inline float infinity()
+    static inline Float infinity()
     {
-        return std::numeric_limits<float>::infinity();
+        return std::numeric_limits<Float>::infinity();
     }
 };
 

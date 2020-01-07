@@ -22,21 +22,21 @@ HairBcsdf::HairBcsdf()
 }
 
 // Modified Bessel function of the first kind
-float HairBcsdf::I0(float x)
+Float HairBcsdf::I0(Float x)
 {
-    float result = 1.0f;
-    float xSq = x*x;
-    float xi = xSq;
-    float denom = 4.0f;
+    Float result = 1.0f;
+    Float xSq = x*x;
+    Float xi = xSq;
+    Float denom = 4.0f;
     for (int i = 1; i <= 10; ++i) {
         result += xi/denom;
         xi *= xSq;
-        denom *= 4.0f*float((i + 1)*(i + 1));
+        denom *= 4.0f*Float((i + 1)*(i + 1));
     }
     return result;
 }
 
-float HairBcsdf::logI0(float x)
+Float HairBcsdf::logI0(Float x)
 {
     if (x > 12.0f)
         // More stable evaluation of log(I0(x))
@@ -47,7 +47,7 @@ float HairBcsdf::logI0(float x)
 }
 
 // Standard normalized Gaussian
-float HairBcsdf::g(float beta, float theta)
+Float HairBcsdf::g(Float beta, Float theta)
 {
     return std::exp(-theta*theta/(2.0f*beta*beta))/(std::sqrt(2.0f*PI)*beta);
 }
@@ -59,11 +59,11 @@ float HairBcsdf::g(float beta, float theta)
 // function that can be analytically normalized and sampled
 // over the [-Pi, Pi] domain. The Gaussian cannot, hence this
 // slightly awkward and expensive evaluation.
-float HairBcsdf::D(float beta, float phi)
+Float HairBcsdf::D(Float beta, Float phi)
 {
-    float result = 0.0f;
-    float delta;
-    float shift = 0.0f;
+    Float result = 0.0f;
+    Float delta;
+    Float shift = 0.0f;
     do {
         delta = g(beta, phi + shift) + g(beta, phi - shift - TWO_PI);
         result += delta;
@@ -75,7 +75,7 @@ float HairBcsdf::D(float beta, float phi)
 // Computes the exitant azimuthal angle of the p'th perfect specular
 // scattering event, derived using Bravais theory
 // See the paper "Light Scattering from Human Hair Fibers" for details
-float HairBcsdf::Phi(float gammaI, float gammaT, int p)
+Float HairBcsdf::Phi(Float gammaI, Float gammaT, int p)
 {
     return 2.0f*p*gammaT - 2.0f*gammaI + p*PI;
 }
@@ -88,10 +88,10 @@ float HairBcsdf::Phi(float gammaI, float gammaT, int p)
 // use these functons directly.
 
 // Special case for the R lobe
-float HairBcsdf::NrIntegrand(float beta, float halfWiDotWo, float phi, float h) const
+Float HairBcsdf::NrIntegrand(Float beta, Float halfWiDotWo, Float phi, Float h) const
 {
-    float gammaI = std::asin(clamp(h, -1.0f, 1.0f));
-    float deltaPhi = phi + 2.0f*gammaI;
+    Float gammaI = std::asin(clamp(h, Float(-1.0f), Float(1.0f)));
+    Float deltaPhi = phi + 2.0f*gammaI;
     deltaPhi = std::fmod(deltaPhi, TWO_PI);
     if (deltaPhi < 0.0f)
         deltaPhi += TWO_PI;
@@ -99,26 +99,26 @@ float HairBcsdf::NrIntegrand(float beta, float halfWiDotWo, float phi, float h) 
     return D(beta, deltaPhi)*Fresnel::dielectricReflectance(1.0f/Eta, halfWiDotWo);
 }
 
-Vec3f HairBcsdf::NpIntegrand(float beta, float cosThetaD, float phi, int p, float h) const
+Vec3f HairBcsdf::NpIntegrand(Float beta, Float cosThetaD, Float phi, int p, Float h) const
 {
-    float iorPrime = std::sqrt(Eta*Eta - (1.0f - cosThetaD*cosThetaD))/cosThetaD;
-    float cosThetaT = std::sqrt(1.0f - (1.0f - cosThetaD*cosThetaD)*sqr(1.0f/Eta));
+    Float iorPrime = std::sqrt(Eta*Eta - (1.0f - cosThetaD*cosThetaD))/cosThetaD;
+    Float cosThetaT = std::sqrt(1.0f - (1.0f - cosThetaD*cosThetaD)*sqr(1.0f/Eta));
     Vec3f sigmaAPrime = _sigmaA/cosThetaT;
 
-    float gammaI = std::asin(clamp(h, -1.0f, 1.0f));
-    float gammaT = std::asin(clamp(h/iorPrime, -1.0f, 1.0f));
+    Float gammaI = std::asin(clamp(h, Float(-1.0f), Float(1.0f)));
+    Float gammaT = std::asin(clamp(h/iorPrime, Float(-1.0f), Float(1.0f)));
     // The correct internal path length (the one in d'Eon et al.'s paper
     // as well as Marschner et al.'s paper is wrong).
     // The correct factor is also mentioned in "Light Scattering from Filaments", eq. (20)
-    float l = 2.0f*std::cos(gammaT);
+    Float l = 2.0f*std::cos(gammaT);
 
-    float f = Fresnel::dielectricReflectance(1.0f/Eta, cosThetaD*trigInverse(h));
+    Float f = Fresnel::dielectricReflectance(1.0f/Eta, cosThetaD*trigInverse(h));
     Vec3f T = std::exp(-sigmaAPrime*l);
     Vec3f Aph = (1.0f - f)*(1.0f - f)*T;
     for (int i = 1; i < p; ++i)
         Aph *= f*T;
 
-    float deltaPhi = phi - Phi(gammaI, gammaT, p);
+    Float deltaPhi = phi - Phi(gammaI, gammaT, p);
     deltaPhi = std::fmod(deltaPhi, TWO_PI);
     if (deltaPhi < 0.0f)
         deltaPhi += TWO_PI;
@@ -127,10 +127,10 @@ Vec3f HairBcsdf::NpIntegrand(float beta, float cosThetaD, float phi, int p, floa
 }
 
 // Rough longitudinal scattering function with variance v = beta^2
-float HairBcsdf::M(float v, float sinThetaI, float sinThetaO, float cosThetaI, float cosThetaO) const
+Float HairBcsdf::M(Float v, Float sinThetaI, Float sinThetaO, Float cosThetaI, Float cosThetaO) const
 {
-    float a = cosThetaI*cosThetaO/v;
-    float b = sinThetaI*sinThetaO/v;
+    Float a = cosThetaI*cosThetaO/v;
+    Float b = sinThetaI*sinThetaO/v;
 
     if (v < 0.1f)
         // More numerically stable evaluation for small roughnesses
@@ -141,14 +141,14 @@ float HairBcsdf::M(float v, float sinThetaI, float sinThetaO, float cosThetaI, f
 }
 
 // Returns sinThetaO
-float HairBcsdf::sampleM(float v, float sinThetaI, float cosThetaI, float xi1, float xi2) const
+Float HairBcsdf::sampleM(Float v, Float sinThetaI, Float cosThetaI, Float xi1, Float xi2) const
 {
     // Version from the paper (very unstable)
-    //float cosTheta = v*std::log(std::exp(1.0f/v) - 2.0f*xi1*std::sinh(1.0f/v));
+    //Float cosTheta = v*std::log(std::exp(1.0f/v) - 2.0f*xi1*std::sinh(1.0f/v));
     // More stable version from "Numerically stable sampling of the von Mises Fisher distribution on S2 (and other tricks)"
-    float cosTheta = 1.0f + v*std::log(xi1 + (1.0f - xi1)*std::exp(-2.0f/v));
-    float sinTheta = trigInverse(cosTheta);
-    float cosPhi = std::cos(TWO_PI*xi2);
+    Float cosTheta = 1.0f + v*std::log(xi1 + (1.0f - xi1)*std::exp(-2.0f/v));
+    Float sinTheta = trigInverse(cosTheta);
+    Float cosPhi = std::cos(TWO_PI*xi2);
 
     return -cosTheta*sinThetaI + sinTheta*cosPhi*cosThetaI;
 }
@@ -185,15 +185,15 @@ Vec3f HairBcsdf::eval(const SurfaceScatterEvent &event) const
     if (!event.requestedLobe.test(BsdfLobes::GlossyLobe))
         return Vec3f(0.0f);
 
-    float sinThetaI = event.wi.y();
-    float sinThetaO = event.wo.y();
-    float cosThetaO = trigInverse(sinThetaO);
-    float thetaI = std::asin(clamp(sinThetaI, -1.0f, 1.0f));
-    float thetaO = std::asin(clamp(sinThetaO, -1.0f, 1.0f));
-    float thetaD = (thetaO - thetaI)*0.5f;
-    float cosThetaD = std::cos(thetaD);
+    Float sinThetaI = event.wi.y();
+    Float sinThetaO = event.wo.y();
+    Float cosThetaO = trigInverse(sinThetaO);
+    Float thetaI = std::asin(clamp(sinThetaI, Float(-1.0f), Float(1.0f)));
+    Float thetaO = std::asin(clamp(sinThetaO, Float(-1.0f), Float(1.0f)));
+    Float thetaD = (thetaO - thetaI)*0.5f;
+    Float cosThetaD = std::cos(thetaD);
 
-    float phi = std::atan2(event.wo.x(), event.wo.z());
+    Float phi = std::atan2(event.wo.x(), event.wo.z());
     if (phi < 0.0f)
         phi += TWO_PI;
 
@@ -201,14 +201,14 @@ Vec3f HairBcsdf::eval(const SurfaceScatterEvent &event) const
     // "Importance Sampling for Physically-Based Hair Fiber Models"
     // rather than the earlier paper by Marschner et al. I believe
     // these are slightly more accurate.
-    float thetaIR   = thetaI - 2.0f*_scaleAngleRad;
-    float thetaITT  = thetaI +      _scaleAngleRad;
-    float thetaITRT = thetaI + 4.0f*_scaleAngleRad;
+    Float thetaIR   = thetaI - 2.0f*_scaleAngleRad;
+    Float thetaITT  = thetaI +      _scaleAngleRad;
+    Float thetaITRT = thetaI + 4.0f*_scaleAngleRad;
 
     // Evaluate longitudinal scattering functions
-    float MR   = M(_vR,   std::sin(thetaIR),   sinThetaO, std::cos(thetaIR),   cosThetaO);
-    float MTT  = M(_vTT,  std::sin(thetaITT),  sinThetaO, std::cos(thetaITT),  cosThetaO);
-    float MTRT = M(_vTRT, std::sin(thetaITRT), sinThetaO, std::cos(thetaITRT), cosThetaO);
+    Float MR   = M(_vR,   std::sin(thetaIR),   sinThetaO, std::cos(thetaIR),   cosThetaO);
+    Float MTT  = M(_vTT,  std::sin(thetaITT),  sinThetaO, std::cos(thetaITT),  cosThetaO);
+    Float MTRT = M(_vTRT, std::sin(thetaITRT), sinThetaO, std::cos(thetaITRT), cosThetaO);
 
     return   MR*  _nR->eval(phi, cosThetaD)
          +  MTT* _nTT->eval(phi, cosThetaD)
@@ -223,24 +223,24 @@ bool HairBcsdf::sample(SurfaceScatterEvent &event) const
     Vec2f xiN = event.sampler->next2D();
     Vec2f xiM = event.sampler->next2D();
 
-    float sinThetaI = event.wi.y();
-    float cosThetaI = trigInverse(sinThetaI);
-    float thetaI = std::asin(clamp(sinThetaI, -1.0f, 1.0f));
+    Float sinThetaI = event.wi.y();
+    Float cosThetaI = trigInverse(sinThetaI);
+    Float thetaI = std::asin(clamp(sinThetaI, Float(-1.0f), Float(1.0f)));
 
-    float thetaIR   = thetaI - 2.0f*_scaleAngleRad;
-    float thetaITT  = thetaI +      _scaleAngleRad;
-    float thetaITRT = thetaI + 4.0f*_scaleAngleRad;
+    Float thetaIR   = thetaI - 2.0f*_scaleAngleRad;
+    Float thetaITT  = thetaI +      _scaleAngleRad;
+    Float thetaITRT = thetaI + 4.0f*_scaleAngleRad;
 
     // The following lines are just lobe selection
-    float weightR   = _nR  ->weight(cosThetaI);
-    float weightTT  = _nTT ->weight(cosThetaI);
-    float weightTRT = _nTRT->weight(cosThetaI);
+    Float weightR   = _nR  ->weight(cosThetaI);
+    Float weightTT  = _nTT ->weight(cosThetaI);
+    Float weightTRT = _nTRT->weight(cosThetaI);
 
     const PrecomputedAzimuthalLobe *lobe;
-    float v;
-    float theta;
+    Float v;
+    Float theta;
 
-    float target = xiN.x()*(weightR + weightTT + weightTRT);
+    Float target = xiN.x()*(weightR + weightTT + weightTRT);
     if (target < weightR) {
         v = _vR;
         theta = thetaIR;
@@ -256,18 +256,18 @@ bool HairBcsdf::sample(SurfaceScatterEvent &event) const
     }
 
     // Actual sampling of the direction starts here
-    float sinThetaO = sampleM(v, std::sin(theta), std::cos(theta), xiM.x(), xiM.y());
-    float cosThetaO = trigInverse(sinThetaO);
+    Float sinThetaO = sampleM(v, std::sin(theta), std::cos(theta), xiM.x(), xiM.y());
+    Float cosThetaO = trigInverse(sinThetaO);
 
-    float thetaO = std::asin(clamp(sinThetaO, -1.0f, 1.0f));
-    float thetaD = (thetaO - thetaI)*0.5f;
-    float cosThetaD = std::cos(thetaD);
+    Float thetaO = std::asin(clamp(sinThetaO, Float(-1.0f), Float(1.0f)));
+    Float thetaD = (thetaO - thetaI)*0.5f;
+    Float cosThetaD = std::cos(thetaD);
 
-    float phi, phiPdf;
+    Float phi, phiPdf;
     lobe->sample(cosThetaD, xiN.y(), phi, phiPdf);
 
-    float sinPhi = std::sin(phi);
-    float cosPhi = std::cos(phi);
+    Float sinPhi = std::sin(phi);
+    Float cosPhi = std::cos(phi);
 
     event.wo = Vec3f(sinPhi*cosThetaO, sinThetaO, cosPhi*cosThetaO);
     event.pdf = pdf(event);
@@ -277,36 +277,36 @@ bool HairBcsdf::sample(SurfaceScatterEvent &event) const
     return true;
 }
 
-float HairBcsdf::pdf(const SurfaceScatterEvent &event) const
+Float HairBcsdf::pdf(const SurfaceScatterEvent &event) const
 {
     if (!event.requestedLobe.test(BsdfLobes::GlossyLobe))
         return 0.0f;
 
-    float sinThetaI = event.wi.y();
-    float sinThetaO = event.wo.y();
-    float cosThetaI = trigInverse(sinThetaI);
-    float cosThetaO = trigInverse(sinThetaO);
-    float thetaI = std::asin(clamp(sinThetaI, -1.0f, 1.0f));
-    float thetaO = std::asin(clamp(sinThetaO, -1.0f, 1.0f));
-    float thetaD = (thetaO - thetaI)*0.5f;
-    float cosThetaD = std::cos(thetaD);
+    Float sinThetaI = event.wi.y();
+    Float sinThetaO = event.wo.y();
+    Float cosThetaI = trigInverse(sinThetaI);
+    Float cosThetaO = trigInverse(sinThetaO);
+    Float thetaI = std::asin(clamp(sinThetaI, Float(-1.0f), Float(1.0f)));
+    Float thetaO = std::asin(clamp(sinThetaO, Float(-1.0f), Float(1.0f)));
+    Float thetaD = (thetaO - thetaI)*0.5f;
+    Float cosThetaD = std::cos(thetaD);
 
-    float phi = std::atan2(event.wo.x(), event.wo.z());
+    Float phi = std::atan2(event.wo.x(), event.wo.z());
     if (phi < 0.0f)
         phi += TWO_PI;
 
-    float thetaIR   = thetaI - 2.0f*_scaleAngleRad;
-    float thetaITT  = thetaI +      _scaleAngleRad;
-    float thetaITRT = thetaI + 4.0f*_scaleAngleRad;
+    Float thetaIR   = thetaI - 2.0f*_scaleAngleRad;
+    Float thetaITT  = thetaI +      _scaleAngleRad;
+    Float thetaITRT = thetaI + 4.0f*_scaleAngleRad;
 
-    float weightR   = _nR  ->weight(cosThetaI);
-    float weightTT  = _nTT ->weight(cosThetaI);
-    float weightTRT = _nTRT->weight(cosThetaI);
-    float weightSum = weightR + weightTT + weightTRT;
+    Float weightR   = _nR  ->weight(cosThetaI);
+    Float weightTT  = _nTT ->weight(cosThetaI);
+    Float weightTRT = _nTRT->weight(cosThetaI);
+    Float weightSum = weightR + weightTT + weightTRT;
 
-    float pdfR   = weightR  *M(_vR,   std::sin(thetaIR),   sinThetaO, std::cos(thetaIR),   cosThetaO);
-    float pdfTT  = weightTT *M(_vTT,  std::sin(thetaITT),  sinThetaO, std::cos(thetaITT),  cosThetaO);
-    float pdfTRT = weightTRT*M(_vTRT, std::sin(thetaITRT), sinThetaO, std::cos(thetaITRT), cosThetaO);
+    Float pdfR   = weightR  *M(_vR,   std::sin(thetaIR),   sinThetaO, std::cos(thetaIR),   cosThetaO);
+    Float pdfTT  = weightTT *M(_vTT,  std::sin(thetaITT),  sinThetaO, std::cos(thetaITT),  cosThetaO);
+    Float pdfTRT = weightTRT*M(_vTRT, std::sin(thetaITRT), sinThetaO, std::cos(thetaITRT), cosThetaO);
 
     return (1.0f/weightSum)*
           (pdfR  *  _nR->pdf(phi, cosThetaD)
@@ -330,7 +330,7 @@ void HairBcsdf::precomputeAzimuthalDistributions()
     const auto weights = integrator.weights();
 
     // Cache the gammaI across all integration points
-    std::array<float, NumPoints> gammaIs;
+    std::array<Float, NumPoints> gammaIs;
     for (int i = 0; i < NumPoints; ++i)
         gammaIs[i] = std::asin(points[i]);
 
@@ -339,16 +339,16 @@ void HairBcsdf::precomputeAzimuthalDistributions()
     // 2048 samples are enough to support the lowest roughness that the BCSDF
     // can reliably simulate
     const int NumGaussianSamples = 2048;
-    std::unique_ptr<float[]> Ds[3];
+    std::unique_ptr<Float[]> Ds[3];
     for (int p = 0; p < 3; ++p) {
-        Ds[p].reset(new float[NumGaussianSamples]);
+        Ds[p].reset(new Float[NumGaussianSamples]);
         for (int i = 0; i < NumGaussianSamples; ++i)
             Ds[p][i] = D(_betaR, i/(NumGaussianSamples - 1.0f)*TWO_PI);
     }
 
     // Simple wrapped linear interpolation of the precomputed table
-    auto approxD = [&](int p, float phi) {
-        float u = std::abs(phi*(INV_TWO_PI*(NumGaussianSamples - 1)));
+    auto approxD = [&](int p, Float phi) {
+        Float u = std::abs(phi*(INV_TWO_PI*(NumGaussianSamples - 1)));
         int x0 = int(u);
         int x1 = x0 + 1;
         u -= x0;
@@ -362,26 +362,26 @@ void HairBcsdf::precomputeAzimuthalDistributions()
     // really low resolutions for the table (64x64 in this case) without any visual
     // deviation from ground truth, even at the lowest supported roughness setting
     for (int y = 0; y < Resolution; ++y) {
-        float cosHalfAngle = y/(Resolution - 1.0f);
+        Float cosHalfAngle = y/(Resolution - 1.0f);
 
         // Precompute reflection Fresnel factor and reduced absorption coefficient
-        float iorPrime = std::sqrt(Eta*Eta - (1.0f - cosHalfAngle*cosHalfAngle))/cosHalfAngle;
-        float cosThetaT = std::sqrt(1.0f - (1.0f - cosHalfAngle*cosHalfAngle)*sqr(1.0f/Eta));
+        Float iorPrime = std::sqrt(Eta*Eta - (1.0f - cosHalfAngle*cosHalfAngle))/cosHalfAngle;
+        Float cosThetaT = std::sqrt(1.0f - (1.0f - cosHalfAngle*cosHalfAngle)*sqr(1.0f/Eta));
         Vec3f sigmaAPrime = _sigmaA/cosThetaT;
 
         // Precompute gammaT, f_t and internal absorption across all integration points
-        std::array<float, NumPoints> fresnelTerms, gammaTs;
+        std::array<Float, NumPoints> fresnelTerms, gammaTs;
         std::array<Vec3f, NumPoints> absorptions;
         for (int i = 0; i < NumPoints; ++i) {
-            gammaTs[i] = std::asin(clamp(points[i]/iorPrime, -1.0f, 1.0f));
+            gammaTs[i] = std::asin(clamp(points[i]/iorPrime, Float(-1.0f), Float(1.0f)));
             fresnelTerms[i] = Fresnel::dielectricReflectance(1.0f/Eta, cosHalfAngle*std::cos(gammaIs[i]));
             absorptions[i] = std::exp(-sigmaAPrime*2.0f*std::cos(gammaTs[i]));
         }
 
         for (int phiI = 0; phiI < Resolution; ++phiI) {
-            float phi = TWO_PI*phiI/(Resolution - 1.0f);
+            Float phi = TWO_PI*phiI/(Resolution - 1.0f);
 
-            float integralR = 0.0f;
+            Float integralR = 0.0f;
             Vec3f integralTT(0.0f);
             Vec3f integralTRT(0.0f);
 
@@ -390,10 +390,10 @@ void HairBcsdf::precomputeAzimuthalDistributions()
             // are constant w.r.t phi for a given h,
             // we don't have to do much work here.
             for (int i = 0; i < integrator.numSamples(); ++i) {
-                float fR = fresnelTerms[i];
+                Float fR = fresnelTerms[i];
                 Vec3f T = absorptions[i];
 
-                float AR = fR;
+                Float AR = fR;
                 Vec3f ATT = (1.0f - fR)*(1.0f - fR)*T;
                 Vec3f ATRT = ATT*fR*T;
 
@@ -403,8 +403,8 @@ void HairBcsdf::precomputeAzimuthalDistributions()
             }
 
             valuesR  [phiI + y*Resolution] = Vec3f(0.5f*integralR);
-            valuesTT [phiI + y*Resolution] = 0.5f*integralTT;
-            valuesTRT[phiI + y*Resolution] = 0.5f*integralTRT;
+            valuesTT [phiI + y*Resolution] = Float(0.5f)*integralTT;
+            valuesTRT[phiI + y*Resolution] = Float(0.5f)*integralTRT;
         }
     }
 
@@ -420,7 +420,7 @@ void HairBcsdf::prepareForRender()
     // Multiplied with Pi/2 to have similar range as the rough dielectric microfacet.
     // Clamped to some minimum roughness value to avoid oscillations in the azimuthal
     // scattering function.
-    _betaR   = max(PI_HALF*_roughness, 0.04f);
+    _betaR   = max(PI_HALF*_roughness, Float(0.04f));
     _betaTT  = _betaR*0.5f;
     _betaTRT = _betaR*2.0f;
 

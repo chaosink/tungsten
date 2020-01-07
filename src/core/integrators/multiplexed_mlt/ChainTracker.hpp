@@ -33,9 +33,9 @@ public:
         return _chainData.get();
     }
 
-    float acceptanceRatio(int length) const
+    Float acceptanceRatio(int length) const
     {
-        return _chainData[length].x()/float(_chainData[length].x() + _chainData[length].y());
+        return _chainData[length].x()/Float(_chainData[length].x() + _chainData[length].y());
     }
 
     int numMutations(int length) const

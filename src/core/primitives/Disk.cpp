@@ -11,7 +11,7 @@ namespace Tungsten {
 struct DiskIntersection
 {
     Vec3f p;
-    float rSq;
+    Float rSq;
     bool backSide;
 };
 
@@ -21,7 +21,7 @@ Disk::Disk()
 {
 }
 
-Disk::Disk(const Vec3f &pos, const Vec3f &n, float r, const std::string &name, std::shared_ptr<Bsdf> bsdf)
+Disk::Disk(const Vec3f &pos, const Vec3f &n, Float r, const std::string &name, std::shared_ptr<Bsdf> bsdf)
 : Primitive(name),
   _coneAngle(90.0f),
   _center(pos),
@@ -38,7 +38,7 @@ void Disk::buildProxy()
     _proxy->makeCone(1.0f, 0.01f);
 }
 
-float Disk::powerToRadianceFactor() const
+Float Disk::powerToRadianceFactor() const
 {
     return INV_PI*_invArea;
 }
@@ -63,15 +63,15 @@ rapidjson::Value Disk::toJson(Allocator &allocator) const
 
 bool Disk::intersect(Ray &ray, IntersectionTemporary &data) const
 {
-    float nDotW = ray.dir().dot(_n);
+    Float nDotW = ray.dir().dot(_n);
 
-    float t = _n.dot(_center - ray.pos())/nDotW;
+    Float t = _n.dot(_center - ray.pos())/nDotW;
     if (t < ray.nearT() || t > ray.farT())
         return false;
 
     Vec3f q = ray.pos() + t*ray.dir();
     Vec3f v = q - _center;
-    float rSq = v.lengthSq();
+    Float rSq = v.lengthSq();
     if (rSq > _r*_r)
         return false;
 
@@ -87,17 +87,17 @@ bool Disk::intersect(Ray &ray, IntersectionTemporary &data) const
 
 bool Disk::occluded(const Ray &ray) const
 {
-    float nDotW = ray.dir().dot(_n);
+    Float nDotW = ray.dir().dot(_n);
     if (nDotW >= 0.0f)
         return false;
 
-    float t = _n.dot(_center - ray.pos())/nDotW;
+    Float t = _n.dot(_center - ray.pos())/nDotW;
     if (t < ray.nearT() || t > ray.farT())
         return false;
 
     Vec3f q = ray.pos() + t*ray.dir();
     Vec3f v = q - _center;
-    float rSq = v.lengthSq();
+    Float rSq = v.lengthSq();
     if (rSq > _r*_r)
         return false;
 
@@ -116,10 +116,10 @@ void Disk::intersectionInfo(const IntersectionTemporary &data, IntersectionInfo 
 
     info.p = isect->p;
     Vec3f d = isect->p - _center;
-    float x = d.dot(_frame.bitangent);
-    float y = d.dot(_frame.tangent);
-    float v = std::sqrt(isect->rSq)/_r;
-    float u = (x == 0.0f && y == 0.0f) ? 0.0f : (std::atan2(y, x)*INV_TWO_PI + 0.5f);
+    Float x = d.dot(_frame.bitangent);
+    Float y = d.dot(_frame.tangent);
+    Float v = std::sqrt(isect->rSq)/_r;
+    Float u = (x == 0.0f && y == 0.0f) ? 0.0f : (std::atan2(y, x)*INV_TWO_PI + 0.5f);
     info.uv = Vec2f(u, v);
 
     info.primitive = this;
@@ -182,12 +182,12 @@ bool Disk::sampleDirect(uint32 /*threadIndex*/, const Vec3f &p, PathSampleGenera
     Vec2f lQ = SampleWarp::uniformDisk(sampler.next2D()).xy()*_r;
     Vec3f q = _center + lQ.x()*_frame.bitangent + lQ.y()*_frame.tangent;
     sample.d = q - p;
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
     if (-sample.d.dot(_n) < _cosApex)
         return false;
-    float cosTheta = -_n.dot(sample.d);
+    Float cosTheta = -_n.dot(sample.d);
     sample.pdf = rSq/(cosTheta*_r*_r*PI);
     return true;
 }
@@ -211,22 +211,22 @@ bool Disk::invertDirection(WritablePathSampleGenerator &sampler, const PositionS
     return true;
 }
 
-float Disk::positionalPdf(const PositionSample &/*point*/) const
+Float Disk::positionalPdf(const PositionSample &/*point*/) const
 {
     return _invArea;
 }
 
-float Disk::directionalPdf(const PositionSample &/*point*/, const DirectionSample &sample) const
+Float Disk::directionalPdf(const PositionSample &/*point*/, const DirectionSample &sample) const
 {
     // TODO: Cone angle
-    return max(sample.d.dot(_frame.normal)*INV_PI, 0.0f);
+    return max(sample.d.dot(_frame.normal)*INV_PI, Float(0.0f));
 }
 
-float Disk::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
+Float Disk::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &/*data*/,
         const IntersectionInfo &info, const Vec3f &p) const
 {
-    float cosTheta = std::abs(_n.dot(info.w));
-    float t = _n.dot(_center - p)/_n.dot(info.w);
+    Float cosTheta = std::abs(_n.dot(info.w));
+    Float t = _n.dot(_center - p)/_n.dot(info.w);
 
     return t*t/(cosTheta*_r*_r*PI);
 }
@@ -239,7 +239,7 @@ Vec3f Disk::evalPositionalEmission(const PositionSample &sample) const
 Vec3f Disk::evalDirectionalEmission(const PositionSample &/*point*/, const DirectionSample &sample) const
 {
     // TODO: Cone angle
-    return Vec3f(max(sample.d.dot(_frame.normal), 0.0f)*INV_PI);
+    return Vec3f(max(sample.d.dot(_frame.normal), Float(0.0f))*INV_PI);
 }
 
 Vec3f Disk::evalDirect(const IntersectionTemporary &data, const IntersectionInfo &info) const
@@ -249,8 +249,8 @@ Vec3f Disk::evalDirect(const IntersectionTemporary &data, const IntersectionInfo
 
 bool Disk::invertParametrization(Vec2f uv, Vec3f &pos) const
 {
-    float phi = (uv.x() - 0.5f)*TWO_PI;
-    float r = uv.y()*_r;
+    Float phi = (uv.x() - 0.5f)*TWO_PI;
+    Float r = uv.y()*_r;
     pos = _center + std::cos(phi)*r*_frame.bitangent + std::sin(phi)*r*_frame.tangent;
     return true;
 }
@@ -265,7 +265,7 @@ bool Disk::isInfinite() const
     return false;
 }
 
-float Disk::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
+Float Disk::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
 {
     if (!isEmissive())
         return 0.0f;
@@ -279,14 +279,14 @@ float Disk::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &p) const
     Vec3f edge1 = _frame.bitangent*_r;
 
     Vec3f R0 = d - edge0 - edge1;
-    Vec3f R1 = R0 + 2.0f*edge0;
-    Vec3f R2 = R1 + 2.0f*edge1;
-    Vec3f R3 = R0 + 2.0f*edge1;
+    Vec3f R1 = R0 + edge0*2.0f;
+    Vec3f R2 = R1 + edge1*2.0f;
+    Vec3f R3 = R0 + edge1*2.0f;
     Vec3f n0 = R0.cross(R1).normalized();
     Vec3f n1 = R1.cross(R2).normalized();
     Vec3f n2 = R2.cross(R3).normalized();
     Vec3f n3 = R3.cross(R0).normalized();
-    float Q =
+    Float Q =
           std::acos(n0.dot(n1))
         + std::acos(n1.dot(n2))
         + std::acos(n2.dot(n3))

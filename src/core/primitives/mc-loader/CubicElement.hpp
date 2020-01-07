@@ -27,7 +27,7 @@ class CubicElement
 
     int _rotAxis;
     Vec3f _rotOrigin;
-    float _rotAngle;
+    Float _rotAngle;
     bool _rotRescale;
 
     bool _shade;

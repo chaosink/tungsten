@@ -7,7 +7,7 @@ struct DirectionSample
 {
     Vec3f d;
     Vec3f weight;
-    float pdf;
+    Float pdf;
 
     DirectionSample() = default;
     DirectionSample(const Vec3f &d_)

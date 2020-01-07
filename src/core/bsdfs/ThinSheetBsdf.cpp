@@ -62,9 +62,9 @@ bool ThinSheetBsdf::sample(SurfaceScatterEvent &event) const
         return true;
     }
 
-    float thickness = (*_thickness)[*event.info].x();
+    Float thickness = (*_thickness)[*event.info].x();
 
-    float cosThetaT;
+    Float cosThetaT;
     if (_enableInterference) {
         event.weight = Fresnel::thinFilmReflectanceInterference(1.0f/_ior,
                 std::abs(event.wi.z()), thickness*500.0f, cosThetaT);
@@ -73,7 +73,7 @@ bool ThinSheetBsdf::sample(SurfaceScatterEvent &event) const
                 std::abs(event.wi.z()), cosThetaT));
     }
 
-    Vec3f transmittance = 1.0f - event.weight;
+    Vec3f transmittance = Float(1.0f) - event.weight;
     if (_sigmaA != 0.0f && cosThetaT > 0.0f)
         transmittance *= std::exp(-_sigmaA*(thickness*2.0f/cosThetaT));
 
@@ -87,12 +87,12 @@ Vec3f ThinSheetBsdf::eval(const SurfaceScatterEvent &event) const
     if (!event.requestedLobe.isForward() || -event.wi != event.wo)
         return Vec3f(0.0f);
 
-    float thickness = (*_thickness)[*event.info].x();
+    Float thickness = (*_thickness)[*event.info].x();
 
-    float cosThetaT;
+    Float cosThetaT;
     Vec3f transmittance;
     if (_enableInterference) {
-        transmittance = 1.0f - Fresnel::thinFilmReflectanceInterference(1.0f/_ior,
+        transmittance = Float(1.0f) - Fresnel::thinFilmReflectanceInterference(1.0f/_ior,
                 std::abs(event.wi.z()), thickness*500.0f, cosThetaT);
     } else {
         transmittance = Vec3f(1.0f - Fresnel::thinFilmReflectance(1.0f/_ior, std::abs(event.wi.z()), cosThetaT));
@@ -110,7 +110,7 @@ bool ThinSheetBsdf::invert(WritablePathSampleGenerator &/*sampler*/, const Surfa
     return sampleR && checkReflectionConstraint(event.wi, event.wo);
 }
 
-float ThinSheetBsdf::pdf(const SurfaceScatterEvent &event) const
+Float ThinSheetBsdf::pdf(const SurfaceScatterEvent &event) const
 {
     bool sampleR = event.requestedLobe.test(BsdfLobes::SpecularReflectionLobe);
     if (sampleR && checkReflectionConstraint(event.wi, event.wo))

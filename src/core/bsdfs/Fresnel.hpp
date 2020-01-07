@@ -12,50 +12,50 @@ namespace Fresnel {
 
 // Computes total reflectance from an infinitesimally thin film with refraction index eta
 // from all internal reflection/refraction events
-static inline float thinFilmReflectance(float eta, float cosThetaI, float &cosThetaT)
+static inline Float thinFilmReflectance(Float eta, Float cosThetaI, Float &cosThetaT)
 {
-    float sinThetaTSq = eta*eta*(1.0f - cosThetaI*cosThetaI);
+    Float sinThetaTSq = eta*eta*(1.0f - cosThetaI*cosThetaI);
     if (sinThetaTSq > 1.0f) {
         cosThetaT = 0.0f;
         return 1.0f;
     }
-    cosThetaT = std::sqrt(max(1.0f - sinThetaTSq, 0.0f));
+    cosThetaT = std::sqrt(max(1.0f - sinThetaTSq, Float(0.0f)));
 
-    float Rs = sqr((eta*cosThetaI - cosThetaT)/(eta*cosThetaI + cosThetaT));
-    float Rp = sqr((eta*cosThetaT - cosThetaI)/(eta*cosThetaT + cosThetaI));
+    Float Rs = sqr((eta*cosThetaI - cosThetaT)/(eta*cosThetaI + cosThetaT));
+    Float Rp = sqr((eta*cosThetaT - cosThetaI)/(eta*cosThetaT + cosThetaI));
 
     return 1.0f - ((1.0f - Rs)/(1.0f + Rs) + (1.0f - Rp)/(1.0f + Rp))*0.5f;
 }
 
-static inline float thinFilmReflectance(float eta, float cosThetaI)
+static inline Float thinFilmReflectance(Float eta, Float cosThetaI)
 {
-    float cosThetaT;
+    Float cosThetaT;
     return thinFilmReflectance(eta, cosThetaI, cosThetaT);
 }
 
 // Computes total reflectance including spectral interference from a thin film
 // that is `thickness' nanometers thick and has refraction index eta
 // See http://www.gamedev.net/page/resources/_/technical/graphics-programming-and-theory/thin-film-interference-for-computer-graphics-r2962
-static inline Vec3f thinFilmReflectanceInterference(float eta, float cosThetaI, float thickness, float &cosThetaT)
+static inline Vec3f thinFilmReflectanceInterference(Float eta, Float cosThetaI, Float thickness, Float &cosThetaT)
 {
-    const Vec3f invLambdas = 1.0f/Vec3f(650.0f, 510.0f, 475.0f);
+    const Vec3f invLambdas = Float(1.0f)/Vec3f(650.0f, 510.0f, 475.0f);
 
-    float cosThetaISq = cosThetaI*cosThetaI;
-    float sinThetaISq = 1.0f - cosThetaISq;
-    float invEta = 1.0f/eta;
+    Float cosThetaISq = cosThetaI*cosThetaI;
+    Float sinThetaISq = 1.0f - cosThetaISq;
+    Float invEta = 1.0f/eta;
 
-    float sinThetaTSq = eta*eta*sinThetaISq;
+    Float sinThetaTSq = eta*eta*sinThetaISq;
     if (sinThetaTSq > 1.0f) {
         cosThetaT = 0.0f;
         return Vec3f(1.0f);
     }
     cosThetaT = std::sqrt(1.0f - sinThetaTSq);
 
-    float Ts = 4.0f*eta*cosThetaI*cosThetaT/sqr(eta*cosThetaI + cosThetaT);
-    float Tp = 4.0f*eta*cosThetaI*cosThetaT/sqr(eta*cosThetaT + cosThetaI);
+    Float Ts = 4.0f*eta*cosThetaI*cosThetaT/sqr(eta*cosThetaI + cosThetaT);
+    Float Tp = 4.0f*eta*cosThetaI*cosThetaT/sqr(eta*cosThetaT + cosThetaI);
 
-    float Rs = 1.0f - Ts;
-    float Rp = 1.0f - Tp;
+    Float Rs = 1.0f - Ts;
+    Float Rp = 1.0f - Tp;
 
     Vec3f phi = (thickness*cosThetaT*FOUR_PI*invEta)*invLambdas;
     Vec3f cosPhi(std::cos(phi.x()), std::cos(phi.y()), std::cos(phi.z()));
@@ -63,72 +63,72 @@ static inline Vec3f thinFilmReflectanceInterference(float eta, float cosThetaI, 
     Vec3f tS = sqr(Ts)/((sqr(Rs) + 1.0f) - 2.0f*Rs*cosPhi);
     Vec3f tP = sqr(Tp)/((sqr(Rp) + 1.0f) - 2.0f*Rp*cosPhi);
 
-    return 1.0f - (tS + tP)*0.5f;
+    return Float(1.0f) - (tS + tP)*0.5f;
 }
 
-static inline Vec3f thinFilmReflectanceInterference(float eta, float cosThetaI, float thickness)
+static inline Vec3f thinFilmReflectanceInterference(Float eta, Float cosThetaI, Float thickness)
 {
-    float cosThetaT;
+    Float cosThetaT;
     return thinFilmReflectanceInterference(eta, cosThetaI, thickness, cosThetaT);
 }
 
-static inline float dielectricReflectance(float eta, float cosThetaI, float &cosThetaT)
+static inline Float dielectricReflectance(Float eta, Float cosThetaI, Float &cosThetaT)
 {
     if (cosThetaI < 0.0f) {
         eta = 1.0f/eta;
         cosThetaI = -cosThetaI;
     }
-    float sinThetaTSq = eta*eta*(1.0f - cosThetaI*cosThetaI);
+    Float sinThetaTSq = eta*eta*(1.0f - cosThetaI*cosThetaI);
     if (sinThetaTSq > 1.0f) {
         cosThetaT = 0.0f;
         return 1.0f;
     }
-    cosThetaT = std::sqrt(max(1.0f - sinThetaTSq, 0.0f));
+    cosThetaT = std::sqrt(max(1.0f - sinThetaTSq, Float(0.0f)));
 
-    float Rs = (eta*cosThetaI - cosThetaT)/(eta*cosThetaI + cosThetaT);
-    float Rp = (eta*cosThetaT - cosThetaI)/(eta*cosThetaT + cosThetaI);
+    Float Rs = (eta*cosThetaI - cosThetaT)/(eta*cosThetaI + cosThetaT);
+    Float Rp = (eta*cosThetaT - cosThetaI)/(eta*cosThetaT + cosThetaI);
 
     return (Rs*Rs + Rp*Rp)*0.5f;
 }
 
-static inline float dielectricReflectance(float eta, float cosThetaI)
+static inline Float dielectricReflectance(Float eta, Float cosThetaI)
 {
-    float cosThetaT;
+    Float cosThetaT;
     return dielectricReflectance(eta, cosThetaI, cosThetaT);
 }
 
 // From "PHYSICALLY BASED LIGHTING CALCULATIONS FOR COMPUTER GRAPHICS" by Peter Shirley
 // http://www.cs.virginia.edu/~jdl/bib/globillum/shirley_thesis.pdf
-static inline float conductorReflectance(float eta, float k, float cosThetaI)
+static inline Float conductorReflectance(Float eta, Float k, Float cosThetaI)
 {
-    float cosThetaISq = cosThetaI*cosThetaI;
-    float sinThetaISq = max(1.0f - cosThetaISq, 0.0f);
-    float sinThetaIQu = sinThetaISq*sinThetaISq;
+    Float cosThetaISq = cosThetaI*cosThetaI;
+    Float sinThetaISq = max(1.0f - cosThetaISq, Float(0.0f));
+    Float sinThetaIQu = sinThetaISq*sinThetaISq;
 
-    float innerTerm = eta*eta - k*k - sinThetaISq;
-    float aSqPlusBSq = std::sqrt(max(innerTerm*innerTerm + 4.0f*eta*eta*k*k, 0.0f));
-    float a = std::sqrt(max((aSqPlusBSq + innerTerm)*0.5f, 0.0f));
+    Float innerTerm = eta*eta - k*k - sinThetaISq;
+    Float aSqPlusBSq = std::sqrt(max(innerTerm*innerTerm + 4.0f*eta*eta*k*k, Float(0.0f)));
+    Float a = std::sqrt(max((aSqPlusBSq + innerTerm)*0.5f, Float(0.0f)));
 
-    float Rs = ((aSqPlusBSq + cosThetaISq) - (2.0f*a*cosThetaI))/
+    Float Rs = ((aSqPlusBSq + cosThetaISq) - (2.0f*a*cosThetaI))/
                ((aSqPlusBSq + cosThetaISq) + (2.0f*a*cosThetaI));
-    float Rp = ((cosThetaISq*aSqPlusBSq + sinThetaIQu) - (2.0f*a*cosThetaI*sinThetaISq))/
+    Float Rp = ((cosThetaISq*aSqPlusBSq + sinThetaIQu) - (2.0f*a*cosThetaI*sinThetaISq))/
                ((cosThetaISq*aSqPlusBSq + sinThetaIQu) + (2.0f*a*cosThetaI*sinThetaISq));
 
     return 0.5f*(Rs + Rs*Rp);
 }
 
-static inline float conductorReflectanceApprox(float eta, float k, float cosThetaI)
+static inline Float conductorReflectanceApprox(Float eta, Float k, Float cosThetaI)
 {
-    float cosThetaISq = cosThetaI*cosThetaI;
-    float ekSq = eta*eta* + k*k;
-    float cosThetaEta2 = cosThetaI*2.0f*eta;
+    Float cosThetaISq = cosThetaI*cosThetaI;
+    Float ekSq = eta*eta* + k*k;
+    Float cosThetaEta2 = cosThetaI*2.0f*eta;
 
-    float Rp = (ekSq*cosThetaISq - cosThetaEta2 + 1.0f)/(ekSq*cosThetaISq + cosThetaEta2 + 1.0f);
-    float Rs = (ekSq - cosThetaEta2 + cosThetaISq)/(ekSq + cosThetaEta2 + cosThetaISq);
+    Float Rp = (ekSq*cosThetaISq - cosThetaEta2 + 1.0f)/(ekSq*cosThetaISq + cosThetaEta2 + 1.0f);
+    Float Rs = (ekSq - cosThetaEta2 + cosThetaISq)/(ekSq + cosThetaEta2 + cosThetaISq);
     return (Rs + Rp)*0.5f;
 }
 
-static inline Vec3f conductorReflectance(const Vec3f &eta, const Vec3f &k, float cosThetaI)
+static inline Vec3f conductorReflectance(const Vec3f &eta, const Vec3f &k, Float cosThetaI)
 {
     return Vec3f(
         conductorReflectance(eta.x(), k.x(), cosThetaI),
@@ -138,18 +138,18 @@ static inline Vec3f conductorReflectance(const Vec3f &eta, const Vec3f &k, float
 }
 
 // Computes hemispherical integral of dielectricReflectance(ior, cos(theta))*cos(theta)
-static inline float computeDiffuseFresnel(float ior, const int sampleCount)
+static inline Float computeDiffuseFresnel(Float ior, const int sampleCount)
 {
     double diffuseFresnel = 0.0;
-    float fb = Fresnel::dielectricReflectance(ior, 0.0f);
+    Float fb = Fresnel::dielectricReflectance(ior, 0.0f);
     for (int i = 1; i <= sampleCount; ++i) {
-        float cosThetaSq = float(i)/sampleCount;
-        float fa = Fresnel::dielectricReflectance(ior, min(std::sqrt(cosThetaSq), 1.0f));
+        Float cosThetaSq = Float(i)/sampleCount;
+        Float fa = Fresnel::dielectricReflectance(ior, min(std::sqrt(cosThetaSq), Float(1.0f)));
         diffuseFresnel += double(fa + fb)*(0.5/sampleCount);
         fb = fa;
     }
 
-    return float(diffuseFresnel);
+    return Float(diffuseFresnel);
 }
 
 }

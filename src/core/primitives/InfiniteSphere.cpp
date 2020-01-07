@@ -30,17 +30,17 @@ Vec2f InfiniteSphere::directionToUV(const Vec3f &wi) const
     return Vec2f(std::atan2(wLocal.z(), wLocal.x())*INV_TWO_PI + 0.5f, std::acos(-wLocal.y())*INV_PI);
 }
 
-Vec2f InfiniteSphere::directionToUV(const Vec3f &wi, float &sinTheta) const
+Vec2f InfiniteSphere::directionToUV(const Vec3f &wi, Float &sinTheta) const
 {
     Vec3f wLocal = _invRotTransform*wi;
-    sinTheta = std::sqrt(max(1.0f - wLocal.y()*wLocal.y(), 0.0f));
+    sinTheta = std::sqrt(max(1.0f - wLocal.y()*wLocal.y(), Float(0.0f)));
     return Vec2f(std::atan2(wLocal.z(), wLocal.x())*INV_TWO_PI + 0.5f, std::acos(-wLocal.y())*INV_PI);
 }
 
-Vec3f InfiniteSphere::uvToDirection(Vec2f uv, float &sinTheta) const
+Vec3f InfiniteSphere::uvToDirection(Vec2f uv, Float &sinTheta) const
 {
-    float phi   = (uv.x() - 0.5f)*TWO_PI;
-    float theta = uv.y()*PI;
+    Float phi   = (uv.x() - 0.5f)*TWO_PI;
+    Float theta = uv.y()*PI;
     sinTheta = std::sin(theta);
     return _rotTransform*Vec3f(
         std::cos(phi)*sinTheta,
@@ -56,7 +56,7 @@ void InfiniteSphere::buildProxy()
     _proxy->makeSphere(0.05f);
 }
 
-float InfiniteSphere::powerToRadianceFactor() const
+Float InfiniteSphere::powerToRadianceFactor() const
 {
     return INV_FOUR_PI;
 }
@@ -128,11 +128,11 @@ bool InfiniteSphere::samplePosition(PathSampleGenerator &sampler, PositionSample
         sample.uv = directionToUV(-sample.Ng);
     } else {
         sample.uv = _emission->sample(MAP_SPHERICAL, sampler.next2D());
-        float sinTheta;
+        Float sinTheta;
         sample.Ng = -uvToDirection(sample.uv, sinTheta);
     }
 
-    float faceXi = sampler.next1D();
+    Float faceXi = sampler.next1D();
     Vec2f xi = sampler.next2D();
     sample.p = SampleWarp::projectedBox(_sceneBounds, sample.Ng, faceXi, xi);
     sample.pdf = SampleWarp::projectedBoxPdf(_sceneBounds, sample.Ng);
@@ -147,7 +147,7 @@ bool InfiniteSphere::sampleDirection(PathSampleGenerator &/*sampler*/, const Pos
     if (_emission->isConstant()) {
         sample.pdf = INV_FOUR_PI;
     } else {
-        float sinTheta;
+        Float sinTheta;
         directionToUV(-point.Ng, sinTheta);
         sample.pdf = INV_PI*INV_TWO_PI*_emission->pdf(MAP_SPHERICAL, point.uv)/sinTheta;
         if (sample.pdf == 0.0f)
@@ -167,7 +167,7 @@ bool InfiniteSphere::sampleDirect(uint32 /*threadIndex*/, const Vec3f &/*p*/, Pa
         return true;
     } else {
         Vec2f uv = _emission->sample(MAP_SPHERICAL, sampler.next2D());
-        float sinTheta;
+        Float sinTheta;
         sample.d = uvToDirection(uv, sinTheta);
         sample.pdf = INV_PI*INV_TWO_PI*_emission->pdf(MAP_SPHERICAL, uv)/sinTheta;
         sample.dist = Ray::infinity();
@@ -177,7 +177,7 @@ bool InfiniteSphere::sampleDirect(uint32 /*threadIndex*/, const Vec3f &/*p*/, Pa
 
 bool InfiniteSphere::invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const
 {
-    float faceXi;
+    Float faceXi;
     Vec2f xi;
     if (!SampleWarp::invertProjectedBox(_sceneBounds, point.p, -point.Ng, faceXi, xi, sampler.untracked1D()))
         return false;
@@ -199,30 +199,30 @@ bool InfiniteSphere::invertDirection(WritablePathSampleGenerator &sampler, const
     return true;
 }
 
-float InfiniteSphere::positionalPdf(const PositionSample &point) const
+Float InfiniteSphere::positionalPdf(const PositionSample &point) const
 {
     return SampleWarp::projectedBoxPdf(_sceneBounds, point.Ng);
 }
 
-float InfiniteSphere::directionalPdf(const PositionSample &point, const DirectionSample &/*sample*/) const
+Float InfiniteSphere::directionalPdf(const PositionSample &point, const DirectionSample &/*sample*/) const
 {
     if (_emission->isConstant()) {
         return INV_FOUR_PI;
     } else {
-        float sinTheta;
+        Float sinTheta;
         directionToUV(-point.Ng, sinTheta);
         return INV_PI*INV_TWO_PI*_emission->pdf(MAP_SPHERICAL, point.uv)/sinTheta;
     }
 }
 
-float InfiniteSphere::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &data,
+Float InfiniteSphere::directPdf(uint32 /*threadIndex*/, const IntersectionTemporary &data,
         const IntersectionInfo &/*info*/, const Vec3f &/*p*/) const
 {
     if (_emission->isConstant()) {
         return INV_FOUR_PI;
     } else {
         const InfiniteSphereIntersection *isect = data.as<InfiniteSphereIntersection>();
-        float sinTheta;
+        Float sinTheta;
         Vec2f uv = directionToUV(isect->w, sinTheta);
         return INV_PI*INV_TWO_PI*_emission->pdf(MAP_SPHERICAL, uv)/sinTheta;
     }
@@ -258,7 +258,7 @@ bool InfiniteSphere::isInfinite() const
     return true;
 }
 
-float InfiniteSphere::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
+Float InfiniteSphere::approximateRadiance(uint32 /*threadIndex*/, const Vec3f &/*p*/) const
 {
     if (!isEmissive() || !isSamplable())
         return 0.0f;

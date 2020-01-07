@@ -89,12 +89,12 @@ inline Vec3f CubemapCamera::faceToDirection(int face, Vec2f offset) const
     return result.normalized();
 }
 
-inline Vec2f CubemapCamera::directionToUV(const Vec3f &wi, float &pdf) const
+inline Vec2f CubemapCamera::directionToUV(const Vec3f &wi, Float &pdf) const
 {
     int face;
     Vec2f offset;
     directionToFace(_invRot*wi, face, offset);
-    float denom = 1.0f + sqr(offset.x()*2.0f - 1.0f) + sqr(offset.y()*2.0f - 1.0f);
+    Float denom = 1.0f + sqr(offset.x()*2.0f - 1.0f) + sqr(offset.y()*2.0f - 1.0f);
     pdf = std::sqrt(denom*denom*denom)*(1.0f/24.0f);
     return _faceOffset[face] + offset*_faceSize;
 }
@@ -112,10 +112,10 @@ inline bool CubemapCamera::uvToFace(Vec2f uv, int &face) const
     return false;
 }
 
-inline Vec3f CubemapCamera::uvToDirection(int face, Vec2f uv, float &pdf) const
+inline Vec3f CubemapCamera::uvToDirection(int face, Vec2f uv, Float &pdf) const
 {
     Vec2f delta = uv - _faceOffset[face];
-    float denom = 1.0f + sqr(delta.x()*2.0f - 1.0f) + sqr(delta.y()*2.0f - 1.0f);
+    Float denom = 1.0f + sqr(delta.x()*2.0f - 1.0f) + sqr(delta.y()*2.0f - 1.0f);
     pdf = std::sqrt(denom*denom*denom)*(1.0f/24.0f);
 
     return _rot*faceToDirection(face, delta/_faceSize);
@@ -161,7 +161,7 @@ bool CubemapCamera::sampleDirection(PathSampleGenerator &sampler, const Position
     if (!uvToFace(uv, face))
         return false;
 
-    float filterPdf;
+    Float filterPdf;
     uv += _filter.sample(sampler.next2D(), filterPdf)*_pixelSize;
 
     sample.d = uvToDirection(face, uv, sample.pdf);
@@ -174,13 +174,13 @@ bool CubemapCamera::sampleDirect(const Vec3f &p, PathSampleGenerator &/*sampler*
 {
     sample.d = _pos - p;
 
-    float pdf;
+    Float pdf;
     Vec2f uv = directionToUV(-sample.d, pdf);
 
     sample.pixel = uv/_pixelSize;
     sample.weight = Vec3f(pdf*_visibleArea);
 
-    float rSq = sample.d.lengthSq();
+    Float rSq = sample.d.lengthSq();
     sample.dist = std::sqrt(rSq);
     sample.d /= sample.dist;
     sample.weight /= rSq;
@@ -191,7 +191,7 @@ bool CubemapCamera::sampleDirect(const Vec3f &p, PathSampleGenerator &/*sampler*
 bool CubemapCamera::evalDirection(PathSampleGenerator &/*sampler*/, const PositionSample &/*point*/,
         const DirectionSample &direction, Vec3f &weight, Vec2f &pixel) const
 {
-    float pdf;
+    Float pdf;
     Vec2f uv = directionToUV(direction.d, pdf);
 
     pixel = uv/_pixelSize;
@@ -200,9 +200,9 @@ bool CubemapCamera::evalDirection(PathSampleGenerator &/*sampler*/, const Positi
     return true;
 }
 
-float CubemapCamera::directionPdf(const PositionSample &/*point*/, const DirectionSample &direction) const
+Float CubemapCamera::directionPdf(const PositionSample &/*point*/, const DirectionSample &direction) const
 {
-    float pdf;
+    Float pdf;
     directionToUV(direction.d, pdf);
 
     return pdf;
@@ -213,7 +213,7 @@ bool CubemapCamera::isDirac() const
     return true;
 }
 
-float CubemapCamera::approximateFov() const
+Float CubemapCamera::approximateFov() const
 {
     return 90.0f;
 }

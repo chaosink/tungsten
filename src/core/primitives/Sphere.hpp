@@ -10,22 +10,22 @@ class Sphere : public Primitive
     Mat4f _rot;
     Mat4f _invRot;
     Vec3f _pos;
-    float _radius;
-    float _area;
-    float _invArea;
+    Float _radius;
+    Float _area;
+    Float _invArea;
 
     std::shared_ptr<Bsdf> _bsdf;
     std::shared_ptr<TriangleMesh> _proxy;
 
-    float solidAngle(const Vec3f &p) const;
+    Float solidAngle(const Vec3f &p) const;
     void buildProxy();
 
 protected:
-    virtual float powerToRadianceFactor() const override;
+    virtual Float powerToRadianceFactor() const override;
 
 public:
     Sphere();
-    Sphere(const Vec3f &pos, float r, const std::string &name, std::shared_ptr<Bsdf> bsdf);
+    Sphere(const Vec3f &pos, Float r, const std::string &name, std::shared_ptr<Bsdf> bsdf);
 
     virtual void fromJson(JsonPtr value, const Scene &scene) override;
     virtual rapidjson::Value toJson(Allocator &allocator) const override;
@@ -44,9 +44,9 @@ public:
     virtual bool sampleDirect(uint32 threadIndex, const Vec3f &p, PathSampleGenerator &sampler, LightSample &sample) const override;
     bool invertPosition(WritablePathSampleGenerator &sampler, const PositionSample &point) const;
     bool invertDirection(WritablePathSampleGenerator &sampler, const PositionSample &/*point*/, const DirectionSample &direction) const;
-    virtual float positionalPdf(const PositionSample &point) const override;
-    virtual float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
-    virtual float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
+    virtual Float positionalPdf(const PositionSample &point) const override;
+    virtual Float directionalPdf(const PositionSample &point, const DirectionSample &sample) const override;
+    virtual Float directPdf(uint32 threadIndex, const IntersectionTemporary &data,
             const IntersectionInfo &info, const Vec3f &p) const override;
     virtual Vec3f evalPositionalEmission(const PositionSample &sample) const override;
     virtual Vec3f evalDirectionalEmission(const PositionSample &point, const DirectionSample &sample) const override;
@@ -57,7 +57,7 @@ public:
     virtual bool isDirac() const override;
     virtual bool isInfinite() const override;
 
-    virtual float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
+    virtual Float approximateRadiance(uint32 threadIndex, const Vec3f &p) const override;
     virtual Box3f bounds() const override;
 
     virtual const TriangleMesh &asTriangleMesh() override;
@@ -75,7 +75,7 @@ public:
         return _pos;
     }
 
-    float radius() const
+    Float radius() const
     {
         return _radius;
     }

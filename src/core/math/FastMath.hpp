@@ -11,7 +11,7 @@ namespace Tungsten {
 
 namespace FastMath {
 
-static inline float exp(float f)
+static inline Float exp(Float f)
 {
     return fmath::exp(f);
 }
@@ -31,7 +31,7 @@ static inline Vec4f exp(Vec4f f)
     return Vec4f(result[0], result[1], result[2], result[3]);
 }
 
-static inline float log(float f)
+static inline Float log(Float f)
 {
     return fmath::log(f);
 }

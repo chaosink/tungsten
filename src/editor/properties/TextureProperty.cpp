@@ -264,7 +264,7 @@ float TextureProperty::toLinear(float f) const
 }
 Vec3f TextureProperty::toLinear(Vec3f v) const
 {
-    return _scalarGammaCorrect ? std::pow(v, 2.2f) : v;
+    return _scalarGammaCorrect ? std::pow(v, Float(2.2f)) : v;
 }
 float TextureProperty::toGamma(float f) const
 {
@@ -272,7 +272,7 @@ float TextureProperty::toGamma(float f) const
 }
 Vec3f TextureProperty::toGamma(Vec3f v) const
 {
-    return _scalarGammaCorrect ? std::pow(v, 1.0f/2.2f) : v;
+    return _scalarGammaCorrect ? std::pow(v, Float(1.0f/2.2f)) : v;
 }
 
 void TextureProperty::changeMode(TextureMode mode)

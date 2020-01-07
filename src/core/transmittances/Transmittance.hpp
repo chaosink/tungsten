@@ -28,7 +28,7 @@ public:
         else
             return mediumSurface(tau);
     }
-    inline float sample(PathSampleGenerator &sampler, bool startOnSurface) const
+    inline Float sample(PathSampleGenerator &sampler, bool startOnSurface) const
     {
         return startOnSurface ? sampleSurface(sampler) : sampleMedium(sampler);
     }
@@ -51,10 +51,10 @@ public:
     virtual Vec3f mediumSurface(const Vec3f &tau) const = 0;
     virtual Vec3f mediumMedium(const Vec3f &tau) const = 0;
 
-    virtual float sigmaBar() const = 0; // Returns surfaceMedium(x)/mediumSurface(x) (i.e. identical to surfaceMedium(0))
+    virtual Float sigmaBar() const = 0; // Returns surfaceMedium(x)/mediumSurface(x) (i.e. identical to surfaceMedium(0))
 
-    virtual float sampleSurface(PathSampleGenerator &sampler) const = 0;
-    virtual float sampleMedium(PathSampleGenerator &sampler) const = 0;
+    virtual Float sampleSurface(PathSampleGenerator &sampler) const = 0;
+    virtual Float sampleMedium(PathSampleGenerator &sampler) const = 0;
 };
 
 }

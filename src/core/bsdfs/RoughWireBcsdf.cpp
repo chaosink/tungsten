@@ -29,21 +29,21 @@ bool RoughWireBcsdf::lookupMaterial()
 }
 
 // Modified Bessel function of the first kind
-float RoughWireBcsdf::I0(float x)
+Float RoughWireBcsdf::I0(Float x)
 {
-    float result = 1.0f;
-    float xSq = x*x;
-    float xi = xSq;
-    float denom = 4.0f;
+    Float result = 1.0f;
+    Float xSq = x*x;
+    Float xi = xSq;
+    Float denom = 4.0f;
     for (int i = 1; i <= 10; ++i) {
         result += xi/denom;
         xi *= xSq;
-        denom *= 4.0f*float((i + 1)*(i + 1));
+        denom *= 4.0f*Float((i + 1)*(i + 1));
     }
     return result;
 }
 
-float RoughWireBcsdf::logI0(float x)
+Float RoughWireBcsdf::logI0(Float x)
 {
     if (x > 12.0f)
         // More stable evaluation of log(I0(x))
@@ -56,16 +56,16 @@ float RoughWireBcsdf::logI0(float x)
 // Azimuthal scattering function. Assumes perfectly smooth reflection in
 // the azimuth, which reduces the scattering function to the jacobian
 // from h to phi
-float RoughWireBcsdf::N(float cosPhi) const
+Float RoughWireBcsdf::N(Float cosPhi) const
 {
     return 0.25f*trigHalfAngle(cosPhi);
 }
 
 // Rough longitudinal scattering function with variance v = beta^2
-float RoughWireBcsdf::M(float v, float sinThetaI, float sinThetaO, float cosThetaI, float cosThetaO) const
+Float RoughWireBcsdf::M(Float v, Float sinThetaI, Float sinThetaO, Float cosThetaI, Float cosThetaO) const
 {
-    float a = cosThetaI*cosThetaO/v;
-    float b = sinThetaI*sinThetaO/v;
+    Float a = cosThetaI*cosThetaO/v;
+    Float b = sinThetaI*sinThetaO/v;
 
     if (v < 0.1f)
         // More numerically stable evaluation for small roughnesses
@@ -76,20 +76,20 @@ float RoughWireBcsdf::M(float v, float sinThetaI, float sinThetaO, float cosThet
 }
 
 // Returns sinPhi
-float RoughWireBcsdf::sampleN(float xi) const
+Float RoughWireBcsdf::sampleN(Float xi) const
 {
     return 2.0f*xi - 1.0f; // Well that was easy
 }
 
 // Returns sinThetaO
-float RoughWireBcsdf::sampleM(float v, float sinThetaI, float cosThetaI, float xi1, float xi2) const
+Float RoughWireBcsdf::sampleM(Float v, Float sinThetaI, Float cosThetaI, Float xi1, Float xi2) const
 {
     // Version from the paper (unusably unstable)
-    //float cosTheta = v*std::log(std::exp(1.0f/v) - 2.0f*xi1*std::sinh(1.0f/v));
+    //Float cosTheta = v*std::log(std::exp(1.0f/v) - 2.0f*xi1*std::sinh(1.0f/v));
     // More stable version from "Numerically stable sampling of the von Mises Fisher distribution on S2 (and other tricks)"
-    float cosTheta = 1.0f + v*std::log(xi1 + (1.0f - xi1)*std::exp(-2.0f/v));
-    float sinTheta = trigInverse(cosTheta);
-    float cosPhi = std::cos(TWO_PI*xi2);
+    Float cosTheta = 1.0f + v*std::log(xi1 + (1.0f - xi1)*std::exp(-2.0f/v));
+    Float sinTheta = trigInverse(cosTheta);
+    Float cosPhi = std::cos(TWO_PI*xi2);
 
     return -cosTheta*sinThetaI + sinTheta*cosPhi*cosThetaI;
 }
@@ -123,11 +123,11 @@ Vec3f RoughWireBcsdf::eval(const SurfaceScatterEvent &event) const
     if (!event.requestedLobe.test(BsdfLobes::GlossyLobe) || event.wo.z() == 0.0f)
         return Vec3f(0.0f);
 
-    float sinThetaI = event.wi.y();
-    float sinThetaO = event.wo.y();
-    float cosThetaI = trigInverse(sinThetaI);
-    float cosThetaO = trigInverse(sinThetaO);
-    float cosPhi = event.wo.z()/std::sqrt(event.wo.x()*event.wo.x() + event.wo.z()*event.wo.z());
+    Float sinThetaI = event.wi.y();
+    Float sinThetaO = event.wo.y();
+    Float cosThetaI = trigInverse(sinThetaI);
+    Float cosThetaO = trigInverse(sinThetaO);
+    Float cosPhi = event.wo.z()/std::sqrt(event.wo.x()*event.wo.x() + event.wo.z()*event.wo.z());
 
     Vec3f attenuation = albedo(event.info)*Fresnel::conductorReflectance(_eta, _k, trigHalfAngle(event.wi.dot(event.wo)));
 
@@ -139,17 +139,17 @@ bool RoughWireBcsdf::sample(SurfaceScatterEvent &event) const
     if (!event.requestedLobe.test(BsdfLobes::GlossyLobe))
         return false;
 
-    float xi1 = event.sampler->next1D();
+    Float xi1 = event.sampler->next1D();
     Vec2f xi23 = event.sampler->next2D();
 
-    float sinThetaI = event.wi.y();
-    float cosThetaI = trigInverse(sinThetaI);
+    Float sinThetaI = event.wi.y();
+    Float cosThetaI = trigInverse(sinThetaI);
 
-    float sinPhi = sampleN(xi1);
-    float sinThetaO = sampleM(_v, sinThetaI, cosThetaI, xi23.x(), xi23.y());
+    Float sinPhi = sampleN(xi1);
+    Float sinThetaO = sampleM(_v, sinThetaI, cosThetaI, xi23.x(), xi23.y());
 
-    float cosPhi = trigInverse(sinPhi);
-    float cosThetaO = trigInverse(sinThetaO);
+    Float cosPhi = trigInverse(sinPhi);
+    Float cosThetaO = trigInverse(sinThetaO);
 
     event.wo = Vec3f(sinPhi*cosThetaO, sinThetaO, cosPhi*cosThetaO);
     event.pdf = N(cosPhi)*M(_v, sinThetaI, sinThetaO, cosThetaI, cosThetaO);
@@ -159,16 +159,16 @@ bool RoughWireBcsdf::sample(SurfaceScatterEvent &event) const
     return true;
 }
 
-float RoughWireBcsdf::pdf(const SurfaceScatterEvent &event) const
+Float RoughWireBcsdf::pdf(const SurfaceScatterEvent &event) const
 {
     if (!event.requestedLobe.test(BsdfLobes::GlossyLobe))
         return 0.0f;
 
-    float sinThetaI = event.wi.y();
-    float sinThetaO = event.wo.y();
-    float cosThetaI = trigInverse(sinThetaI);
-    float cosThetaO = trigInverse(sinThetaO);
-    float cosPhi = event.wo.z()/std::sqrt(event.wo.x()*event.wo.x() + event.wo.z()*event.wo.z());
+    Float sinThetaI = event.wi.y();
+    Float sinThetaO = event.wo.y();
+    Float cosThetaI = trigInverse(sinThetaI);
+    Float cosThetaO = trigInverse(sinThetaO);
+    Float cosPhi = event.wo.z()/std::sqrt(event.wo.x()*event.wo.x() + event.wo.z()*event.wo.z());
 
     return N(cosPhi)*M(_v, sinThetaI, sinThetaO, cosThetaI, cosThetaO);
 }

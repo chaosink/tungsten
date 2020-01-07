@@ -41,7 +41,7 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
     const Medium *medium = _scene->cam().medium().get();
 
     bool recordedOutputValues = false;
-    float hitDistance = 0.0f;
+    Float hitDistance = 0.0f;
 
     int mediumBounces = 0;
     int bounce = 0;
@@ -108,7 +108,7 @@ Vec3f PathTracer::traceSample(Vec2u pixel, PathSampleGenerator &sampler)
         if (throughput.max() == 0.0f)
             break;
 
-        float roulettePdf = std::abs(throughput).max();
+        Float roulettePdf = std::abs(throughput).max();
         if (bounce > 2 && roulettePdf < 0.1f) {
             if (sampler.nextBoolean(roulettePdf))
                 throughput /= roulettePdf;
